@@ -15,6 +15,10 @@ import {
   Radar,
 } from "lucide-react";
 
+export function generateStaticParams() {
+  return referees.map((r) => ({ id: r.id }));
+}
+
 export default async function RefereeProfilePage({ params }: PageProps<"/referees/[id]">) {
   const { id } = await params;
   const referee = referees.find((r) => r.id === id);
