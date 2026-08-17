@@ -289,7 +289,284 @@ export const referees: Referee[] = [
     nextMatch: "CHAN Qualifiers — Fri 20:00",
     bio: "UNIFFAC zone lead assessor; frequently paired with elite VAR operators.",
   },
+  {
+    id: "samuel-asante",
+    name: "Samuel Asante",
+    initials: "SA",
+    country: "Ghana",
+    flag: "🇬🇭",
+    federation: "GFA",
+    zone: "UFOA",
+    level: "FIFA Listed",
+    age: 32,
+    yearsActive: 9,
+    status: "active",
+    arps: 85.1,
+    rmcsAvg: 82.7,
+    fitness: 87,
+    matches: 109,
+    cards: { yellow: 312, red: 12 },
+    varAccuracy: 93.6,
+    trend: 2.1,
+    nextMatch: "Ghana Premier League — Sat 16:00",
+    bio: "Known for calm game management in high-tension title-race fixtures.",
+  },
+  {
+    id: "grace-mutua",
+    name: "Grace Mutua",
+    initials: "GM",
+    country: "Kenya",
+    flag: "🇰🇪",
+    federation: "FKF",
+    zone: "CECAFA",
+    level: "National D1",
+    age: 29,
+    yearsActive: 6,
+    status: "active",
+    arps: 81.3,
+    rmcsAvg: 78.6,
+    fitness: 90,
+    matches: 72,
+    cards: { yellow: 198, red: 8 },
+    varAccuracy: 91.4,
+    trend: 3.0,
+    nextMatch: "FKF Women's Premier League — Sun 14:00",
+    bio: "Highest-rated official in the CECAFA women's competition pool.",
+  },
+  {
+    id: "moussa-traore",
+    name: "Moussa Traoré",
+    initials: "MT",
+    country: "Mali",
+    flag: "🇲🇱",
+    federation: "FEMAFOOT",
+    zone: "UFOA",
+    level: "National D1",
+    age: 31,
+    yearsActive: 8,
+    status: "active",
+    arps: 80.4,
+    rmcsAvg: 77.9,
+    fitness: 85,
+    matches: 94,
+    cards: { yellow: 267, red: 13 },
+    varAccuracy: 90.8,
+    trend: -1.2,
+    nextMatch: "Malian Première Division — Sat 17:00",
+    bio: "Strong physical positioning scores; occasional card-count outlier under high pressure.",
+  },
+  {
+    id: "patricia-banda",
+    name: "Patricia Banda",
+    initials: "PB",
+    country: "Zambia",
+    flag: "🇿🇲",
+    federation: "FAZ",
+    zone: "COSAFA",
+    level: "FIFA Listed",
+    age: 34,
+    yearsActive: 11,
+    status: "elite-pool",
+    arps: 89.2,
+    rmcsAvg: 86.8,
+    fitness: 84,
+    matches: 118,
+    cards: { yellow: 331, red: 15 },
+    varAccuracy: 95.0,
+    trend: 2.7,
+    nextMatch: "COSAFA Cup — Wed 19:00",
+    bio: "First COSAFA-zone referee shortlisted for a CAF Elite promotion review this cycle.",
+  },
+  {
+    id: "olivier-nkurunziza",
+    name: "Olivier Nkurunziza",
+    initials: "ON",
+    country: "Burundi",
+    flag: "🇧🇮",
+    federation: "FFB",
+    zone: "CECAFA",
+    level: "Regional",
+    age: 26,
+    yearsActive: 4,
+    status: "training",
+    arps: 73.9,
+    rmcsAvg: 70.5,
+    fitness: 92,
+    matches: 38,
+    cards: { yellow: 96, red: 4 },
+    varAccuracy: 88.2,
+    trend: 4.4,
+    nextMatch: "Burundi Ligue A — Sat 15:00",
+    bio: "Enrolled in the CAF Academy accelerated development track for 2026/27.",
+  },
+  {
+    id: "khadija-el-amrani",
+    name: "Khadija El Amrani",
+    initials: "KE",
+    country: "Morocco",
+    flag: "🇲🇦",
+    federation: "FRMF",
+    zone: "UNAF",
+    level: "CAF Elite",
+    age: 36,
+    yearsActive: 14,
+    status: "elite-pool",
+    arps: 92.7,
+    rmcsAvg: 90.9,
+    fitness: 81,
+    matches: 187,
+    cards: { yellow: 512, red: 21 },
+    varAccuracy: 97.3,
+    trend: 1.4,
+    nextMatch: "Botola Pro — Fri 20:00",
+    bio: "Second-highest ARPS in the UNAF zone; regularly assigned to Casablanca derbies.",
+  },
+  {
+    id: "isaac-boateng",
+    name: "Isaac Boateng",
+    initials: "IB",
+    country: "Ghana",
+    flag: "🇬🇭",
+    federation: "GFA",
+    zone: "UFOA",
+    level: "National D1",
+    age: 33,
+    yearsActive: 10,
+    status: "active",
+    arps: 78.5,
+    rmcsAvg: 75.2,
+    fitness: 80,
+    matches: 102,
+    cards: { yellow: 289, red: 17 },
+    varAccuracy: 89.6,
+    trend: -2.4,
+    nextMatch: "Ghana Premier League — Sun 15:00",
+    bio: "Card-count trending above zone average; flagged for a Decision Engine consistency review.",
+  },
+  {
+    id: "wanjiru-kamau",
+    name: "Wanjiru Kamau",
+    initials: "WK",
+    country: "Kenya",
+    flag: "🇰🇪",
+    federation: "FKF",
+    zone: "CECAFA",
+    level: "FIFA Listed",
+    age: 30,
+    yearsActive: 7,
+    status: "active",
+    arps: 84.6,
+    rmcsAvg: 81.9,
+    fitness: 89,
+    matches: 96,
+    cards: { yellow: 251, red: 10 },
+    varAccuracy: 93.1,
+    trend: 3.6,
+    nextMatch: "CECAFA Club Cup — Tue 18:00",
+    bio: "Fastest-rising ARPS trend among FIFA Listed referees in CECAFA this season.",
+  },
+  {
+    id: "abdoulaye-diallo",
+    name: "Abdoulaye Diallo",
+    initials: "AD",
+    country: "Senegal",
+    flag: "🇸🇳",
+    federation: "FSF",
+    zone: "UFOA",
+    level: "CAF Elite",
+    age: 37,
+    yearsActive: 15,
+    status: "active",
+    arps: 90.8,
+    rmcsAvg: 88.9,
+    fitness: 77,
+    matches: 203,
+    cards: { yellow: 578, red: 24 },
+    varAccuracy: 96.2,
+    trend: 0.7,
+    nextMatch: "CAF Confederation Cup — Thu 19:00",
+    bio: "Veteran presence in the UFOA elite pool; mentors three CAF Academy candidates.",
+  },
+  {
+    id: "naledi-dube",
+    name: "Naledi Dube",
+    initials: "ND",
+    country: "Zimbabwe",
+    flag: "🇿🇼",
+    federation: "ZIFA",
+    zone: "COSAFA",
+    level: "Regional",
+    age: 27,
+    yearsActive: 5,
+    status: "training",
+    arps: 75.7,
+    rmcsAvg: 72.3,
+    fitness: 93,
+    matches: 44,
+    cards: { yellow: 121, red: 5 },
+    varAccuracy: 88.9,
+    trend: 6.5,
+    nextMatch: "Castle Lager Premier Soccer League — Sat 15:00",
+    bio: "Strong upward ARPS trajectory since joining the COSAFA development cohort.",
+  },
+  {
+    id: "farid-benkirane",
+    name: "Farid Benkirane",
+    initials: "FB",
+    country: "Algeria",
+    flag: "🇩🇿",
+    federation: "FAF",
+    zone: "UNAF",
+    level: "FIFA Listed",
+    age: 34,
+    yearsActive: 11,
+    status: "active",
+    arps: 87.9,
+    rmcsAvg: 85.1,
+    fitness: 83,
+    matches: 148,
+    cards: { yellow: 402, red: 19 },
+    varAccuracy: 94.5,
+    trend: 1.0,
+    nextMatch: "Ligue 1 Algérie — Fri 19:00",
+    bio: "High-volume UNAF official; consistent mid-90s VAR review accuracy for three seasons running.",
+  },
+  {
+    id: "esther-nyambura",
+    name: "Esther Nyambura",
+    initials: "EN",
+    country: "Uganda",
+    flag: "🇺🇬",
+    federation: "FUFA",
+    zone: "CECAFA",
+    level: "National D1",
+    age: 28,
+    yearsActive: 6,
+    status: "active",
+    arps: 79.3,
+    rmcsAvg: 76.4,
+    fitness: 88,
+    matches: 68,
+    cards: { yellow: 176, red: 7 },
+    varAccuracy: 90.5,
+    trend: 2.9,
+    nextMatch: "Uganda Premier League — Sun 16:00",
+    bio: "Selected for the CAF Academy VAR bridge program starting next quarter.",
+  },
 ];
+
+// Sub-indices referenced in the ARIS white paper (RAS, CEI, MDS, PRS, CI) —
+// derived deterministically from a referee's core stats for demo purposes.
+export function getSubIndices(referee: Referee) {
+  const clamp = (n: number) => Math.max(55, Math.min(99, Math.round(n * 10) / 10));
+  return {
+    ras: clamp(referee.varAccuracy - 2), // Rule Application Score
+    cei: clamp(100 - referee.cards.red * 1.1), // Card Escalation Index (control)
+    mds: clamp(referee.rmcsAvg + 1.5), // Match Difficulty Suitability
+    prs: clamp(referee.fitness * 0.55 + referee.arps * 0.45), // Pressure Resilience Score
+    ci: clamp(100 - Math.abs(referee.trend) * 3.2), // Consistency Index
+  };
+}
 
 export const kpis = {
   totalReferees: 4218,
@@ -340,33 +617,179 @@ export interface MatchDecision {
   players: string[];
 }
 
-export const sampleMatch = {
-  id: "m-2026-0714",
-  home: "Al Ahly",
-  away: "Espérance de Tunis",
-  competition: "CAF Champions League — Semi Final",
-  date: "2026-08-09",
-  score: "2 - 1",
-  referee: "Karim Haddad",
-  arpsForMatch: 91.8,
-  rmcs: 94.2,
-  pressureAvg: 71,
-};
+export interface MatchRecord {
+  id: string;
+  home: string;
+  away: string;
+  competition: string;
+  date: string;
+  score: string;
+  referee: string;
+  refereeId: string;
+  arpsForMatch: number;
+  rmcs: number;
+  pressureAvg: number;
+  decisions: MatchDecision[];
+  pressureTimeline: { minute: number; pressure: number }[];
+}
 
-export const matchDecisions: MatchDecision[] = [
-  { id: "d1", minute: 12, type: "Yellow Card", description: "Reckless tackle, studs up, midfield third.", initialCall: "Given", varReview: false, finalCall: "Confirmed", confidence: 98, pressureIndex: 34, players: ["#6 Fathi", "#8 Ben Romdhane"] },
-  { id: "d2", minute: 27, type: "Penalty", description: "Contact in the box during a corner delivery.", initialCall: "Not given", varReview: true, finalCall: "Overturned", confidence: 91, pressureIndex: 58, players: ["#9 Sherif", "#4 Meriah"] },
-  { id: "d3", minute: 39, type: "Offside", description: "Tight offside call on the second phase of a counter.", initialCall: "Given", varReview: true, finalCall: "Confirmed", confidence: 99, pressureIndex: 44, players: ["#11 Kahraba"] },
-  { id: "d4", minute: 58, type: "Red Card", description: "Denial of an obvious goal-scoring opportunity.", initialCall: "Given", varReview: true, finalCall: "Confirmed", confidence: 96, pressureIndex: 82, players: ["#5 Adam Dhaouadi"] },
-  { id: "d5", minute: 71, type: "Handball", description: "Ball strikes arm in a non-natural position inside the box.", initialCall: "Not given", varReview: true, finalCall: "Confirmed", confidence: 88, pressureIndex: 76, players: ["#3 Ali Maaloul"] },
-  { id: "d6", minute: 84, type: "Foul", description: "Late challenge near the technical area, high tempo phase.", initialCall: "Given", varReview: false, finalCall: "Confirmed", confidence: 93, pressureIndex: 89, players: ["#17 Aliou Dieng"] },
-];
-
-export const pressureTimeline = [
-  { minute: 0, pressure: 20 }, { minute: 10, pressure: 28 }, { minute: 20, pressure: 34 },
-  { minute: 30, pressure: 52 }, { minute: 40, pressure: 46 }, { minute: 45, pressure: 60 },
-  { minute: 55, pressure: 58 }, { minute: 60, pressure: 72 }, { minute: 70, pressure: 78 },
-  { minute: 80, pressure: 88 }, { minute: 90, pressure: 94 },
+export const matches: MatchRecord[] = [
+  {
+    id: "m-2026-0714",
+    home: "Al Ahly",
+    away: "Espérance de Tunis",
+    competition: "CAF Champions League — Semi Final",
+    date: "2026-08-09",
+    score: "2 - 1",
+    referee: "Karim Haddad",
+    refereeId: "karim-haddad",
+    arpsForMatch: 91.8,
+    rmcs: 94.2,
+    pressureAvg: 71,
+    decisions: [
+      { id: "d1", minute: 12, type: "Yellow Card", description: "Reckless tackle, studs up, midfield third.", initialCall: "Given", varReview: false, finalCall: "Confirmed", confidence: 98, pressureIndex: 34, players: ["#6 Fathi", "#8 Ben Romdhane"] },
+      { id: "d2", minute: 27, type: "Penalty", description: "Contact in the box during a corner delivery.", initialCall: "Not given", varReview: true, finalCall: "Overturned", confidence: 91, pressureIndex: 58, players: ["#9 Sherif", "#4 Meriah"] },
+      { id: "d3", minute: 39, type: "Offside", description: "Tight offside call on the second phase of a counter.", initialCall: "Given", varReview: true, finalCall: "Confirmed", confidence: 99, pressureIndex: 44, players: ["#11 Kahraba"] },
+      { id: "d4", minute: 58, type: "Red Card", description: "Denial of an obvious goal-scoring opportunity.", initialCall: "Given", varReview: true, finalCall: "Confirmed", confidence: 96, pressureIndex: 82, players: ["#5 Adam Dhaouadi"] },
+      { id: "d5", minute: 71, type: "Handball", description: "Ball strikes arm in a non-natural position inside the box.", initialCall: "Not given", varReview: true, finalCall: "Confirmed", confidence: 88, pressureIndex: 76, players: ["#3 Ali Maaloul"] },
+      { id: "d6", minute: 84, type: "Foul", description: "Late challenge near the technical area, high tempo phase.", initialCall: "Given", varReview: false, finalCall: "Confirmed", confidence: 93, pressureIndex: 89, players: ["#17 Aliou Dieng"] },
+    ],
+    pressureTimeline: [
+      { minute: 0, pressure: 20 }, { minute: 10, pressure: 28 }, { minute: 20, pressure: 34 },
+      { minute: 30, pressure: 52 }, { minute: 40, pressure: 46 }, { minute: 45, pressure: 60 },
+      { minute: 55, pressure: 58 }, { minute: 60, pressure: 72 }, { minute: 70, pressure: 78 },
+      { minute: 80, pressure: 88 }, { minute: 90, pressure: 94 },
+    ],
+  },
+  {
+    id: "m-2026-0726",
+    home: "Mamelodi Sundowns",
+    away: "Wydad AC",
+    competition: "CAF Champions League — Group Stage",
+    date: "2026-07-26",
+    score: "1 - 1",
+    referee: "Thabo Nkosi",
+    refereeId: "thabo-nkosi",
+    arpsForMatch: 87.3,
+    rmcs: 88.5,
+    pressureAvg: 63,
+    decisions: [
+      { id: "d1", minute: 8, type: "Foul", description: "Cynical foul breaking up a fast transition.", initialCall: "Given", varReview: false, finalCall: "Confirmed", confidence: 95, pressureIndex: 29, players: ["#14 Zwane"] },
+      { id: "d2", minute: 33, type: "Yellow Card", description: "Persistent dissent toward the assistant referee.", initialCall: "Given", varReview: false, finalCall: "Confirmed", confidence: 97, pressureIndex: 41, players: ["#7 Guedes"] },
+      { id: "d3", minute: 49, type: "Penalty", description: "Trip inside the box on a driving run.", initialCall: "Given", varReview: true, finalCall: "Confirmed", confidence: 94, pressureIndex: 68, players: ["#9 Zungu", "#5 Yahya"] },
+      { id: "d4", minute: 66, type: "Offside", description: "Marginal offside on a through ball to the striker.", initialCall: "Given", varReview: true, finalCall: "Overturned", confidence: 90, pressureIndex: 74, players: ["#11 Shalulile"] },
+      { id: "d5", minute: 88, type: "Yellow Card", description: "Time-wasting during a late substitution.", initialCall: "Given", varReview: false, finalCall: "Confirmed", confidence: 96, pressureIndex: 81, players: ["#2 Mokoena"] },
+    ],
+    pressureTimeline: [
+      { minute: 0, pressure: 18 }, { minute: 10, pressure: 24 }, { minute: 20, pressure: 30 },
+      { minute: 30, pressure: 38 }, { minute: 40, pressure: 45 }, { minute: 45, pressure: 50 },
+      { minute: 55, pressure: 62 }, { minute: 60, pressure: 66 }, { minute: 70, pressure: 71 },
+      { minute: 80, pressure: 77 }, { minute: 90, pressure: 83 },
+    ],
+  },
+  {
+    id: "m-2026-0802",
+    home: "Nigeria",
+    away: "Senegal",
+    competition: "AFCON Qualifiers — Matchday 4",
+    date: "2026-08-02",
+    score: "0 - 0",
+    referee: "Amina Koné",
+    refereeId: "amina-kone",
+    arpsForMatch: 93.9,
+    rmcs: 95.1,
+    pressureAvg: 74,
+    decisions: [
+      { id: "d1", minute: 15, type: "Handball", description: "Deliberate handball clearing a corner delivery.", initialCall: "Given", varReview: false, finalCall: "Confirmed", confidence: 97, pressureIndex: 45, players: ["#4 Troost-Ekong"] },
+      { id: "d2", minute: 24, type: "Foul", description: "High-tempo challenge in the middle third.", initialCall: "Given", varReview: false, finalCall: "Confirmed", confidence: 92, pressureIndex: 52, players: ["#8 Ndiaye"] },
+      { id: "d3", minute: 41, type: "Penalty", description: "Shirt-pull inside the box during a set piece.", initialCall: "Not given", varReview: true, finalCall: "Confirmed", confidence: 89, pressureIndex: 63, players: ["#19 Osimhen", "#4 Koulibaly"] },
+      { id: "d4", minute: 63, type: "Red Card", description: "Second bookable offense, reckless late tackle.", initialCall: "Given", varReview: true, finalCall: "Confirmed", confidence: 98, pressureIndex: 85, players: ["#6 Onyeka"] },
+      { id: "d5", minute: 77, type: "Offside", description: "Tight offside on a counter-attacking through ball.", initialCall: "Given", varReview: true, finalCall: "Confirmed", confidence: 99, pressureIndex: 88, players: ["#10 Mane"] },
+      { id: "d6", minute: 90, type: "Yellow Card", description: "Escalating frustration fouls in stoppage time.", initialCall: "Given", varReview: false, finalCall: "Confirmed", confidence: 94, pressureIndex: 92, players: ["#17 Kamaldeen"] },
+    ],
+    pressureTimeline: [
+      { minute: 0, pressure: 25 }, { minute: 10, pressure: 34 }, { minute: 20, pressure: 40 },
+      { minute: 30, pressure: 48 }, { minute: 40, pressure: 56 }, { minute: 45, pressure: 61 },
+      { minute: 55, pressure: 68 }, { minute: 60, pressure: 79 }, { minute: 70, pressure: 84 },
+      { minute: 80, pressure: 90 }, { minute: 90, pressure: 96 },
+    ],
+  },
+  {
+    id: "m-2026-0719",
+    home: "Kaizer Chiefs",
+    away: "Orlando Pirates",
+    competition: "DStv Premiership — Soweto Derby",
+    date: "2026-07-19",
+    score: "2 - 2",
+    referee: "Patricia Banda",
+    refereeId: "patricia-banda",
+    arpsForMatch: 88.6,
+    rmcs: 90.0,
+    pressureAvg: 79,
+    decisions: [
+      { id: "d1", minute: 6, type: "Yellow Card", description: "Early derby tone-setter, reckless challenge.", initialCall: "Given", varReview: false, finalCall: "Confirmed", confidence: 96, pressureIndex: 55, players: ["#22 Ntsabeleng"] },
+      { id: "d2", minute: 29, type: "Penalty", description: "Handball inside the box under pressure.", initialCall: "Given", varReview: true, finalCall: "Confirmed", confidence: 93, pressureIndex: 71, players: ["#5 Mabaso"] },
+      { id: "d3", minute: 47, type: "Foul", description: "Off-the-ball incident missed by the lead official.", initialCall: "Not given", varReview: true, finalCall: "Confirmed", confidence: 85, pressureIndex: 80, players: ["#9 Mabasa"] },
+      { id: "d4", minute: 69, type: "Red Card", description: "Violent conduct after a heavy tackle exchange.", initialCall: "Given", varReview: true, finalCall: "Confirmed", confidence: 97, pressureIndex: 93, players: ["#14 Sirino"] },
+      { id: "d5", minute: 85, type: "Offside", description: "Marginal offside call disallowing a late equalizer.", initialCall: "Given", varReview: true, finalCall: "Overturned", confidence: 91, pressureIndex: 95, players: ["#11 Zwane"] },
+    ],
+    pressureTimeline: [
+      { minute: 0, pressure: 35 }, { minute: 10, pressure: 42 }, { minute: 20, pressure: 50 },
+      { minute: 30, pressure: 61 }, { minute: 40, pressure: 66 }, { minute: 45, pressure: 70 },
+      { minute: 55, pressure: 75 }, { minute: 60, pressure: 82 }, { minute: 70, pressure: 89 },
+      { minute: 80, pressure: 94 }, { minute: 90, pressure: 98 },
+    ],
+  },
+  {
+    id: "m-2026-0803",
+    home: "Raja Casablanca",
+    away: "RS Berkane",
+    competition: "Botola Pro — Matchday 22",
+    date: "2026-08-03",
+    score: "3 - 1",
+    referee: "Khadija El Amrani",
+    refereeId: "khadija-el-amrani",
+    arpsForMatch: 90.5,
+    rmcs: 91.8,
+    pressureAvg: 58,
+    decisions: [
+      { id: "d1", minute: 18, type: "Foul", description: "Tactical foul stopping a promising attack.", initialCall: "Given", varReview: false, finalCall: "Confirmed", confidence: 95, pressureIndex: 38, players: ["#6 El Kaabi"] },
+      { id: "d2", minute: 37, type: "Yellow Card", description: "Simulation inside the penalty area.", initialCall: "Given", varReview: true, finalCall: "Confirmed", confidence: 92, pressureIndex: 47, players: ["#10 Bencharki"] },
+      { id: "d3", minute: 54, type: "Penalty", description: "Clear trip during a one-on-one chance.", initialCall: "Given", varReview: false, finalCall: "Confirmed", confidence: 98, pressureIndex: 60, players: ["#9 Moutaraji"] },
+      { id: "d4", minute: 79, type: "Offside", description: "Tight offside on a rebound goal.", initialCall: "Given", varReview: true, finalCall: "Confirmed", confidence: 97, pressureIndex: 55, players: ["#7 Fajr"] },
+    ],
+    pressureTimeline: [
+      { minute: 0, pressure: 15 }, { minute: 10, pressure: 20 }, { minute: 20, pressure: 28 },
+      { minute: 30, pressure: 33 }, { minute: 40, pressure: 39 }, { minute: 45, pressure: 42 },
+      { minute: 55, pressure: 48 }, { minute: 60, pressure: 53 }, { minute: 70, pressure: 58 },
+      { minute: 80, pressure: 64 }, { minute: 90, pressure: 69 },
+    ],
+  },
+  {
+    id: "m-2026-0731",
+    home: "TP Mazembe",
+    away: "Simba SC",
+    competition: "CAF Confederation Cup — Group Stage",
+    date: "2026-07-31",
+    score: "1 - 0",
+    referee: "Jean-Baptiste Mbida",
+    refereeId: "jean-baptiste-mbida",
+    arpsForMatch: 89.4,
+    rmcs: 87.2,
+    pressureAvg: 66,
+    decisions: [
+      { id: "d1", minute: 22, type: "Handball", description: "Ball strikes the arm in a blocking position.", initialCall: "Not given", varReview: true, finalCall: "Confirmed", confidence: 90, pressureIndex: 49, players: ["#3 Kabaso"] },
+      { id: "d2", minute: 40, type: "Yellow Card", description: "Tactical delay after conceding possession.", initialCall: "Given", varReview: false, finalCall: "Confirmed", confidence: 95, pressureIndex: 55, players: ["#8 Chama"] },
+      { id: "d3", minute: 61, type: "Penalty", description: "Foul during a corner-kick scramble.", initialCall: "Given", varReview: true, finalCall: "Confirmed", confidence: 93, pressureIndex: 72, players: ["#19 Meschack"] },
+      { id: "d4", minute: 83, type: "Red Card", description: "Serious foul play, endangering the opponent.", initialCall: "Given", varReview: true, finalCall: "Confirmed", confidence: 96, pressureIndex: 84, players: ["#15 Yondjouck"] },
+    ],
+    pressureTimeline: [
+      { minute: 0, pressure: 22 }, { minute: 10, pressure: 27 }, { minute: 20, pressure: 33 },
+      { minute: 30, pressure: 40 }, { minute: 40, pressure: 47 }, { minute: 45, pressure: 51 },
+      { minute: 55, pressure: 58 }, { minute: 60, pressure: 64 }, { minute: 70, pressure: 71 },
+      { minute: 80, pressure: 78 }, { minute: 90, pressure: 84 },
+    ],
+  },
 ];
 
 // Heat map: normalized 0-100 x/y grid occupancy for a referee across a match
@@ -400,11 +823,73 @@ export interface AssignmentCandidate {
   recommended: boolean;
 }
 
-export const assignmentCandidates: AssignmentCandidate[] = [
-  { refereeId: "amina-kone", name: "Amina Koné", rmcs: 96, fitness: 88, travelHours: 2.5, restDays: 6, h2hExperience: 4, frictionRisk: "Low", recommended: true },
-  { refereeId: "fatou-diagne", name: "Fatou Diagne", rmcs: 92, fitness: 86, travelHours: 4.1, restDays: 5, h2hExperience: 2, frictionRisk: "Low", recommended: false },
-  { refereeId: "youssef-ben-ali", name: "Youssef Ben Ali", rmcs: 89, fitness: 79, travelHours: 6.2, restDays: 3, h2hExperience: 6, frictionRisk: "Medium", recommended: false },
-  { refereeId: "karim-haddad", name: "Karim Haddad", rmcs: 85, fitness: 75, travelHours: 7.8, restDays: 2, h2hExperience: 8, frictionRisk: "High", recommended: false },
+export interface Fixture {
+  id: string;
+  home: string;
+  away: string;
+  competition: string;
+  venue: string;
+  date: string;
+  candidates: AssignmentCandidate[];
+}
+
+export const fixtures: Fixture[] = [
+  {
+    id: "fx-1",
+    home: "Al Ahly",
+    away: "Espérance de Tunis",
+    competition: "CAF Champions League — Final",
+    venue: "Cairo, Egypt · Sat 20:00 CAT",
+    date: "2026-08-22",
+    candidates: [
+      { refereeId: "amina-kone", name: "Amina Koné", rmcs: 96, fitness: 88, travelHours: 2.5, restDays: 6, h2hExperience: 4, frictionRisk: "Low", recommended: true },
+      { refereeId: "fatou-diagne", name: "Fatou Diagne", rmcs: 92, fitness: 86, travelHours: 4.1, restDays: 5, h2hExperience: 2, frictionRisk: "Low", recommended: false },
+      { refereeId: "youssef-ben-ali", name: "Youssef Ben Ali", rmcs: 89, fitness: 79, travelHours: 6.2, restDays: 3, h2hExperience: 6, frictionRisk: "Medium", recommended: false },
+      { refereeId: "karim-haddad", name: "Karim Haddad", rmcs: 85, fitness: 75, travelHours: 7.8, restDays: 2, h2hExperience: 8, frictionRisk: "High", recommended: false },
+    ],
+  },
+  {
+    id: "fx-2",
+    home: "Nigeria",
+    away: "Cameroon",
+    competition: "AFCON Qualifiers — Matchday 5",
+    venue: "Lagos, Nigeria · Sun 17:00 WAT",
+    date: "2026-08-23",
+    candidates: [
+      { refereeId: "chidinma-okafor", name: "Chidinma Okafor", rmcs: 90, fitness: 90, travelHours: 0.5, restDays: 7, h2hExperience: 3, frictionRisk: "Low", recommended: true },
+      { refereeId: "ngozi-adeyemi", name: "Ngozi Adeyemi", rmcs: 84, fitness: 84, travelHours: 0.5, restDays: 7, h2hExperience: 1, frictionRisk: "Low", recommended: false },
+      { refereeId: "abdoulaye-diallo", name: "Abdoulaye Diallo", rmcs: 88, fitness: 77, travelHours: 5.4, restDays: 3, h2hExperience: 5, frictionRisk: "Medium", recommended: false },
+      { refereeId: "samuel-asante", name: "Samuel Asante", rmcs: 82, fitness: 87, travelHours: 3.1, restDays: 4, h2hExperience: 2, frictionRisk: "Low", recommended: false },
+    ],
+  },
+  {
+    id: "fx-3",
+    home: "Mamelodi Sundowns",
+    away: "Kaizer Chiefs",
+    competition: "DStv Premiership — Matchday 18",
+    venue: "Pretoria, South Africa · Sat 15:30 SAST",
+    date: "2026-08-23",
+    candidates: [
+      { refereeId: "patricia-banda", name: "Patricia Banda", rmcs: 93, fitness: 84, travelHours: 3.4, restDays: 5, h2hExperience: 3, frictionRisk: "Low", recommended: true },
+      { refereeId: "thabo-nkosi", name: "Thabo Nkosi", rmcs: 91, fitness: 92, travelHours: 0.8, restDays: 2, h2hExperience: 6, frictionRisk: "Medium", recommended: false },
+      { refereeId: "lesedi-modise", name: "Lesedi Modise", rmcs: 79, fitness: 89, travelHours: 4.9, restDays: 6, h2hExperience: 1, frictionRisk: "Low", recommended: false },
+      { refereeId: "naledi-dube", name: "Naledi Dube", rmcs: 74, fitness: 93, travelHours: 6.1, restDays: 7, h2hExperience: 0, frictionRisk: "Medium", recommended: false },
+    ],
+  },
+  {
+    id: "fx-4",
+    home: "TP Mazembe",
+    away: "Simba SC",
+    competition: "CAF Confederation Cup — Semi Final",
+    venue: "Lubumbashi, DR Congo · Wed 19:00 CAT",
+    date: "2026-08-26",
+    candidates: [
+      { refereeId: "jean-baptiste-mbida", name: "Jean-Baptiste Mbida", rmcs: 89, fitness: 83, travelHours: 3.8, restDays: 4, h2hExperience: 5, frictionRisk: "Low", recommended: true },
+      { refereeId: "olivier-nkurunziza", name: "Olivier Nkurunziza", rmcs: 71, fitness: 92, travelHours: 4.2, restDays: 6, h2hExperience: 0, frictionRisk: "Medium", recommended: false },
+      { refereeId: "farid-benkirane", name: "Farid Benkirane", rmcs: 84, fitness: 83, travelHours: 8.9, restDays: 3, h2hExperience: 2, frictionRisk: "High", recommended: false },
+      { refereeId: "moussa-traore", name: "Moussa Traoré", rmcs: 76, fitness: 85, travelHours: 6.7, restDays: 5, h2hExperience: 1, frictionRisk: "Medium", recommended: false },
+    ],
+  },
 ];
 
 export interface RankingRow {
@@ -539,3 +1024,95 @@ export const leverageFeatures = [
   { feature: "Combined Match + Refereeing report", lever: "One PDF dossier presents both tactical analysis (AfriScout) and refereeing quality (ARIS).", value: "A sellable product to leagues and media that no identified competitor unifies today." },
   { feature: "Single club/federation identifier", lever: "A client of both platforms has one account and one shared match calendar.", value: "Reduces adoption friction for clients running both products in parallel." },
 ];
+
+export interface Notification {
+  id: string;
+  title: string;
+  detail: string;
+  time: string;
+  tone: "emerald" | "gold" | "red" | "blue";
+  read: boolean;
+}
+
+export const notifications: Notification[] = [
+  { id: "n1", title: "ARAE recommendation ready", detail: "Amina Koné recommended for Al Ahly vs. Espérance de Tunis (CAF CL Final).", time: "8 min ago", tone: "emerald", read: false },
+  { id: "n2", title: "Disciplinary review opened", detail: "Emmanuel Mensah flagged by the Decision Engine after Matchday 14.", time: "1 hour ago", tone: "red", read: false },
+  { id: "n3", title: "License renewal due", detail: "Amina Koné's VAR Certification (CAF Academy) expires in 60 days.", time: "3 hours ago", tone: "gold", read: false },
+  { id: "n4", title: "New assessment published", detail: "Mid-season CAF Elite panel assessment now available for 12 referees.", time: "Yesterday", tone: "blue", read: true },
+  { id: "n5", title: "Zone leaderboard updated", detail: "UNAF zone average ARPS crossed 86.0 for the first time this season.", time: "2 days ago", tone: "emerald", read: true },
+  { id: "n6", title: "Fixture assignment confirmed", detail: "Patricia Banda confirmed for Mamelodi Sundowns vs. Kaizer Chiefs.", time: "3 days ago", tone: "blue", read: true },
+];
+
+export interface Federation {
+  code: string;
+  country: string;
+  flag: string;
+  zone: string;
+  refereeCount: number;
+  avgArps: number;
+  eliteCount: number;
+}
+
+export const federations: Federation[] = Array.from(
+  referees.reduce((map, r) => {
+    const entry = map.get(r.federation) ?? {
+      code: r.federation,
+      country: r.country,
+      flag: r.flag,
+      zone: r.zone,
+      total: 0,
+      arpsSum: 0,
+      eliteCount: 0,
+    };
+    entry.total += 1;
+    entry.arpsSum += r.arps;
+    if (r.level === "CAF Elite") entry.eliteCount += 1;
+    map.set(r.federation, entry);
+    return map;
+  }, new Map<string, { code: string; country: string; flag: string; zone: string; total: number; arpsSum: number; eliteCount: number }>()),
+  ([, v]) => ({
+    code: v.code,
+    country: v.country,
+    flag: v.flag,
+    zone: v.zone,
+    refereeCount: v.total,
+    avgArps: Math.round((v.arpsSum / v.total) * 10) / 10,
+    eliteCount: v.eliteCount,
+  }),
+).sort((a, b) => b.avgArps - a.avgArps);
+
+// Deterministic synthetic match history for a referee's passport page —
+// blends any featured `matches` entry with generated past fixtures.
+const historyOpponents = [
+  "AS Vita Club", "Zamalek SC", "Enyimba FC", "Petro de Luanda", "Young Africans SC",
+  "Horoya AC", "CS Constantine", "Coton Sport", "AmaZulu FC", "Stade Malien",
+];
+const historyCompetitions = [
+  "League fixture", "Cup Round of 16", "Continental qualifier", "Derby fixture", "Playoff round",
+];
+
+export function getMatchHistory(referee: Referee) {
+  const featured = matches.filter((m) => m.refereeId === referee.id);
+  let seed = referee.id.split("").reduce((s, c) => s + c.charCodeAt(0), 0);
+  const rand = () => {
+    seed = (seed * 9301 + 49297) % 233280;
+    return seed / 233280;
+  };
+  const synthetic = Array.from({ length: 5 - featured.length }, (_, i) => {
+    const opponent = historyOpponents[Math.floor(rand() * historyOpponents.length)];
+    const competition = historyCompetitions[Math.floor(rand() * historyCompetitions.length)];
+    const homeGoals = Math.floor(rand() * 4);
+    const awayGoals = Math.floor(rand() * 4);
+    const daysAgo = 14 * (i + 1) + Math.floor(rand() * 10);
+    const arps = Math.round((referee.arps - rand() * 6 + 1) * 10) / 10;
+    return {
+      id: `${referee.id}-hist-${i}`,
+      opponent,
+      competition,
+      score: `${homeGoals} - ${awayGoals}`,
+      daysAgo,
+      arps: Math.max(60, Math.min(99, arps)),
+    };
+  });
+  return { featured, synthetic };
+}

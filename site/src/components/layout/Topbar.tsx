@@ -1,8 +1,10 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { Search, Bell, Menu } from "lucide-react";
+import { Menu } from "lucide-react";
 import { AvatarMenu } from "./AvatarMenu";
+import { NotificationsMenu } from "./NotificationsMenu";
+import { GlobalSearch } from "./GlobalSearch";
 import { Badge } from "@/components/ui/Badge";
 import { navItems } from "./nav-items";
 
@@ -15,6 +17,8 @@ const descriptions: Record<string, string> = {
   "/rankings": "Cumulative performance leaderboard.",
   "/career": "Digital passport: licenses, training, progression.",
   "/reports": "Combined Match + Refereeing report export.",
+  "/federations": "Federations and CAF zones directory.",
+  "/compare": "Side-by-side referee performance comparison.",
 };
 
 export function Topbar() {
@@ -36,21 +40,12 @@ export function Topbar() {
       </div>
 
       <div className="flex items-center gap-2 sm:gap-3">
-        <div className="hidden md:flex items-center gap-2 rounded-lg border border-aris-border bg-aris-surface px-3 py-1.5 w-64">
-          <Search size={15} className="text-aris-muted-2" />
-          <input
-            placeholder="Search referees, matches, zones…"
-            className="bg-transparent text-sm text-aris-text placeholder:text-aris-muted-2 outline-none w-full"
-          />
-        </div>
+        <GlobalSearch />
         <Badge tone="emerald" className="hidden sm:inline-flex">
           <span className="h-1.5 w-1.5 rounded-full bg-aris-emerald animate-pulse-slow" />
           Demo data
         </Badge>
-        <button className="relative flex h-9 w-9 items-center justify-center rounded-lg border border-aris-border bg-aris-surface text-aris-muted hover:text-aris-text transition-colors">
-          <Bell size={16} />
-          <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-aris-red text-[9px] flex items-center justify-center text-white">3</span>
-        </button>
+        <NotificationsMenu />
         <AvatarMenu />
       </div>
     </header>

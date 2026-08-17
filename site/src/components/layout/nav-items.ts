@@ -7,6 +7,8 @@ import {
   Trophy,
   GraduationCap,
   FileText,
+  Landmark,
+  GitCompareArrows,
   type LucideIcon,
 } from "lucide-react";
 
@@ -24,6 +26,8 @@ export const navItems: NavItem[] = [
   { href: "/heatmaps", label: "Heat Maps", icon: Flame },
   { href: "/arae", label: "AI Assignment (ARAE)", icon: Radar, badge: "P1" },
   { href: "/rankings", label: "Rankings", icon: Trophy },
+  { href: "/federations", label: "Federations", icon: Landmark },
+  { href: "/compare", label: "Compare", icon: GitCompareArrows },
   { href: "/career", label: "Career Manager", icon: GraduationCap },
   { href: "/reports", label: "Reports", icon: FileText },
 ];

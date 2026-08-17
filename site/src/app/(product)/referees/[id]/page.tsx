@@ -1,9 +1,10 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { referees, careerTimeline } from "@/lib/mock-data";
+import { referees, careerTimeline, getSubIndices, getMatchHistory } from "@/lib/mock-data";
 import { Card, CardHeader } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { ScoreRing } from "@/components/ui/ScoreRing";
+import { SubIndexRadar } from "@/components/charts/SubIndexRadar";
 import {
   ArrowLeft,
   Activity,
@@ -13,6 +14,8 @@ import {
   TrendingDown,
   MapPin,
   Radar,
+  Gauge,
+  History,
 } from "lucide-react";
 
 export function generateStaticParams() {
@@ -25,6 +28,15 @@ export default async function RefereeProfilePage({ params }: PageProps<"/referee
   if (!referee) notFound();
 
   const positive = referee.trend >= 0;
+  const subIndices = getSubIndices(referee);
+  const radarData = [
+    { metric: "RAS", value: subIndices.ras },
+    { metric: "CEI", value: subIndices.cei },
+    { metric: "MDS", value: subIndices.mds },
+    { metric: "PRS", value: subIndices.prs },
+    { metric: "CI", value: subIndices.ci },
+  ];
+  const { featured, synthetic } = getMatchHistory(referee);
 
   return (
     <div className="space-y-6">
@@ -112,6 +124,58 @@ export default async function RefereeProfilePage({ params }: PageProps<"/referee
               </li>
             ))}
           </ol>
+        </Card>
+      </div>
+
+      <div className="grid gap-6 lg:grid-cols-3">
+        <Card>
+          <CardHeader title="Sub-index breakdown" subtitle="Composite factors feeding ARPS" icon={<Gauge size={16} />} />
+          <SubIndexRadar data={radarData} />
+          <div className="grid grid-cols-5 gap-1.5 mt-2 text-center">
+            {radarData.map((d) => (
+              <div key={d.metric}>
+                <p className="text-xs font-semibold text-aris-text">{d.value}</p>
+                <p className="text-[9px] text-aris-muted-2 uppercase">{d.metric}</p>
+              </div>
+            ))}
+          </div>
+        </Card>
+
+        <Card className="lg:col-span-2">
+          <CardHeader title="Recent match history" subtitle="Last 5 appointments" icon={<History size={16} />} />
+          <div className="space-y-2">
+            {featured.map((m) => (
+              <Link
+                key={m.id}
+                href="/decision-engine"
+                className="flex items-center justify-between gap-3 rounded-lg border border-aris-emerald/20 bg-aris-emerald/5 px-3 py-2.5 hover:border-aris-emerald/40 transition-colors"
+              >
+                <div className="min-w-0">
+                  <p className="text-sm text-aris-text font-medium truncate">{m.home} vs. {m.away}</p>
+                  <p className="text-xs text-aris-muted truncate">{m.competition}</p>
+                </div>
+                <div className="flex items-center gap-3 shrink-0">
+                  <span className="text-sm text-aris-text">{m.score}</span>
+                  <Badge tone="emerald">{m.arpsForMatch}</Badge>
+                </div>
+              </Link>
+            ))}
+            {synthetic.map((m) => (
+              <div
+                key={m.id}
+                className="flex items-center justify-between gap-3 rounded-lg border border-aris-border bg-aris-surface-2/40 px-3 py-2.5"
+              >
+                <div className="min-w-0">
+                  <p className="text-sm text-aris-text font-medium truncate">vs. {m.opponent}</p>
+                  <p className="text-xs text-aris-muted truncate">{m.competition} · {m.daysAgo}d ago</p>
+                </div>
+                <div className="flex items-center gap-3 shrink-0">
+                  <span className="text-sm text-aris-text">{m.score}</span>
+                  <Badge tone="muted">{m.arps}</Badge>
+                </div>
+              </div>
+            ))}
+          </div>
         </Card>
       </div>
     </div>

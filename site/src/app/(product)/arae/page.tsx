@@ -3,34 +3,69 @@
 import { useState } from "react";
 import { Card, CardHeader } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
-import { assignmentCandidates } from "@/lib/mock-data";
+import { fixtures } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
-import { Radar, Plane, BedDouble, History, ShieldAlert, CheckCircle2, Sparkles } from "lucide-react";
+import { Radar, Plane, BedDouble, History, ShieldAlert, CheckCircle2, Sparkles, CalendarClock } from "lucide-react";
 
 const riskTone = { Low: "emerald", Medium: "gold", High: "red" } as const;
 
 export default function AraePage() {
-  const [confirmed, setConfirmed] = useState<string | null>(null);
-  const top = assignmentCandidates.find((c) => c.recommended)!;
+  const [fixtureId, setFixtureId] = useState(fixtures[0].id);
+  const [confirmed, setConfirmed] = useState<Record<string, string>>({});
+
+  const fixture = fixtures.find((f) => f.id === fixtureId) ?? fixtures[0];
+  const top = fixture.candidates.find((c) => c.recommended) ?? fixture.candidates[0];
+  const activeConfirmed = confirmed[fixture.id];
 
   return (
     <div className="space-y-6">
+      <Card>
+        <CardHeader title="Fixture queue" subtitle={`${fixtures.length} upcoming fixtures awaiting designation`} icon={<CalendarClock size={16} />} />
+        <div className="space-y-2">
+          {fixtures.map((f) => (
+            <button
+              key={f.id}
+              onClick={() => setFixtureId(f.id)}
+              className={cn(
+                "w-full flex flex-col sm:flex-row sm:items-center justify-between gap-1 rounded-lg border px-4 py-3 text-left transition-colors",
+                fixtureId === f.id
+                  ? "border-aris-emerald/40 bg-aris-emerald/5"
+                  : "border-aris-border bg-aris-surface-2/40 hover:border-aris-border",
+              )}
+            >
+              <div>
+                <p className="text-sm font-medium text-aris-text">{f.home} vs. {f.away}</p>
+                <p className="text-xs text-aris-muted">{f.competition}</p>
+              </div>
+              <div className="flex items-center gap-2">
+                {confirmed[f.id] ? (
+                  <Badge tone="emerald"><CheckCircle2 size={11} /> Assigned</Badge>
+                ) : (
+                  <Badge tone="muted">Pending</Badge>
+                )}
+                <span className="text-xs text-aris-muted-2">{f.date}</span>
+              </div>
+            </button>
+          ))}
+        </div>
+      </Card>
+
       <Card className="bg-gradient-to-br from-aris-surface to-aris-surface-2">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <Badge tone="gold">CAF Champions League — Final</Badge>
-            <h2 className="font-display text-xl font-semibold text-aris-text mt-2">Al Ahly vs. Espérance de Tunis</h2>
-            <p className="text-xs text-aris-muted mt-1">Cairo, Egypt · Sat 20:00 CAT · Capacity 74,100</p>
+            <Badge tone="gold">{fixture.competition}</Badge>
+            <h2 className="font-display text-xl font-semibold text-aris-text mt-2">{fixture.home} vs. {fixture.away}</h2>
+            <p className="text-xs text-aris-muted mt-1">{fixture.venue}</p>
           </div>
           <div className="flex items-center gap-2 text-xs text-aris-muted">
             <Radar size={15} className="text-aris-emerald-light" />
-            ARAE evaluated {assignmentCandidates.length} eligible referees in 1.2s
+            ARAE evaluated {fixture.candidates.length} eligible referees in 1.2s
           </div>
         </div>
       </Card>
 
       <div className="grid gap-4">
-        {assignmentCandidates.map((c) => (
+        {fixture.candidates.map((c) => (
           <Card key={c.refereeId} className={cn(c.recommended && "border-aris-emerald/40 bg-aris-emerald/5")} hover>
             <div className="flex flex-col lg:flex-row lg:items-center gap-5">
               <div className="flex items-center gap-3 lg:w-56 shrink-0">
@@ -58,13 +93,14 @@ export default function AraePage() {
                 <Badge tone={riskTone[c.frictionRisk]}>
                   <ShieldAlert size={12} /> {c.frictionRisk} friction risk
                 </Badge>
-                {confirmed === c.refereeId ? (
+                {activeConfirmed === c.refereeId ? (
                   <Badge tone="emerald"><CheckCircle2 size={12} /> Confirmed</Badge>
                 ) : (
                   <button
-                    onClick={() => setConfirmed(c.refereeId)}
+                    onClick={() => setConfirmed((prev) => ({ ...prev, [fixture.id]: c.refereeId }))}
+                    disabled={!!activeConfirmed}
                     className={cn(
-                      "rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors",
+                      "rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors disabled:opacity-40 disabled:cursor-not-allowed",
                       c.recommended
                         ? "bg-aris-emerald text-[#04140c] hover:bg-aris-emerald-light"
                         : "border border-aris-border text-aris-muted hover:text-aris-text",
@@ -84,7 +120,7 @@ export default function AraePage() {
         <ol className="space-y-3 text-sm">
           <li className="flex gap-3">
             <span className="text-aris-muted-2 text-xs w-24 shrink-0">08:14:02</span>
-            <span className="text-aris-muted">ARAE pulled {assignmentCandidates.length} eligible CAF Elite referees for zone UNAF + UFOA cross-assignment.</span>
+            <span className="text-aris-muted">ARAE pulled {fixture.candidates.length} eligible referees for {fixture.home} vs. {fixture.away}.</span>
           </li>
           <li className="flex gap-3">
             <span className="text-aris-muted-2 text-xs w-24 shrink-0">08:14:03</span>
@@ -96,11 +132,11 @@ export default function AraePage() {
               Recommended {top.name} — highest RMCS ({top.rmcs}), lowest friction risk, within rest-day threshold.
             </span>
           </li>
-          {confirmed && (
+          {activeConfirmed && (
             <li className="flex gap-3">
               <span className="text-aris-muted-2 text-xs w-24 shrink-0">08:16:41</span>
               <span className="text-aris-text">
-                Admin confirmed assignment: <span className="font-medium">{assignmentCandidates.find((c) => c.refereeId === confirmed)?.name}</span>.
+                Admin confirmed assignment: <span className="font-medium">{fixture.candidates.find((c) => c.refereeId === activeConfirmed)?.name}</span>.
               </span>
             </li>
           )}

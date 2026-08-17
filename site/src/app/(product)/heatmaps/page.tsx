@@ -34,7 +34,7 @@ export default function HeatmapsPage() {
       <Card>
         <CardHeader title="Select referee" subtitle="Positional heat map, enriched by AfriScout event coordinates" icon={<Flame size={16} />} />
         <div className="flex flex-wrap gap-2">
-          {referees.slice(0, 8).map((r) => (
+          {referees.map((r) => (
             <button
               key={r.id}
               onClick={() => setRefId(r.id)}

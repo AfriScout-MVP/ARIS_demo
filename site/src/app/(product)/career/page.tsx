@@ -33,7 +33,7 @@ export default function CareerPage() {
       <Card>
         <CardHeader title="Select referee passport" icon={<GraduationCap size={16} />} />
         <div className="flex flex-wrap gap-2">
-          {referees.slice(0, 8).map((r) => (
+          {referees.map((r) => (
             <button
               key={r.id}
               onClick={() => setRefId(r.id)}

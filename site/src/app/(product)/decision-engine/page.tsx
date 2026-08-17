@@ -4,7 +4,7 @@ import { useState } from "react";
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ReferenceLine } from "recharts";
 import { Card, CardHeader } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
-import { sampleMatch, matchDecisions, pressureTimeline, type MatchDecision } from "@/lib/mock-data";
+import { matches, type MatchDecision } from "@/lib/mock-data";
 import { AlertTriangle, CheckCircle2, PlayCircle, Radio, Gauge } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -26,28 +26,62 @@ const tooltipStyle = {
 };
 
 export default function DecisionEnginePage() {
-  const [selected, setSelected] = useState<string>(matchDecisions[1].id);
-  const active = matchDecisions.find((d) => d.id === selected)!;
+  const [matchId, setMatchId] = useState(matches[0].id);
+  const match = matches.find((m) => m.id === matchId)!;
+  const [selected, setSelected] = useState<string>(match.decisions[1]?.id ?? match.decisions[0].id);
+
+  function selectMatch(id: string) {
+    setMatchId(id);
+    const next = matches.find((m) => m.id === id)!;
+    setSelected(next.decisions[0].id);
+  }
+
+  const active = match.decisions.find((d) => d.id === selected) ?? match.decisions[0];
+  const overturnedCount = match.decisions.filter((d) => d.finalCall === "Overturned").length;
 
   return (
     <div className="space-y-6">
       <Card>
+        <CardHeader title="Select match" subtitle={`${matches.length} matches analyzed via the AfriScout tagging pipeline`} icon={<PlayCircle size={16} />} />
+        <div className="flex flex-wrap gap-2">
+          {matches.map((m) => (
+            <button
+              key={m.id}
+              onClick={() => selectMatch(m.id)}
+              className={cn(
+                "rounded-full border px-3 py-1.5 text-xs font-medium transition-colors text-left",
+                matchId === m.id
+                  ? "border-aris-emerald/40 bg-aris-emerald/10 text-aris-emerald-light"
+                  : "border-aris-border text-aris-muted hover:text-aris-text",
+              )}
+            >
+              {m.home} vs. {m.away}
+            </button>
+          ))}
+        </div>
+      </Card>
+
+      <Card>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <p className="text-xs text-aris-muted">{sampleMatch.competition} · {sampleMatch.date}</p>
+            <p className="text-xs text-aris-muted">{match.competition} · {match.date}</p>
             <h2 className="font-display text-xl font-semibold text-aris-text mt-1">
-              {sampleMatch.home} <span className="text-aris-muted font-normal">{sampleMatch.score}</span> {sampleMatch.away}
+              {match.home} <span className="text-aris-muted font-normal">{match.score}</span> {match.away}
             </h2>
-            <p className="text-xs text-aris-muted mt-1">Referee: {sampleMatch.referee} · analyzed via AfriScout tagging pipeline</p>
+            <p className="text-xs text-aris-muted mt-1">Referee: {match.referee} · analyzed via AfriScout tagging pipeline</p>
           </div>
           <div className="flex gap-3">
             <div className="text-center rounded-xl border border-aris-border bg-aris-surface-2/60 px-4 py-2">
-              <p className="font-display text-lg font-semibold text-aris-emerald-light">{sampleMatch.arpsForMatch}</p>
+              <p className="font-display text-lg font-semibold text-aris-emerald-light">{match.arpsForMatch}</p>
               <p className="text-[10px] text-aris-muted uppercase">Match ARPS</p>
             </div>
             <div className="text-center rounded-xl border border-aris-border bg-aris-surface-2/60 px-4 py-2">
-              <p className="font-display text-lg font-semibold text-aris-gold">{sampleMatch.rmcs}</p>
+              <p className="font-display text-lg font-semibold text-aris-gold">{match.rmcs}</p>
               <p className="text-[10px] text-aris-muted uppercase">RMCS</p>
+            </div>
+            <div className="text-center rounded-xl border border-aris-border bg-aris-surface-2/60 px-4 py-2">
+              <p className="font-display text-lg font-semibold text-aris-text">{overturnedCount}</p>
+              <p className="text-[10px] text-aris-muted uppercase">Overturned</p>
             </div>
           </div>
         </div>
@@ -57,11 +91,11 @@ export default function DecisionEnginePage() {
         <Card className="lg:col-span-2">
           <CardHeader
             title="Decision timeline"
-            subtitle={`${matchDecisions.length} reviewable events — click to inspect`}
+            subtitle={`${match.decisions.length} reviewable events — click to inspect`}
             icon={<PlayCircle size={16} />}
           />
           <div className="space-y-2">
-            {matchDecisions.map((d) => (
+            {match.decisions.map((d) => (
               <button
                 key={d.id}
                 onClick={() => setSelected(d.id)}
@@ -139,7 +173,7 @@ export default function DecisionEnginePage() {
         <CardHeader title="Match pressure index" subtitle="Contextual pressure over 90 minutes — decisions plotted" />
         <div className="h-56">
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={pressureTimeline} margin={{ top: 4, right: 8, bottom: 0, left: -20 }}>
+            <AreaChart data={match.pressureTimeline} margin={{ top: 4, right: 8, bottom: 0, left: -20 }}>
               <defs>
                 <linearGradient id="pressure" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stopColor="#ef4453" stopOpacity={0.35} />
@@ -150,7 +184,7 @@ export default function DecisionEnginePage() {
               <XAxis dataKey="minute" stroke="#5c6d82" fontSize={12} tickLine={false} axisLine={false} unit="'" />
               <YAxis stroke="#5c6d82" fontSize={12} tickLine={false} axisLine={false} />
               <Tooltip contentStyle={tooltipStyle} />
-              {matchDecisions.map((d) => (
+              {match.decisions.map((d) => (
                 <ReferenceLine key={d.id} x={d.minute} stroke="#e2b13c" strokeDasharray="3 3" />
               ))}
               <Area type="monotone" dataKey="pressure" stroke="#ef4453" strokeWidth={2.5} fill="url(#pressure)" />
