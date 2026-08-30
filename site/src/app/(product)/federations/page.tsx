@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { RefreshCcw } from "lucide-react";
+import { CalendarDays, Globe2, RefreshCcw, Trophy, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLocale, useT } from "@/lib/i18n/LocaleProvider";
 import { useScope } from "@/lib/scope/ScopeProvider";
@@ -52,10 +52,23 @@ export default function FederationsPage() {
       <PageHeading titleKey="federations.title" subtitleKey="subtitles.federations" />
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <Board primary label={t("federations.title")} value={rows.length} hint={t("federations.tableSub")} />
-        <Board label={t("common.referees")} value={totals.referees} />
-        <Board label={t("federations.fixturesSeason")} value={totals.fixtures} />
         <Board
+          primary
+          tone="var"
+          icon={Globe2}
+          label={t("federations.title")}
+          value={rows.length}
+          hint={t("federations.tableSub")}
+        />
+        <Board tone="pitch" icon={Users} label={t("common.referees")} value={totals.referees} />
+        <Board
+          tone="gold"
+          icon={CalendarDays}
+          label={t("federations.fixturesSeason")}
+          value={totals.fixtures}
+        />
+        <Board
+          icon={RefreshCcw}
           label={t("federations.syncStale")}
           value={totals.stale}
           tone={totals.stale ? "amber" : "pitch"}
@@ -200,7 +213,7 @@ export default function FederationsPage() {
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <Card className="lg:col-span-2">
-          <CardHeader title={t("federations.zoneSummary")} subtitle={t("federations.zoneSummarySub")} />
+          <CardHeader icon={Globe2} tint="var" title={t("federations.zoneSummary")} subtitle={t("federations.zoneSummarySub")} />
           <div className="h-56">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={zoneDistribution} margin={{ top: 4, right: 6, bottom: 0, left: -24 }}>
@@ -217,6 +230,8 @@ export default function FederationsPage() {
 
         <Card>
           <CardHeader
+            icon={Trophy}
+            tint="gold"
             title={t("common.competitions")}
             subtitle={t("federations.competitionsTracked")}
             action={

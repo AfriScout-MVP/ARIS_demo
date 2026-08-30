@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { CalendarDays, ChevronLeft, ChevronRight, RefreshCcw, Wand2 } from "lucide-react";
+import { CalendarCheck, CalendarDays, CheckCircle2, ChevronLeft, ChevronRight, LayoutGrid, RefreshCcw, Trophy, UserPlus, Wand2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useFormatters, useLocale, useT } from "@/lib/i18n/LocaleProvider";
 import { useScope } from "@/lib/scope/ScopeProvider";
@@ -163,10 +163,32 @@ export default function CalendarPage() {
       </div>
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <Board primary label={t("calendar.fixtures")} value={weekFixtures.length} hint={`${t("common.season")} ${SEASON}`} />
-        <Board label={t("common.confirmed")} value={totals.complete} tone="pitch" />
-        <Board label={t("calendar.slotsOpen")} value={totals.open} tone={totals.open ? "amber" : "pitch"} />
-        <Board label={t("common.competitions")} value={new Set(weekFixtures.map((f) => f.competitionId)).size} />
+        <Board
+          primary
+          tone="var"
+          icon={CalendarDays}
+          label={t("calendar.fixtures")}
+          value={weekFixtures.length}
+          hint={`${t("common.season")} ${SEASON}`}
+        />
+        <Board
+          tone="pitch"
+          icon={CheckCircle2}
+          label={t("common.confirmed")}
+          value={totals.complete}
+        />
+        <Board
+          tone={totals.open ? "amber" : "pitch"}
+          icon={UserPlus}
+          label={t("calendar.slotsOpen")}
+          value={totals.open}
+        />
+        <Board
+          tone="gold"
+          icon={Trophy}
+          label={t("common.competitions")}
+          value={new Set(weekFixtures.map((f) => f.competitionId)).size}
+        />
       </div>
 
       {weekFixtures.length === 0 ? (
@@ -237,7 +259,7 @@ export default function CalendarPage() {
       ) : view === "board" ? (
         <Card padded={false}>
           <div className="px-4 py-3">
-            <CardHeader title={t("calendar.board")} subtitle={t("calendar.boardSub")} className="mb-0" />
+            <CardHeader icon={LayoutGrid} tint="var" title={t("calendar.board")} subtitle={t("calendar.boardSub")} className="mb-0" />
           </div>
           <div className="chalk-rule" />
           <div className="scroll-x">
@@ -302,7 +324,7 @@ export default function CalendarPage() {
       ) : (
         <Card padded={false}>
           <div className="px-4 py-3">
-            <CardHeader title={t("calendar.availabilityTitle")} subtitle={t("calendar.availabilitySub")} className="mb-0" />
+            <CardHeader icon={CalendarCheck} tint="pitch" title={t("calendar.availabilityTitle")} subtitle={t("calendar.availabilitySub")} className="mb-0" />
           </div>
           <div className="chalk-rule" />
           <div className="scroll-x">
@@ -357,6 +379,8 @@ export default function CalendarPage() {
 
       <Card>
         <CardHeader
+          icon={RefreshCcw}
+          tint="gold"
           title={t("calendar.syncStatus")}
           subtitle={t("calendar.syncStatusSub")}
           action={

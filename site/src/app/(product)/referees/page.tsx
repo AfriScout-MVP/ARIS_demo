@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { Search, TrendingDown, TrendingUp } from "lucide-react";
+import { Award, Gauge, Search, ShieldAlert, TrendingDown, TrendingUp, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLocale, useT } from "@/lib/i18n/LocaleProvider";
 import { useScope } from "@/lib/scope/ScopeProvider";
@@ -78,10 +78,21 @@ export default function RefereesPage() {
       <PageHeading titleKey="referees.title" subtitleKey="subtitles.referees" />
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <Board primary label={t("referees.title")} value={rows.length} />
-        <Board label={t("overview.kpiArps")} value={avg ? avg.toFixed(1) : "—"} />
-        <Board label={t("common.elitePool")} value={rows.filter((r) => r.level === "CAF Elite").length} tone="pitch" />
+        <Board primary tone="var" icon={Users} label={t("referees.title")} value={rows.length} />
         <Board
+          tone="gold"
+          icon={Gauge}
+          label={t("overview.kpiArps")}
+          value={avg ? avg.toFixed(1) : "—"}
+        />
+        <Board
+          tone="pitch"
+          icon={Award}
+          label={t("common.elitePool")}
+          value={rows.filter((r) => r.level === "CAF Elite").length}
+        />
+        <Board
+          icon={ShieldAlert}
           label={t("common.suspended")}
           value={rows.filter((r) => r.status === "suspended").length}
           tone={rows.some((r) => r.status === "suspended") ? "red" : "chalk"}

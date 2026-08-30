@@ -2,14 +2,64 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, ArrowLeftRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLocale, useT } from "@/lib/i18n/LocaleProvider";
 import { useScope } from "@/lib/scope/ScopeProvider";
 import { PageHeading } from "@/components/layout/PageHeading";
-import { Avatar, Badge, Card, CardHeader, EmptyState, Meter, ScoreRing, Select } from "@/components/ui";
+import { Badge, Card, ChalkRule, EmptyState, ScoreRing, Select } from "@/components/ui";
 import { CompareRadar } from "@/components/charts/CompareRadar";
-import { countryFlag, countryName, getSubIndices, referees } from "@/lib/mock-data";
+import { countryFlag, countryName, getSubIndices, referees, type Referee } from "@/lib/mock-data";
+
+/** A is green, B is sky — the same two colours the radar uses. */
+const SIDE = {
+  a: { text: "text-pitch", bar: "bg-pitch", ring: "bg-pitch/10" },
+  b: { text: "text-var", bar: "bg-var", ring: "bg-var/10" },
+} as const;
+
+/** One official's half of the versus header; B mirrors so the two face in. */
+function Side({
+  referee,
+  side,
+  matchesLabel,
+}: {
+  referee: Referee;
+  side: "a" | "b";
+  matchesLabel: string;
+}) {
+  const { locale } = useLocale();
+  return (
+    <div className={cn("flex items-center gap-3", side === "b" && "sm:flex-row-reverse sm:text-right")}>
+      <div className={cn("shrink-0 rounded-xl p-1", SIDE[side].ring)}>
+        <ScoreRing value={referee.arps} size={56} />
+      </div>
+      <div className="min-w-0 flex-1">
+        <Link
+          href={`/referees/${referee.id}`}
+          className={cn(
+            "flex items-center gap-1 font-display text-[15px] font-semibold text-chalk hover:underline",
+            side === "b" && "sm:justify-end",
+          )}
+        >
+          <span className="truncate">{referee.name}</span>
+          <ArrowUpRight size={12} className="shrink-0" />
+        </Link>
+        <p className="truncate text-[11.5px] text-chalk-faint">
+          {countryFlag(referee.countryCode)} {countryName(referee.countryCode, locale)} · {referee.level}
+        </p>
+        <div className={cn("mt-1.5 flex flex-wrap gap-1.5", side === "b" && "sm:justify-end")}>
+          <Badge tone={side === "a" ? "pitch" : "var"}>
+            {referee.matches} {matchesLabel}
+          </Badge>
+          <Badge tone={referee.trend >= 0 ? "pitch" : "red"}>
+            {referee.trend >= 0 ? "+" : "−"}
+            {Math.abs(referee.trend).toFixed(1)}
+          </Badge>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function ComparePage() {
   const t = useT();
@@ -60,7 +110,12 @@ export default function ComparePage() {
     { label: t("arae.rmcs"), a: a.rmcsAvg, b: b.rmcsAvg, max: 100 },
     { label: t("referees.varAccuracy"), a: a.varAccuracy, b: b.varAccuracy, max: 100 },
     { label: t("arae.fitness"), a: a.fitness, b: b.fitness, max: 100 },
-    { label: t("referees.matchesOfficiated"), a: a.matches, b: b.matches, max: Math.max(a.matches, b.matches) },
+    {
+      label: t("referees.matchesOfficiated"),
+      a: a.matches,
+      b: b.matches,
+      max: Math.max(a.matches, b.matches),
+    },
     {
       label: locale === "fr" ? "Cartons / rencontre" : "Cards per match",
       a: Number(((a.cards.yellow + a.cards.red) / a.matches).toFixed(2)),
@@ -75,103 +130,126 @@ export default function ComparePage() {
     .sort((x, y) => Math.abs(y.diff) - Math.abs(x.diff));
 
   const options = pool.map((r) => ({ value: r.id, label: `${r.name} — ${r.arps.toFixed(1)}` }));
+  const aWins = headToHead.filter((row) => (row.lowerIsBetter ? row.a < row.b : row.a > row.b)).length;
+
+  function swap() {
+    setAId(b!.id);
+    setBId(a!.id);
+  }
+
+  const matchesLabel = t("common.matches").toLowerCase();
 
   return (
     <div className="space-y-4 sm:space-y-5">
       <PageHeading titleKey="compare.title" subtitleKey="subtitles.compare" />
 
-      <Card>
-        <CardHeader title={t("compare.pickTwo")} />
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+      {/* One panel: pick, profiles, metrics and verdict all sit side by side. */}
+      <Card padded={false} className="overflow-hidden">
+        <div className="grid grid-cols-1 gap-3 border-b border-line bg-ink-1/60 p-4 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] sm:items-end sm:gap-4">
           <Select label={t("compare.refereeA")} value={a.id} onChange={setAId} options={options} />
+          <button
+            onClick={swap}
+            title={t("compare.pickTwo")}
+            className="mx-auto inline-flex h-9 w-9 items-center justify-center rounded-full border border-line bg-ink-2 text-chalk-faint transition-colors hover:border-line-strong hover:text-chalk"
+          >
+            <ArrowLeftRight size={14} />
+          </button>
           <Select label={t("compare.refereeB")} value={b.id} onChange={setBId} options={options} />
         </div>
-      </Card>
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-        {[a, b].map((referee, i) => (
-          <Card key={referee.id} className={cn(i === 0 ? "border-line-strong" : "border-pitch/30")}>
-            <div className="flex items-center gap-3">
-              <Avatar initials={referee.initials} size={44} tone={i === 0 ? "chalk" : "neutral"} />
-              <div className="min-w-0 flex-1">
-                <Link href={`/referees/${referee.id}`} className="flex items-center gap-1 text-[14px] text-chalk hover:underline">
-                  {referee.name}
-                  <ArrowUpRight size={12} />
-                </Link>
-                <p className="truncate text-[11.5px] text-chalk-faint">
-                  {countryFlag(referee.countryCode)} {countryName(referee.countryCode, locale)} · {referee.level}
-                </p>
-                <Badge className="mt-1.5" tone={referee.trend >= 0 ? "pitch" : "red"}>
-                  {referee.trend >= 0 ? "+" : "−"}
-                  {Math.abs(referee.trend).toFixed(1)} {t("common.points")}
-                </Badge>
-              </div>
-              <ScoreRing value={referee.arps} size={52} />
-            </div>
-          </Card>
-        ))}
-      </div>
+        <div className="grid grid-cols-1 items-center gap-4 p-4 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] sm:p-5">
+          <Side referee={a} side="a" matchesLabel={matchesLabel} />
+          <div className="flex items-center justify-center gap-3 sm:flex-col sm:gap-1">
+            <span className="board text-[20px] font-semibold text-pitch">{aWins}</span>
+            <span className="text-[10px] uppercase tracking-[0.14em] text-chalk-faint">
+              {locale === "fr" ? "avantages" : "wins"}
+            </span>
+            <span className="board text-[20px] font-semibold text-var">{headToHead.length - aWins}</span>
+          </div>
+          <Side referee={b} side="b" matchesLabel={matchesLabel} />
+        </div>
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <Card>
-          <CardHeader title={t("compare.profile")} subtitle={t("compare.profileSub")} />
-          <CompareRadar data={radar} seriesNames={[a.name, b.name]} />
-        </Card>
+        <ChalkRule />
 
-        <Card>
-          <CardHeader title={t("compare.headToHead")} />
-          <div className="space-y-3.5">
-            {headToHead.map((row) => {
-              const aWins = row.lowerIsBetter ? row.a < row.b : row.a > row.b;
-              return (
-                <div key={row.label}>
-                  <div className="mb-1 flex items-center justify-between text-[12px]">
-                    <span className={cn("board", aWins ? "text-chalk" : "text-chalk-faint")}>{row.a}</span>
-                    <span className="text-chalk-faint">{row.label}</span>
-                    <span className={cn("board", !aWins ? "text-pitch" : "text-chalk-faint")}>{row.b}</span>
-                  </div>
-                  <div className="flex gap-1">
-                    <div className="flex flex-1 justify-end">
-                      <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/[0.07]">
+        <div className="grid grid-cols-1 gap-5 p-4 sm:p-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,380px)]">
+          {/* Diverging bars: A grows left from the centre, B grows right. */}
+          <div>
+            <p className="mb-3 text-[11px] uppercase tracking-[0.1em] text-chalk-faint">
+              {t("compare.headToHead")}
+            </p>
+            <div className="space-y-3">
+              {headToHead.map((row) => {
+                const leadsA = row.lowerIsBetter ? row.a < row.b : row.a > row.b;
+                return (
+                  <div key={row.label}>
+                    <div className="mb-1 flex items-center justify-between gap-2 text-[12px]">
+                      <span className={cn("board w-14", leadsA ? "font-semibold text-pitch" : "text-chalk-faint")}>
+                        {row.a}
+                      </span>
+                      <span className="min-w-0 flex-1 truncate text-center text-chalk-dim">{row.label}</span>
+                      <span
+                        className={cn(
+                          "board w-14 text-right",
+                          !leadsA ? "font-semibold text-var" : "text-chalk-faint",
+                        )}
+                      >
+                        {row.b}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <div className="flex h-1.5 flex-1 justify-end overflow-hidden rounded-l-full bg-white/[0.06]">
                         <div
-                          className="ml-auto h-full rounded-full bg-pitch"
+                          className={cn("h-full rounded-l-full transition-[width] duration-500", SIDE.a.bar)}
                           style={{ width: `${Math.min(100, (row.a / row.max) * 100)}%` }}
                         />
                       </div>
-                    </div>
-                    <div className="flex-1">
-                      <Meter value={(row.b / row.max) * 100} tone="pitch" />
+                      <span className="h-2.5 w-px shrink-0 bg-line-strong" />
+                      <div className="h-1.5 flex-1 overflow-hidden rounded-r-full bg-white/[0.06]">
+                        <div
+                          className={cn("h-full rounded-r-full transition-[width] duration-500", SIDE.b.bar)}
+                          style={{ width: `${Math.min(100, (row.b / row.max) * 100)}%` }}
+                        />
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
-        </Card>
-      </div>
+                );
+              })}
+            </div>
 
-      <Card>
-        <CardHeader title={t("compare.verdict")} subtitle={t("compare.verdictSub")} />
-        <ul className="space-y-2">
-          {gaps.map((gap) => {
-            const leader = gap.diff >= 0 ? a : b;
-            return (
-              <li
-                key={gap.label}
-                className="flex items-center justify-between gap-3 rounded-lg border border-line bg-ink-1 px-3 py-2.5"
-              >
-                <span className="min-w-0 text-[12.5px] text-chalk-dim">{gap.label}</span>
-                <span className="shrink-0 text-[12.5px]">
-                  <span className={cn(gap.diff >= 0 ? "text-chalk" : "text-pitch")}>{leader.name}</span>
-                  <span className="text-chalk-faint">
-                    {" "}
-                    {t("compare.aheadOn")} {t("compare.by")} {Math.abs(gap.diff).toFixed(1)}
-                  </span>
-                </span>
-              </li>
-            );
-          })}
-        </ul>
+            <p className="mb-2 mt-5 text-[11px] uppercase tracking-[0.1em] text-chalk-faint">
+              {t("compare.verdict")} · {t("compare.verdictSub").toLowerCase()}
+            </p>
+            <ul className="space-y-1.5">
+              {gaps.map((gap) => {
+                const leader = gap.diff >= 0 ? a : b;
+                const tone = gap.diff >= 0 ? SIDE.a : SIDE.b;
+                return (
+                  <li
+                    key={gap.label}
+                    className="flex items-center justify-between gap-3 rounded-lg border border-line bg-ink-1 px-3 py-2"
+                  >
+                    <span className="min-w-0 truncate text-[12.5px] text-chalk-dim">{gap.label}</span>
+                    <span className="shrink-0 text-[12px]">
+                      <span className={tone.text}>{leader.name}</span>
+                      <span className="text-chalk-faint">
+                        {" "}
+                        {t("compare.aheadOn")} {t("compare.by")} {Math.abs(gap.diff).toFixed(1)}
+                      </span>
+                    </span>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+
+          <div className="lg:border-l lg:border-line lg:pl-5">
+            <p className="mb-1 text-[11px] uppercase tracking-[0.1em] text-chalk-faint">
+              {t("compare.profile")}
+            </p>
+            <p className="mb-2 text-[12px] text-chalk-faint">{t("compare.profileSub")}</p>
+            <CompareRadar data={radar} seriesNames={[a.name, b.name]} />
+          </div>
+        </div>
       </Card>
     </div>
   );

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useMemo } from "react";
-import { ArrowLeft, MapPin, TrendingDown, TrendingUp } from "lucide-react";
+import { ArrowLeft, CalendarDays, HeartPulse, IdCard, MapPin, Radar, Radio, Scale, Target, TrendingDown, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useFormatters, useLocale, useT } from "@/lib/i18n/LocaleProvider";
 import { Avatar, Badge, Board, Card, CardHeader, EmptyState, Meter, ScoreRing } from "@/components/ui";
@@ -123,15 +123,30 @@ export function RefereeProfile({ id }: { id: string }) {
       </Card>
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <Board label={t("referees.matchesOfficiated")} value={referee.matches} />
-        <Board label={t("arae.rmcs")} value={referee.rmcsAvg.toFixed(1)} />
-        <Board label={t("referees.varAccuracy")} value={`${referee.varAccuracy}%`} tone="var" />
-        <Board label={t("arae.fitness")} value={referee.fitness} tone={referee.fitness >= 82 ? "pitch" : "amber"} />
+        <Board
+          tone="gold"
+          icon={CalendarDays}
+          label={t("referees.matchesOfficiated")}
+          value={referee.matches}
+        />
+        <Board icon={Target} label={t("arae.rmcs")} value={referee.rmcsAvg.toFixed(1)} />
+        <Board
+          tone="var"
+          icon={Radio}
+          label={t("referees.varAccuracy")}
+          value={`${referee.varAccuracy}%`}
+        />
+        <Board
+          icon={HeartPulse}
+          label={t("arae.fitness")}
+          value={referee.fitness}
+          tone={referee.fitness >= 82 ? "pitch" : "amber"}
+        />
       </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <Card>
-          <CardHeader title={t("referees.subIndices")} subtitle={t("referees.subIndicesSub")} />
+          <CardHeader icon={Radar} tint="var" title={t("referees.subIndices")} subtitle={t("referees.subIndicesSub")} />
           <SubIndexRadar data={radar} />
           <div className="mt-2 grid grid-cols-5 gap-1 text-center">
             {radar.map((d) => (
@@ -144,7 +159,7 @@ export function RefereeProfile({ id }: { id: string }) {
         </Card>
 
         <Card>
-          <CardHeader title={t("referees.discipline")} subtitle={t("referees.disciplineSub")} />
+          <CardHeader icon={Scale} tint="gold" title={t("referees.discipline")} subtitle={t("referees.disciplineSub")} />
           <ul className="space-y-2">
             <li className="flex items-center justify-between rounded-lg border border-amber/25 bg-amber/[0.07] px-3 py-2.5">
               <span className="text-[13px] text-chalk-dim">{t("referees.yellowCards")}</span>
@@ -184,7 +199,7 @@ export function RefereeProfile({ id }: { id: string }) {
         </Card>
 
         <Card>
-          <CardHeader title={t("development.progression")} subtitle={t("development.progressionSub")} />
+          <CardHeader icon={TrendingUp} tint="pitch" title={t("development.progression")} subtitle={t("development.progressionSub")} />
           {data.progression.nextLevel ? (
             <Badge tone="neutral" className="mb-3">
               {referee.level} → {data.progression.nextLevel}
@@ -220,7 +235,7 @@ export function RefereeProfile({ id }: { id: string }) {
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <Card>
-          <CardHeader title={t("referees.recentMatches")} subtitle={t("referees.recentMatchesSub")} />
+          <CardHeader icon={CalendarDays} tint="pitch" title={t("referees.recentMatches")} subtitle={t("referees.recentMatchesSub")} />
           {data.appointments.length === 0 ? (
             <EmptyState title={t("referees.noneScheduled")} />
           ) : (
@@ -255,7 +270,7 @@ export function RefereeProfile({ id }: { id: string }) {
         </Card>
 
         <Card>
-          <CardHeader title={t("referees.passport")} subtitle={t("referees.passportSub")} />
+          <CardHeader icon={IdCard} tint="var" title={t("referees.passport")} subtitle={t("referees.passportSub")} />
           <ol className="relative space-y-4 border-l border-line pl-4">
             {data.refLicences
               .slice()

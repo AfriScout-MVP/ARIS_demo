@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { GraduationCap, ShieldAlert, Timer } from "lucide-react";
+import { BadgeCheck, GraduationCap, HeartPulse, ShieldAlert, Timer, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useFormatters, useLocale, useT } from "@/lib/i18n/LocaleProvider";
 import { useScope } from "@/lib/scope/ScopeProvider";
@@ -59,19 +59,26 @@ export default function DevelopmentPage() {
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <Board
           primary
+          icon={ShieldAlert}
           label={t("development.expiring")}
           value={atRisk.length}
           tone={atRisk.length ? "amber" : "pitch"}
           hint={t("development.expiringSub")}
         />
         <Board
+          icon={Timer}
           label={t("development.failed")}
           value={failed.length}
           tone={failed.length ? "red" : "pitch"}
           hint={t("development.fitnessSub")}
         />
-        <Board label={t("development.coursesTitle")} value={scopedCourses.length} />
-        <Board label={t("referees.title")} value={corps.length} />
+        <Board
+          tone="gold"
+          icon={GraduationCap}
+          label={t("development.coursesTitle")}
+          value={scopedCourses.length}
+        />
+        <Board tone="var" icon={Users} label={t("referees.title")} value={corps.length} />
       </div>
 
       <Segmented
@@ -87,7 +94,7 @@ export default function DevelopmentPage() {
       {tab === "licences" && (
         <Card padded={false}>
           <div className="px-4 py-3">
-            <CardHeader title={t("development.licences")} subtitle={t("development.expiringSub")} className="mb-0" />
+            <CardHeader icon={BadgeCheck} tint="var" title={t("development.licences")} subtitle={t("development.expiringSub")} className="mb-0" />
           </div>
           <div className="chalk-rule" />
           {scopedLicences.length === 0 ? (
@@ -152,7 +159,7 @@ export default function DevelopmentPage() {
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
           <Card className="lg:col-span-2" padded={false}>
             <div className="px-4 py-3">
-              <CardHeader title={t("development.fitnessTitle")} subtitle={t("development.fitnessSub")} className="mb-0" />
+              <CardHeader icon={HeartPulse} tint="pitch" title={t("development.fitnessTitle")} subtitle={t("development.fitnessSub")} className="mb-0" />
             </div>
             <div className="chalk-rule" />
             <div className="scroll-x">
@@ -199,7 +206,7 @@ export default function DevelopmentPage() {
           </Card>
 
           <Card>
-            <CardHeader title={t("development.complianceRisk")} />
+            <CardHeader icon={ShieldAlert} tint="amber" title={t("development.complianceRisk")} />
             {failed.length === 0 && atRisk.length === 0 ? (
               <EmptyState title={t("development.complianceOk")} />
             ) : (

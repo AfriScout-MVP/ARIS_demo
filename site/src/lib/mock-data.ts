@@ -1440,17 +1440,18 @@ export const zoneDistribution = zones.map((zone) => {
  * Positioning
  * ------------------------------------------------------------------ */
 
+/** Presence samples in metres on a 105 × 68 pitch, matching `Pitch.tsx`. */
 export function heatPointsFor(matchId: string) {
   const r = rng(hash(matchId + "heat"));
   const round = (n: number) => Math.round(n * 100) / 100;
-  return Array.from({ length: 260 }, () => {
+  // Three uniforms summed approximate a bell, which gives the diagonal a real
+  // ridge — a single uniform draws a flat band with no shape to read.
+  const bell = () => (r() + r() + r() - 1.5) / 1.5;
+  return Array.from({ length: 420 }, () => {
     // Referees hold the left-back-to-right-back diagonal.
-    const t = r();
-    const along = t * 100;
-    const spread = (r() - 0.5) * 34;
-    const x = Math.max(2, Math.min(98, along));
-    const y = Math.max(3, Math.min(61, 8 + along * 0.48 + spread));
-    return { x: round(x), y: round(y), intensity: round(0.3 + r() * 0.7) };
+    const x = Math.max(1.5, Math.min(103.5, r() * 105));
+    const y = Math.max(2, Math.min(66, 10 + (x / 105) * 48 + bell() * 13));
+    return { x: round(x), y: round(y), intensity: round(0.35 + r() * 0.65) };
   });
 }
 

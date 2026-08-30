@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { BedDouble, Check, Plane, Shield, Sparkles, TrendingUp, Users } from "lucide-react";
+import { BedDouble, Check, Flame, History, ListChecks, Plane, Shield, Sparkles, TrendingUp, UserPlus, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useFormatters, useLocale, useT } from "@/lib/i18n/LocaleProvider";
 import { useScope } from "@/lib/scope/ScopeProvider";
@@ -73,7 +73,7 @@ export default function AraePage() {
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-[320px_minmax(0,1fr)]">
         <Card padded={false} className="h-fit">
           <div className="px-4 py-3">
-            <CardHeader title={t("arae.queue")} subtitle={t("arae.queueSub")} className="mb-0" />
+            <CardHeader icon={ListChecks} tint="var" title={t("arae.queue")} subtitle={t("arae.queueSub")} className="mb-0" />
           </div>
           <div className="chalk-rule" />
           <ul className="max-h-[420px] overflow-y-auto xl:max-h-[620px]">
@@ -182,7 +182,7 @@ export default function AraePage() {
             </Card>
 
             <Card>
-              <CardHeader title={t("arae.why")} subtitle={t("arae.whySub")} />
+              <CardHeader icon={Sparkles} tint="pitch" title={t("arae.why")} subtitle={t("arae.whySub")} />
               {top ? (
                 <div className="space-y-3">
                   <div className="flex items-center gap-2.5">
@@ -239,7 +239,7 @@ export default function AraePage() {
           </div>
 
           <Card>
-            <CardHeader title={t("arae.trace")} subtitle={t("arae.traceSub")} />
+            <CardHeader icon={History} tint="gold" title={t("arae.trace")} subtitle={t("arae.traceSub")} />
             <ol className="space-y-2">
               <TraceLine
                 at="—"
@@ -282,10 +282,20 @@ export default function AraePage() {
       </div>
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <Board label={t("arae.queue")} value={queue.length} />
-        <Board label={t("calendar.slotsOpen")} value={openCount} tone={openCount ? "amber" : "pitch"} />
-        <Board label={t("arae.candidates")} value={eligible.length} />
-        <Board label={t("calendar.importance")} value={fixture.importance} tone={fixture.importance > 88 ? "red" : "chalk"} />
+        <Board tone="var" icon={ListChecks} label={t("arae.queue")} value={queue.length} />
+        <Board
+          icon={UserPlus}
+          label={t("calendar.slotsOpen")}
+          value={openCount}
+          tone={openCount ? "amber" : "pitch"}
+        />
+        <Board tone="pitch" icon={Users} label={t("arae.candidates")} value={eligible.length} />
+        <Board
+          icon={Flame}
+          label={t("calendar.importance")}
+          value={fixture.importance}
+          tone={fixture.importance > 88 ? "red" : "gold"}
+        />
       </div>
     </div>
   );

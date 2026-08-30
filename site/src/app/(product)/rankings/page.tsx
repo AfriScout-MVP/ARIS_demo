@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Fragment, useMemo, useState } from "react";
-import { Minus, TrendingDown, TrendingUp } from "lucide-react";
+import { Gauge, Globe2, Layers, Medal, Minus, TrendingDown, TrendingUp, Trophy } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLocale, useT } from "@/lib/i18n/LocaleProvider";
 import { useScope } from "@/lib/scope/ScopeProvider";
@@ -68,10 +68,28 @@ export default function RankingsPage() {
       <PageHeading titleKey="rankings.title" subtitleKey="subtitles.rankings" />
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <Board primary label={t("rankings.title")} value={rows.length} hint={t("rankings.tableSub")} />
-        <Board label={t("overview.kpiArps")} value={rows.length ? (rows.reduce((s, r) => s + r.arps, 0) / rows.length).toFixed(1) : "—"} />
-        <Board label={t("rankings.movement")} value={`+${rising}`} tone="pitch" />
-        <Board label={t("rankings.promotionLine")} value={Math.min(PROMOTION_LINE, rows.length)} hint={t("rankings.promotionLineNote")} />
+        <Board
+          primary
+          tone="var"
+          icon={Trophy}
+          label={t("rankings.title")}
+          value={rows.length}
+          hint={t("rankings.tableSub")}
+        />
+        <Board
+          tone="gold"
+          icon={Gauge}
+          label={t("overview.kpiArps")}
+          value={rows.length ? (rows.reduce((s, r) => s + r.arps, 0) / rows.length).toFixed(1) : "—"}
+        />
+        <Board tone="pitch" icon={TrendingUp} label={t("rankings.movement")} value={`+${rising}`} />
+        <Board
+          tone="amber"
+          icon={Medal}
+          label={t("rankings.promotionLine")}
+          value={Math.min(PROMOTION_LINE, rows.length)}
+          hint={t("rankings.promotionLineNote")}
+        />
       </div>
 
       <Segmented
@@ -175,7 +193,7 @@ export default function RankingsPage() {
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <Card>
-          <CardHeader title={t("rankings.levelMix")} subtitle={t("rankings.levelMixSub")} />
+          <CardHeader icon={Layers} tint="var" title={t("rankings.levelMix")} subtitle={t("rankings.levelMixSub")} />
           <ul className="space-y-3">
             {levelMix.map((row) => (
               <li key={row.level}>
@@ -190,7 +208,7 @@ export default function RankingsPage() {
         </Card>
 
         <Card>
-          <CardHeader title={t("rankings.zoneLeaders")} subtitle={t("rankings.zoneLeadersSub")} />
+          <CardHeader icon={Globe2} tint="gold" title={t("rankings.zoneLeaders")} subtitle={t("rankings.zoneLeadersSub")} />
           <ul className="space-y-1.5">
             {zoneLeaders.map((z) => (
               <li key={z.zone}>
@@ -210,7 +228,7 @@ export default function RankingsPage() {
         </Card>
 
         <Card>
-          <CardHeader title={t("rankings.biggestMovers")} subtitle={t("rankings.biggestMoversSub")} />
+          <CardHeader icon={TrendingUp} tint="pitch" title={t("rankings.biggestMovers")} subtitle={t("rankings.biggestMoversSub")} />
           <ul className="space-y-1.5">
             {movers.map((row) => (
               <li key={row.refereeId}>

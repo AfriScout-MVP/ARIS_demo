@@ -16,7 +16,7 @@ import {
   YAxis,
   CartesianGrid,
 } from "recharts";
-import { ArrowUpRight, CalendarDays, ClipboardList, RefreshCcw, ShieldAlert, Timer } from "lucide-react";
+import { Activity, ArrowUpRight, CalendarDays, ClipboardList, Gauge, Globe2, RefreshCcw, Scale, ShieldAlert, Timer, TrendingUp, Trophy, UserPlus, Users } from "lucide-react";
 import { useLocale, useT } from "@/lib/i18n/LocaleProvider";
 import { useFormatters } from "@/lib/i18n/LocaleProvider";
 import { useScope } from "@/lib/scope/ScopeProvider";
@@ -173,24 +173,40 @@ export default function OverviewPage() {
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <Board
           primary
+          icon={CalendarDays}
           label={t("overview.kpiCoverage")}
           value={`${data.complete}/${data.thisWeek.length}`}
           hint={`${coveragePct}% ${t("overview.coverageNote")}`}
           tone={coveragePct >= 80 ? "pitch" : coveragePct >= 55 ? "amber" : "red"}
         />
         <Board
+          icon={UserPlus}
           label={t("overview.kpiUnassigned")}
           value={data.openSlotTotal}
           tone={data.openSlotTotal > 0 ? "amber" : "pitch"}
           hint={t("calendar.slotsOpen")}
         />
-        <Board label={t("overview.kpiReferees")} value={data.corps.length} hint={`${codes.length} ${t("common.countries").toLowerCase()}`} />
-        <Board label={t("overview.kpiArps")} value={data.avgArps.toFixed(1)} delta={1.8} />
+        <Board
+          tone="var"
+          icon={Users}
+          label={t("overview.kpiReferees")}
+          value={data.corps.length}
+          hint={`${codes.length} ${t("common.countries").toLowerCase()}`}
+        />
+        <Board
+          tone="gold"
+          icon={Gauge}
+          label={t("overview.kpiArps")}
+          value={data.avgArps.toFixed(1)}
+          delta={1.8}
+        />
       </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <Card className="lg:col-span-2">
           <CardHeader
+            icon={CalendarDays}
+            tint="var"
             title={t("overview.weekBoard")}
             subtitle={t("overview.weekBoardSub")}
             action={
@@ -240,7 +256,7 @@ export default function OverviewPage() {
         </Card>
 
         <Card>
-          <CardHeader title={t("overview.attention")} subtitle={t("overview.attentionSub")} />
+          <CardHeader icon={ShieldAlert} tint="amber" title={t("overview.attention")} subtitle={t("overview.attentionSub")} />
           {alerts.length === 0 ? (
             <EmptyState title={t("overview.noAttention")} hint={t("overview.noAttentionHint")} />
           ) : (
@@ -268,7 +284,7 @@ export default function OverviewPage() {
       </div>
 
       <Card>
-        <CardHeader title={t("overview.workload")} subtitle={t("overview.workloadSub")} />
+        <CardHeader icon={Activity} tint="gold" title={t("overview.workload")} subtitle={t("overview.workloadSub")} />
         {data.heavy.length === 0 && data.idle.length === 0 ? (
           <EmptyState title={t("overview.workloadEven")} />
         ) : (
@@ -338,7 +354,7 @@ export default function OverviewPage() {
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <Card className="lg:col-span-2">
-          <CardHeader title={t("overview.arpsTrend")} subtitle={t("overview.arpsTrendSub")} />
+          <CardHeader icon={TrendingUp} tint="pitch" title={t("overview.arpsTrend")} subtitle={t("overview.arpsTrendSub")} />
           <div className="h-56">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={arpsTrend} margin={{ top: 4, right: 6, bottom: 0, left: -22 }}>
@@ -366,7 +382,7 @@ export default function OverviewPage() {
         </Card>
 
         <Card>
-          <CardHeader title={t("overview.decisions")} subtitle={t("overview.decisionsSub")} />
+          <CardHeader icon={Scale} tint="var" title={t("overview.decisions")} subtitle={t("overview.decisionsSub")} />
           <div className="h-36">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -394,7 +410,7 @@ export default function OverviewPage() {
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <Card className="lg:col-span-2">
-          <CardHeader title={t("overview.zoneSpread")} subtitle={t("overview.zoneSpreadSub")} />
+          <CardHeader icon={Globe2} tint="gold" title={t("overview.zoneSpread")} subtitle={t("overview.zoneSpreadSub")} />
           <div className="h-56">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={zoneDistribution} margin={{ top: 4, right: 6, bottom: 0, left: -22 }}>
@@ -411,6 +427,8 @@ export default function OverviewPage() {
 
         <Card>
           <CardHeader
+            icon={Trophy}
+            tint="pitch"
             title={t("overview.topReferees")}
             subtitle={t("overview.topRefereesSub")}
             action={

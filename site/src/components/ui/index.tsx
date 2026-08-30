@@ -1,6 +1,80 @@
 "use client";
 
+import type { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+/* ------------------------------------------------------------------ *
+ * Tints — one set of colour tokens, shared by counters, cards and chips
+ * so the same meaning is the same colour on every screen.
+ * ------------------------------------------------------------------ */
+
+export type Tint = "slate" | "pitch" | "amber" | "red" | "var" | "gold";
+
+interface TintTokens {
+  /** Card surface + border. */
+  surface: string;
+  /** A wash for a full-width panel, lighter than a counter tile. */
+  wash: string;
+  /** The number, or any text that carries the tint. */
+  text: string;
+  /** The label above the number. */
+  label: string;
+  /** Icon chip behind a Lucide glyph. */
+  chip: string;
+  /** Solid fill, for meters and rails. */
+  fill: string;
+}
+
+export const tints: Record<Tint, TintTokens> = {
+  slate: {
+    surface: "border-line bg-ink-2",
+    wash: "border-line bg-ink-2",
+    text: "text-chalk",
+    label: "text-chalk-faint",
+    chip: "bg-white/[0.06] text-chalk-faint",
+    fill: "bg-chalk-faint",
+  },
+  pitch: {
+    surface: "border-pitch/25 bg-pitch/[0.08]",
+    wash: "border-pitch/20 bg-gradient-to-b from-pitch/[0.07] to-ink-2",
+    text: "text-pitch",
+    label: "text-pitch/70",
+    chip: "bg-pitch/15 text-pitch",
+    fill: "bg-pitch",
+  },
+  amber: {
+    surface: "border-amber/25 bg-amber/[0.08]",
+    wash: "border-amber/20 bg-gradient-to-b from-amber/[0.07] to-ink-2",
+    text: "text-amber",
+    label: "text-amber/70",
+    chip: "bg-amber/15 text-amber",
+    fill: "bg-amber",
+  },
+  red: {
+    surface: "border-card-red/25 bg-card-red/[0.08]",
+    wash: "border-card-red/20 bg-gradient-to-b from-card-red/[0.07] to-ink-2",
+    text: "text-card-red",
+    label: "text-card-red/70",
+    chip: "bg-card-red/15 text-card-red",
+    fill: "bg-card-red",
+  },
+  var: {
+    surface: "border-var/25 bg-var/[0.08]",
+    wash: "border-var/20 bg-gradient-to-b from-var/[0.07] to-ink-2",
+    text: "text-var",
+    label: "text-var/70",
+    chip: "bg-var/15 text-var",
+    fill: "bg-var",
+  },
+  gold: {
+    surface: "border-gold-soft/25 bg-gold-soft/[0.08]",
+    wash: "border-gold-soft/20 bg-gradient-to-b from-gold-soft/[0.07] to-ink-2",
+    text: "text-gold-soft",
+    label: "text-gold-soft/70",
+    chip: "bg-gold-soft/15 text-gold-soft",
+    fill: "bg-gold-soft",
+  },
+};
 
 /* ------------------------------------------------------------------ *
  * Surfaces
@@ -11,16 +85,20 @@ export function Card({
   className,
   interactive = false,
   padded = true,
+  tint,
 }: {
   children: React.ReactNode;
   className?: string;
   interactive?: boolean;
   padded?: boolean;
+  /** Washes the panel in one meaning's colour. Use on the panel a page is about. */
+  tint?: Tint;
 }) {
   return (
     <section
       className={cn(
-        "rounded-xl border border-line bg-ink-2",
+        "rounded-xl border",
+        tint ? tints[tint].wash : "border-line bg-ink-2",
         padded && "p-4 sm:p-5",
         interactive && "lift",
         className,
@@ -35,18 +113,36 @@ export function CardHeader({
   title,
   subtitle,
   action,
+  icon: Icon,
+  tint = "slate",
   className,
 }: {
   title: string;
   subtitle?: string;
   action?: React.ReactNode;
+  icon?: LucideIcon;
+  tint?: Tint;
   className?: string;
 }) {
   return (
-    <div className={cn("flex items-start justify-between gap-3 mb-4", className)}>
-      <div className="min-w-0">
-        <h2 className="font-display text-[15px] font-semibold text-chalk">{title}</h2>
-        {subtitle && <p className="mt-0.5 text-[12.5px] leading-snug text-chalk-faint">{subtitle}</p>}
+    <div className={cn("mb-4 flex items-start justify-between gap-3", className)}>
+      <div className="flex min-w-0 items-start gap-2.5">
+        {Icon && (
+          <span
+            className={cn(
+              "mt-0.5 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-lg",
+              tints[tint].chip,
+            )}
+          >
+            <Icon size={14} />
+          </span>
+        )}
+        <div className="min-w-0">
+          <h2 className="font-display text-[15px] font-semibold text-chalk">{title}</h2>
+          {subtitle && (
+            <p className="mt-0.5 text-[12.5px] leading-snug text-chalk-faint">{subtitle}</p>
+          )}
+        </div>
       </div>
       {action && <div className="shrink-0">{action}</div>}
     </div>
@@ -62,7 +158,7 @@ export function ChalkRule({ className }: { className?: string }) {
  * Badges — colour only where the Laws assign meaning
  * ------------------------------------------------------------------ */
 
-export type Tone = "neutral" | "pitch" | "amber" | "red" | "var" | "chalk";
+export type Tone = "neutral" | "pitch" | "amber" | "red" | "var" | "gold" | "chalk";
 
 const toneClass: Record<Tone, string> = {
   neutral: "border-line bg-white/[0.04] text-chalk-dim",
@@ -70,6 +166,7 @@ const toneClass: Record<Tone, string> = {
   amber: "border-amber/30 bg-amber/10 text-amber",
   red: "border-card-red/30 bg-card-red/10 text-card-red",
   var: "border-var/30 bg-var/10 text-var",
+  gold: "border-gold-soft/30 bg-gold-soft/10 text-gold-soft",
   chalk: "border-pitch bg-pitch text-[#04140c]",
 };
 
@@ -102,6 +199,7 @@ export function Dot({ tone = "neutral", pulse = false }: { tone?: Tone; pulse?: 
     amber: "bg-amber",
     red: "bg-card-red",
     var: "bg-var",
+    gold: "bg-gold-soft",
     chalk: "bg-chalk",
   };
   return <span className={cn("inline-block h-1.5 w-1.5 shrink-0 rounded-full", fill[tone], pulse && "live-dot")} />;
@@ -199,9 +297,13 @@ export function Select({
  * Data display
  * ------------------------------------------------------------------ */
 
+/** `chalk` is kept as the neutral name so older call sites still read right. */
+export type BoardTone = "chalk" | Tint;
+
 /**
- * The added-time board. Reserved for the numbers a view exists to show —
- * one primary per screen, the rest quiet.
+ * The added-time board — a counter tile. The tint carries the meaning
+ * (green confirmed, amber pending, red unfilled, sky under review, gold
+ * catalogue), so a row of these can be read by colour before it is read.
  */
 export function Board({
   label,
@@ -209,6 +311,7 @@ export function Board({
   unit,
   delta,
   hint,
+  icon: Icon,
   primary = false,
   tone = "chalk",
   className,
@@ -218,29 +321,43 @@ export function Board({
   unit?: string;
   delta?: number;
   hint?: string;
+  icon?: LucideIcon;
   primary?: boolean;
-  tone?: "chalk" | "pitch" | "amber" | "red" | "var";
+  tone?: BoardTone;
   className?: string;
 }) {
-  const valueTone = {
-    chalk: "text-chalk",
-    pitch: "text-pitch",
-    amber: "text-amber",
-    red: "text-card-red",
-    var: "text-var",
-  }[tone];
+  const tint = tints[tone === "chalk" ? "slate" : tone];
 
   return (
     <div
       className={cn(
-        "rounded-xl border border-line bg-ink-2 p-4",
-        primary && "bg-ink-3 border-line-strong",
+        "relative overflow-hidden rounded-xl border p-4",
+        tint.surface,
+        primary && tone === "chalk" && "border-line-strong bg-ink-3",
         className,
       )}
     >
-      <p className="text-[11px] uppercase tracking-[0.08em] text-chalk-faint">{label}</p>
+      <div className="flex items-start justify-between gap-2">
+        <p className={cn("text-[11px] uppercase tracking-[0.08em]", tint.label)}>{label}</p>
+        {Icon && (
+          <span
+            className={cn(
+              "inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-md",
+              tint.chip,
+            )}
+          >
+            <Icon size={13} />
+          </span>
+        )}
+      </div>
       <p className="mt-2 flex items-baseline gap-1.5">
-        <span className={cn("board font-semibold", primary ? "text-[34px] leading-none" : "text-[26px] leading-none", valueTone)}>
+        <span
+          className={cn(
+            "board font-semibold",
+            primary ? "text-[34px] leading-none" : "text-[26px] leading-none",
+            tint.text,
+          )}
+        >
           {value}
         </span>
         {unit && <span className="text-[12px] text-chalk-faint">{unit}</span>}
@@ -264,17 +381,11 @@ export function Meter({
 }: {
   value: number;
   max?: number;
-  tone?: "chalk" | "pitch" | "amber" | "red" | "var";
+  tone?: BoardTone;
   className?: string;
 }) {
   const pct = Math.max(0, Math.min(100, (value / max) * 100));
-  const fill = {
-    chalk: "bg-chalk",
-    pitch: "bg-pitch",
-    amber: "bg-amber",
-    red: "bg-card-red",
-    var: "bg-var",
-  }[tone];
+  const fill = tone === "chalk" ? "bg-chalk" : tints[tone].fill;
   return (
     <div className={cn("h-1.5 w-full overflow-hidden rounded-full bg-white/[0.07]", className)}>
       <div className={cn("h-full rounded-full transition-[width] duration-500", fill)} style={{ width: `${pct}%` }} />

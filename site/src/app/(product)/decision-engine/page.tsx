@@ -12,7 +12,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { AlertTriangle, ArrowUpRight, CheckCircle2, Radio, Ruler } from "lucide-react";
+import { AlertTriangle, ArrowUpRight, BarChart3, CheckCircle2, Flame, ListChecks, Radio, Ruler, Scale, Users, Video } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useFormatters, useLocale, useT } from "@/lib/i18n/LocaleProvider";
 import { useScope } from "@/lib/scope/ScopeProvider";
@@ -95,7 +95,7 @@ export default function MatchReviewPage() {
       <PageHeading titleKey="matchReview.title" subtitleKey="subtitles.matchReview" />
 
       <Card>
-        <CardHeader title={t("matchReview.selectMatch")} subtitle={t("matchReview.selectMatchSub")} />
+        <CardHeader icon={Video} tint="var" title={t("matchReview.selectMatch")} subtitle={t("matchReview.selectMatchSub")} />
         <div className="scroll-x -mx-1 px-1">
           <div className="flex gap-2">
             {list.map((m) => (
@@ -139,9 +139,13 @@ export default function MatchReviewPage() {
             )}
           </div>
           <div className="grid grid-cols-3 gap-2 sm:w-[300px]">
-            <Board label={t("matchReview.matchArps")} value={match.arpsForMatch} />
-            <Board label={t("arae.rmcs")} value={match.rmcs} />
-            <Board label={t("matchReview.overturned")} value={overturned} tone={overturned ? "amber" : "pitch"} />
+            <Board tone="var" label={t("matchReview.matchArps")} value={match.arpsForMatch} />
+            <Board tone="gold" label={t("arae.rmcs")} value={match.rmcs} />
+            <Board
+              label={t("matchReview.overturned")}
+              value={overturned}
+              tone={overturned ? "amber" : "pitch"}
+            />
           </div>
         </div>
       </Card>
@@ -150,6 +154,8 @@ export default function MatchReviewPage() {
         <Card className="lg:col-span-2" padded={false}>
           <div className="px-4 py-3">
             <CardHeader
+              icon={ListChecks}
+              tint="pitch"
               title={t("matchReview.timeline")}
               subtitle={t("matchReview.timelineSub", { n: match.decisions.length })}
               className="mb-0"
@@ -187,6 +193,8 @@ export default function MatchReviewPage() {
 
         <Card>
           <CardHeader
+            icon={Scale}
+            tint="gold"
             title={t("matchReview.detail")}
             subtitle={`${t("matchReview.minute")} ${active.minute}'`}
           />
@@ -256,7 +264,7 @@ export default function MatchReviewPage() {
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <Card>
-          <CardHeader title={t("matchReview.crewOnTheDay")} subtitle={t("matchReview.crewOnTheDaySub")} />
+          <CardHeader icon={Users} tint="var" title={t("matchReview.crewOnTheDay")} subtitle={t("matchReview.crewOnTheDaySub")} />
           {fixture ? (
             <CrewStrip crew={fixture.crew} size="md" />
           ) : (
@@ -269,7 +277,7 @@ export default function MatchReviewPage() {
         </Card>
 
         <Card className="lg:col-span-2">
-          <CardHeader title={t("matchReview.againstSeason")} subtitle={t("matchReview.againstSeasonSub")} />
+          <CardHeader icon={BarChart3} tint="pitch" title={t("matchReview.againstSeason")} subtitle={t("matchReview.againstSeasonSub")} />
           <ul className="space-y-3">
             {comparison.map((row) => (
               <li key={row.label}>
@@ -305,6 +313,8 @@ export default function MatchReviewPage() {
 
       <Card>
         <CardHeader
+          icon={Flame}
+          tint="amber"
           title={t("matchReview.pressureChart")}
           subtitle={t("matchReview.pressureChartSub")}
           action={

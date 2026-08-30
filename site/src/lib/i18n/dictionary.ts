@@ -106,21 +106,21 @@ export const en = {
   nav: {
     groupOperations: "Operations",
     groupPerformance: "Performance",
-    groupPeople: "People",
+    groupPeople: "Referee corps",
     groupOrganisation: "Organisation",
     overview: "Overview",
     calendar: "Calendar & appointments",
-    arae: "AI assignment",
-    copilot: "ARIS Copilot",
+    arae: "Assisted appointment",
+    copilot: "AI assistant",
     referees: "Referees",
     matchReview: "Match review",
     assessments: "Observer reports",
-    positioning: "Positioning",
+    positioning: "Positioning on the pitch",
     rankings: "Rankings",
-    compare: "Compare",
-    development: "Development",
-    federations: "Countries",
-    reports: "Reports",
+    compare: "Comparison",
+    development: "Training & licences",
+    federations: "Federations",
+    reports: "Dossiers",
     collapse: "Collapse sidebar",
     expand: "Expand sidebar",
   },
@@ -128,17 +128,17 @@ export const en = {
   subtitles: {
     overview: "Where the refereeing corps stands this week.",
     calendar: "Every national fixture list, and who is officiating it.",
-    arae: "Build a crew for a fixture, with the reasoning attached.",
-    copilot: "Ask about referees, fixtures and coverage.",
+    arae: "ARIS proposes the crew for a fixture and shows why each name.",
+    copilot: "Ask a question about referees, fixtures or coverage.",
     referees: "Every official ARIS tracks.",
     matchReview: "Decision-by-decision review of a played match.",
     assessments: "Observer marks and the notes behind them.",
-    positioning: "Where the referee was when the decision happened.",
+    positioning: "Where the referee was standing when each decision was made.",
     rankings: "The promotion table.",
     compare: "Two officials, side by side.",
     development: "Licences, fitness tests and the path to the next level.",
-    federations: "Federations, competitions and calendar sync health.",
-    reports: "Match and refereeing dossiers, ready to send.",
+    federations: "Member federations, their competitions and calendar sync.",
+    reports: "Build a match and refereeing dossier, ready to send.",
   },
 
   overview: {
@@ -224,7 +224,7 @@ export const en = {
   },
 
   arae: {
-    title: "AI assignment",
+    title: "Assisted appointment",
     queue: "Fixture queue",
     queueSub: "Fixtures awaiting a crew, highest stake first",
     buildCrew: "Build the crew",
@@ -258,7 +258,7 @@ export const en = {
   },
 
   copilot: {
-    title: "ARIS Copilot",
+    title: "AI assistant",
     intro: "Ask about the corps, the calendar or a specific official.",
     introSub:
       "Copilot reads the same data as every other screen and shows the rows behind each answer, so you can check it.",
@@ -377,7 +377,7 @@ export const en = {
   },
 
   positioning: {
-    title: "Positioning",
+    title: "Positioning on the pitch",
     selectMatch: "Select a match",
     heatmap: "Position heat map",
     heatmapSub: "Where the referee spent the match, attacking left to right",
@@ -414,7 +414,7 @@ export const en = {
   },
 
   compare: {
-    title: "Compare",
+    title: "Comparison",
     pickTwo: "Pick two officials",
     refereeA: "Referee A",
     refereeB: "Referee B",
@@ -428,7 +428,7 @@ export const en = {
   },
 
   development: {
-    title: "Development",
+    title: "Training & licences",
     passport: "Passport",
     licences: "Licences",
     fitness: "Fitness",
@@ -463,7 +463,7 @@ export const en = {
   },
 
   federations: {
-    title: "Countries",
+    title: "Federations",
     tableSub: "One row per member federation",
     corps: "Corps",
     eliteCount: "CAF Elite",
@@ -482,7 +482,7 @@ export const en = {
   },
 
   reports: {
-    title: "Reports",
+    title: "Dossiers",
     builder: "Build a dossier",
     builderSub: "Pick what goes in, then export",
     sections: "Sections",
@@ -492,7 +492,7 @@ export const en = {
     secObserver: "Observer report",
     secCrew: "Crew and appointment trace",
     secComparison: "Zone comparison",
-    recipients: "Send to",
+    recipients: "Recipients",
     recipientFederation: "Federation referee committee",
     recipientReferee: "The referee",
     recipientCaf: "CAF referees department",
@@ -504,6 +504,26 @@ export const en = {
     generatePdf: "Generate dossier",
     generating: "Building the dossier…",
     ready: "Dossier ready. Download starts in the real product.",
+    kpiThisMonth: "Dossiers this month",
+    kpiPages: "Pages produced",
+    kpiRecipients: "Recipients reached",
+    kpiAwaiting: "Waiting on an observer report",
+    sourceMatch: "Source match",
+    contents: "Contents",
+    reference: "Reference",
+    confidential: "Confidential — refereeing committee use only",
+    delivery: "Delivery",
+    formatPdf: "PDF",
+    formatLink: "Secure link",
+    noSections: "Pick at least one section.",
+    secSummaryHint: "Result, competition and the referee's headline marks",
+    secDecisionsHint: "Every reviewable decision with the final call",
+    secPositioningHint: "Distance covered, sprints and diagonal adherence",
+    secObserverHint: "The observer's six marks and written notes",
+    secCrewHint: "Who was appointed, and why ARIS proposed them",
+    secComparisonHint: "This match set against the zone average",
+    dossierTitle: "Match & refereeing dossier",
+    pageOf: "Page 1 of {n}",
   },
 
   status: {
@@ -622,21 +642,21 @@ export const fr: Dict = {
   nav: {
     groupOperations: "Opérations",
     groupPerformance: "Performance",
-    groupPeople: "Effectif",
+    groupPeople: "Corps arbitral",
     groupOrganisation: "Organisation",
     overview: "Vue d'ensemble",
-    calendar: "Calendrier et désignations",
-    arae: "Désignation IA",
-    copilot: "Copilote ARIS",
+    calendar: "Calendrier des désignations",
+    arae: "Désignation assistée",
+    copilot: "Assistant IA",
     referees: "Arbitres",
     matchReview: "Revue de match",
     assessments: "Rapports d'observateur",
-    positioning: "Placement",
+    positioning: "Placement sur le terrain",
     rankings: "Classement",
-    compare: "Comparer",
-    development: "Développement",
-    federations: "Pays",
-    reports: "Rapports",
+    compare: "Comparaison",
+    development: "Formation et licences",
+    federations: "Fédérations",
+    reports: "Dossiers",
     collapse: "Réduire le menu",
     expand: "Déployer le menu",
   },
@@ -644,17 +664,17 @@ export const fr: Dict = {
   subtitles: {
     overview: "L'état du corps arbitral cette semaine.",
     calendar: "Chaque calendrier national, et qui l'arbitre.",
-    arae: "Composer un trio pour une rencontre, justification à l'appui.",
-    copilot: "Posez vos questions sur les arbitres, les matchs et la couverture.",
+    arae: "ARIS propose le trio d'une rencontre et justifie chaque nom.",
+    copilot: "Posez une question sur les arbitres, les rencontres ou la couverture.",
     referees: "Tous les officiels suivis par ARIS.",
     matchReview: "Revue décision par décision d'un match joué.",
     assessments: "Les notes des observateurs et les commentaires derrière.",
-    positioning: "Où se trouvait l'arbitre au moment de la décision.",
+    positioning: "Où se tenait l'arbitre au moment de chaque décision.",
     rankings: "Le tableau de promotion.",
     compare: "Deux officiels, côte à côte.",
     development: "Licences, tests physiques et accès au niveau supérieur.",
-    federations: "Fédérations, compétitions et santé de la synchronisation.",
-    reports: "Dossiers match et arbitrage, prêts à envoyer.",
+    federations: "Fédérations membres, leurs compétitions et la synchronisation.",
+    reports: "Composez un dossier match et arbitrage, prêt à envoyer.",
   },
 
   overview: {
@@ -690,7 +710,7 @@ export const fr: Dict = {
   },
 
   calendar: {
-    title: "Calendrier et désignations",
+    title: "Calendrier des désignations",
     board: "Tableau des désignations",
     boardSub:
       "Les rencontres en colonne, les postes du trio en ligne. Cliquez sur un poste vide pour le pourvoir.",
@@ -741,7 +761,7 @@ export const fr: Dict = {
   },
 
   arae: {
-    title: "Désignation IA",
+    title: "Désignation assistée",
     queue: "File des rencontres",
     queueSub: "Rencontres sans trio, les plus sensibles d'abord",
     buildCrew: "Composer le trio",
@@ -775,7 +795,7 @@ export const fr: Dict = {
   },
 
   copilot: {
-    title: "Copilote ARIS",
+    title: "Assistant IA",
     intro: "Interrogez le corps arbitral, le calendrier ou un officiel précis.",
     introSub:
       "Le copilote lit les mêmes données que les autres écrans et affiche les lignes derrière chaque réponse, pour que vous puissiez vérifier.",
@@ -895,7 +915,7 @@ export const fr: Dict = {
   },
 
   positioning: {
-    title: "Placement",
+    title: "Placement sur le terrain",
     selectMatch: "Choisir une rencontre",
     heatmap: "Carte de présence",
     heatmapSub: "Où l'arbitre a passé le match, attaque de gauche à droite",
@@ -932,7 +952,7 @@ export const fr: Dict = {
   },
 
   compare: {
-    title: "Comparer",
+    title: "Comparaison",
     pickTwo: "Choisir deux officiels",
     refereeA: "Arbitre A",
     refereeB: "Arbitre B",
@@ -946,7 +966,7 @@ export const fr: Dict = {
   },
 
   development: {
-    title: "Développement",
+    title: "Formation et licences",
     passport: "Passeport",
     licences: "Licences",
     fitness: "Condition physique",
@@ -981,7 +1001,7 @@ export const fr: Dict = {
   },
 
   federations: {
-    title: "Pays",
+    title: "Fédérations",
     tableSub: "Une ligne par fédération membre",
     corps: "Effectif",
     eliteCount: "CAF Elite",
@@ -1000,7 +1020,7 @@ export const fr: Dict = {
   },
 
   reports: {
-    title: "Rapports",
+    title: "Dossiers",
     builder: "Composer un dossier",
     builderSub: "Choisissez le contenu, puis exportez",
     sections: "Sections",
@@ -1022,6 +1042,26 @@ export const fr: Dict = {
     generatePdf: "Générer le dossier",
     generating: "Construction du dossier…",
     ready: "Dossier prêt. Le téléchargement démarre dans le produit réel.",
+    kpiThisMonth: "Dossiers ce mois",
+    kpiPages: "Pages produites",
+    kpiRecipients: "Destinataires touchés",
+    kpiAwaiting: "En attente d'un rapport d'observateur",
+    sourceMatch: "Rencontre source",
+    contents: "Sommaire",
+    reference: "Référence",
+    confidential: "Confidentiel — réservé à la commission d'arbitrage",
+    delivery: "Diffusion",
+    formatPdf: "PDF",
+    formatLink: "Lien sécurisé",
+    noSections: "Choisissez au moins une section.",
+    secSummaryHint: "Résultat, compétition et notes principales de l'arbitre",
+    secDecisionsHint: "Chaque décision analysable et la décision finale",
+    secPositioningHint: "Distance parcourue, sprints et respect de la diagonale",
+    secObserverHint: "Les six notes de l'observateur et ses commentaires",
+    secCrewHint: "Qui a été désigné, et pourquoi ARIS l'a proposé",
+    secComparisonHint: "Ce match rapporté à la moyenne de la zone",
+    dossierTitle: "Dossier match et arbitrage",
+    pageOf: "Page 1 sur {n}",
   },
 
   status: {

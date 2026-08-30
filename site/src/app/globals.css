@@ -12,7 +12,11 @@
     amber      → caution / pending / expiring
     red        → sanction / conflict / unassigned
     sky        → a second look (VAR review, and ARIS AI output)
-    gold       → AfriScout's african-gold, used sparingly for highlights
+    gold       → AfriScout's african-gold: the catalogue (competitions, courses)
+
+  Counters carry that meaning as a tint on the whole tile, the way AfriScout's
+  `kpi-colors.ts` does — a pending count is the same amber on every screen, so
+  a row of counters can be read by colour before it is read by label.
 */
 
 @theme inline {
@@ -35,6 +39,7 @@
 
   --color-amber: #eab308;
   --color-gold: #b88a0d; /* african-gold */
+  --color-gold-soft: #eab84c; /* african-gold, lifted to read on slate */
   --color-card-red: #ef4444;
   --color-terracotta: #b34a2d; /* african-terracotta */
   --color-var: #38bdf8;

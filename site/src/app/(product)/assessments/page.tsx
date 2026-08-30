@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { ArrowUpRight, Clock, Film } from "lucide-react";
+import { AlarmClock, ArrowUpRight, BarChart3, ClipboardCheck, ClipboardList, Clock, Film, Gauge, Quote, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useFormatters, useLocale, useT } from "@/lib/i18n/LocaleProvider";
 import { useScope } from "@/lib/scope/ScopeProvider";
@@ -75,14 +75,32 @@ export default function AssessmentsPage() {
       <PageHeading titleKey="assessments.title" subtitleKey="subtitles.assessments" />
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <Board primary label={t("assessments.averageMark")} value={avg ? avg.toFixed(1) : "—"} unit="/ 10" />
-        <Board label={t("assessments.reportsFiled")} value={`${filed.length}/${scoped.length}`} tone="pitch" />
         <Board
+          primary
+          tone="gold"
+          icon={Star}
+          label={t("assessments.averageMark")}
+          value={avg ? avg.toFixed(1) : "—"}
+          unit="/ 10"
+        />
+        <Board
+          tone="pitch"
+          icon={ClipboardCheck}
+          label={t("assessments.reportsFiled")}
+          value={`${filed.length}/${scoped.length}`}
+        />
+        <Board
+          icon={AlarmClock}
           label={t("assessments.overdue")}
           value={scoped.filter((a) => a.state === "overdue").length}
           tone={scoped.some((a) => a.state === "overdue") ? "red" : "pitch"}
         />
-        <Board label={t("assessments.onTime")} value={filed.length ? `${Math.round((onTime / filed.length) * 100)}%` : "—"} />
+        <Board
+          tone="var"
+          icon={Clock}
+          label={t("assessments.onTime")}
+          value={filed.length ? `${Math.round((onTime / filed.length) * 100)}%` : "—"}
+        />
       </div>
 
       <Segmented
@@ -102,7 +120,7 @@ export default function AssessmentsPage() {
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,380px)_minmax(0,1fr)]">
           <Card padded={false} className="h-fit">
             <div className="px-4 py-3">
-              <CardHeader title={t("assessments.queue")} subtitle={t("assessments.queueSub")} className="mb-0" />
+              <CardHeader icon={ClipboardList} tint="var" title={t("assessments.queue")} subtitle={t("assessments.queueSub")} className="mb-0" />
             </div>
             <div className="chalk-rule" />
             <ul>
@@ -147,6 +165,8 @@ export default function AssessmentsPage() {
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
           <Card>
             <CardHeader
+              icon={BarChart3}
+              tint="pitch"
               title={t("assessments.criterionAverages")}
               subtitle={t("assessments.criterionAveragesSub")}
               action={
@@ -174,7 +194,7 @@ export default function AssessmentsPage() {
           </Card>
 
           <Card>
-            <CardHeader title={t("assessments.markSpread")} subtitle={t("assessments.markSpreadSub")} />
+            <CardHeader icon={Star} tint="gold" title={t("assessments.markSpread")} subtitle={t("assessments.markSpreadSub")} />
             <ul className="space-y-1.5">
               {spread.map((report) => {
                 const match = matchById.get(report.matchId)!;
@@ -280,7 +300,7 @@ function ReportDetail({ report }: { report: Assessment }) {
       </Card>
 
       <Card>
-        <CardHeader title={t("assessments.kpis")} />
+        <CardHeader icon={Gauge} tint="var" title={t("assessments.kpis")} />
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           {markKeys.map(([key, labelKey]) => {
             const value = report.marks[key];
@@ -301,7 +321,7 @@ function ReportDetail({ report }: { report: Assessment }) {
       </Card>
 
       <Card>
-        <CardHeader title={t("assessments.notes")} />
+        <CardHeader icon={Quote} tint="gold" title={t("assessments.notes")} />
         <p className="text-[13px] leading-relaxed text-chalk-dim">{report.notes[locale]}</p>
 
         {report.clips.length > 0 && (
