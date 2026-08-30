@@ -1,197 +1,360 @@
 "use client";
 
-import { useState } from "react";
-import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ReferenceLine } from "recharts";
-import { Card, CardHeader } from "@/components/ui/Card";
-import { Badge } from "@/components/ui/Badge";
-import { matches, type MatchDecision } from "@/lib/mock-data";
-import { AlertTriangle, CheckCircle2, PlayCircle, Radio, Gauge } from "lucide-react";
+import Link from "next/link";
+import { useMemo, useState } from "react";
+import {
+  Area,
+  AreaChart,
+  CartesianGrid,
+  ReferenceLine,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
+import { AlertTriangle, ArrowUpRight, CheckCircle2, Radio, Ruler } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useFormatters, useLocale, useT } from "@/lib/i18n/LocaleProvider";
+import { useScope } from "@/lib/scope/ScopeProvider";
+import { PageHeading } from "@/components/layout/PageHeading";
+import { Badge, Board, Card, CardHeader, EmptyState, Meter, type Tone } from "@/components/ui";
+import { axisProps, chartColors, tooltipStyle } from "@/components/charts/theme";
+import { CrewStrip } from "@/components/officiating/CrewStrip";
+import {
+  assessmentByMatch,
+  competitionById,
+  countryFlag,
+  fixtures,
+  matches,
+  refereeById,
+  type MatchDecision,
+} from "@/lib/mock-data";
 
-const typeTone: Record<MatchDecision["type"], "red" | "gold" | "blue" | "emerald"> = {
+const typeTone: Record<MatchDecision["type"], Tone> = {
   Penalty: "red",
   "Red Card": "red",
-  "Yellow Card": "gold",
-  Offside: "blue",
-  Handball: "gold",
-  Foul: "emerald",
+  "Yellow Card": "amber",
+  Offside: "var",
+  Handball: "amber",
+  Foul: "neutral",
 };
 
-const tooltipStyle = {
-  background: "#0d141e",
-  border: "1px solid #1c2837",
-  borderRadius: 10,
-  fontSize: 12,
-  color: "#eef3f8",
+const typeLabel: Record<MatchDecision["type"], { en: string; fr: string }> = {
+  Penalty: { en: "Penalty", fr: "Penalty" },
+  "Red Card": { en: "Red card", fr: "Carton rouge" },
+  "Yellow Card": { en: "Yellow card", fr: "Carton jaune" },
+  Offside: { en: "Offside", fr: "Hors-jeu" },
+  Handball: { en: "Handball", fr: "Main" },
+  Foul: { en: "Foul", fr: "Faute" },
 };
 
-export default function DecisionEnginePage() {
-  const [matchId, setMatchId] = useState(matches[0].id);
-  const match = matches.find((m) => m.id === matchId)!;
-  const [selected, setSelected] = useState<string>(match.decisions[1]?.id ?? match.decisions[0].id);
+export default function MatchReviewPage() {
+  const t = useT();
+  const { locale } = useLocale();
+  const fmt = useFormatters();
+  const { matches: inScope } = useScope();
 
-  function selectMatch(id: string) {
-    setMatchId(id);
-    const next = matches.find((m) => m.id === id)!;
-    setSelected(next.decisions[0].id);
+  const list = useMemo(() => matches.filter((m) => inScope(m.countryCode)), [inScope]);
+  const [matchId, setMatchId] = useState(list[0]?.id ?? matches[0].id);
+  const match = list.find((m) => m.id === matchId) ?? list[0];
+  const [decisionId, setDecisionId] = useState<string | null>(null);
+
+  if (!match) {
+    return (
+      <div className="space-y-4">
+        <PageHeading titleKey="matchReview.title" subtitleKey="subtitles.matchReview" />
+        <Card>
+          <EmptyState title={t("calendar.noFixtures")} hint={t("calendar.noFixturesHint")} />
+        </Card>
+      </div>
+    );
   }
 
-  const active = match.decisions.find((d) => d.id === selected) ?? match.decisions[0];
-  const overturnedCount = match.decisions.filter((d) => d.finalCall === "Overturned").length;
+  const active = match.decisions.find((d) => d.id === decisionId) ?? match.decisions[0];
+  const overturned = match.decisions.filter((d) => d.finalCall === "overturned").length;
+  const varReviews = match.decisions.filter((d) => d.varReview).length;
+  const referee = refereeById.get(match.refereeId);
+  const report = assessmentByMatch.get(match.id);
+  const fixture = fixtures.find((f) => f.home === match.home && f.away === match.away);
+
+  // How this match sat against the referee's own season, which is the only
+  // baseline that makes a single-match number mean anything.
+  const own = matches.filter((m) => m.refereeId === match.refereeId);
+  const avg = (pick: (m: (typeof matches)[number]) => number) =>
+    own.reduce((sum, m) => sum + pick(m), 0) / own.length;
+  const farCalls = match.decisions.filter((d) => d.distance > 20).length;
+  const comparison = [
+    { label: t("matchReview.matchArps"), now: match.arpsForMatch, season: Math.round(avg((m) => m.arpsForMatch) * 10) / 10, max: 100 },
+    { label: t("positioning.diagonal"), now: match.physical.diagonalAdherence, season: Math.round(avg((m) => m.physical.diagonalAdherence)), max: 100 },
+    { label: t("positioning.distance"), now: match.physical.distanceKm, season: Math.round(avg((m) => m.physical.distanceKm) * 10) / 10, max: 14 },
+    { label: t("positioning.sprints"), now: match.physical.sprints, season: Math.round(avg((m) => m.physical.sprints)), max: 50 },
+  ];
 
   return (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader title="Select match" subtitle={`${matches.length} matches analyzed via the AfriScout tagging pipeline`} icon={<PlayCircle size={16} />} />
-        <div className="flex flex-wrap gap-2">
-          {matches.map((m) => (
-            <button
-              key={m.id}
-              onClick={() => selectMatch(m.id)}
-              className={cn(
-                "rounded-full border px-3 py-1.5 text-xs font-medium transition-colors text-left",
-                matchId === m.id
-                  ? "border-aris-emerald/40 bg-aris-emerald/10 text-aris-emerald-light"
-                  : "border-aris-border text-aris-muted hover:text-aris-text",
-              )}
-            >
-              {m.home} vs. {m.away}
-            </button>
-          ))}
-        </div>
-      </Card>
+    <div className="space-y-4 sm:space-y-5">
+      <PageHeading titleKey="matchReview.title" subtitleKey="subtitles.matchReview" />
 
       <Card>
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <p className="text-xs text-aris-muted">{match.competition} · {match.date}</p>
-            <h2 className="font-display text-xl font-semibold text-aris-text mt-1">
-              {match.home} <span className="text-aris-muted font-normal">{match.score}</span> {match.away}
-            </h2>
-            <p className="text-xs text-aris-muted mt-1">Referee: {match.referee} · analyzed via AfriScout tagging pipeline</p>
-          </div>
-          <div className="flex gap-3">
-            <div className="text-center rounded-xl border border-aris-border bg-aris-surface-2/60 px-4 py-2">
-              <p className="font-display text-lg font-semibold text-aris-emerald-light">{match.arpsForMatch}</p>
-              <p className="text-[10px] text-aris-muted uppercase">Match ARPS</p>
-            </div>
-            <div className="text-center rounded-xl border border-aris-border bg-aris-surface-2/60 px-4 py-2">
-              <p className="font-display text-lg font-semibold text-aris-gold">{match.rmcs}</p>
-              <p className="text-[10px] text-aris-muted uppercase">RMCS</p>
-            </div>
-            <div className="text-center rounded-xl border border-aris-border bg-aris-surface-2/60 px-4 py-2">
-              <p className="font-display text-lg font-semibold text-aris-text">{overturnedCount}</p>
-              <p className="text-[10px] text-aris-muted uppercase">Overturned</p>
-            </div>
-          </div>
-        </div>
-      </Card>
-
-      <div className="grid gap-6 lg:grid-cols-3">
-        <Card className="lg:col-span-2">
-          <CardHeader
-            title="Decision timeline"
-            subtitle={`${match.decisions.length} reviewable events — click to inspect`}
-            icon={<PlayCircle size={16} />}
-          />
-          <div className="space-y-2">
-            {match.decisions.map((d) => (
+        <CardHeader title={t("matchReview.selectMatch")} subtitle={t("matchReview.selectMatchSub")} />
+        <div className="scroll-x -mx-1 px-1">
+          <div className="flex gap-2">
+            {list.map((m) => (
               <button
-                key={d.id}
-                onClick={() => setSelected(d.id)}
+                key={m.id}
+                onClick={() => {
+                  setMatchId(m.id);
+                  setDecisionId(null);
+                }}
                 className={cn(
-                  "w-full text-left flex items-center gap-3 rounded-xl border px-4 py-3 transition-colors",
-                  selected === d.id
-                    ? "border-aris-emerald/40 bg-aris-emerald/5"
-                    : "border-aris-border bg-aris-surface-2/40 hover:border-aris-border",
+                  "shrink-0 rounded-md border px-3 py-1.5 text-[12.5px] transition-colors",
+                  m.id === match.id
+                    ? "border-pitch bg-pitch text-[#04140c]"
+                    : "border-line bg-ink-1 text-chalk-dim hover:border-line-strong hover:text-chalk",
                 )}
               >
-                <span className="font-display text-sm font-semibold text-aris-muted w-9 shrink-0">{d.minute}&apos;</span>
-                <Badge tone={typeTone[d.type]}>{d.type}</Badge>
-                <span className="flex-1 text-sm text-aris-text truncate">{d.description}</span>
-                {d.varReview && <Radio size={14} className="text-aris-blue shrink-0" />}
-                {d.finalCall === "Overturned" ? (
-                  <AlertTriangle size={15} className="text-aris-gold shrink-0" />
-                ) : (
-                  <CheckCircle2 size={15} className="text-aris-emerald-light shrink-0" />
-                )}
+                {countryFlag(m.countryCode)} {m.home} — {m.away}
               </button>
             ))}
           </div>
+        </div>
+      </Card>
+
+      <Card>
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-w-0">
+            <p className="text-[11.5px] text-chalk-faint">
+              {competitionById.get(match.competitionId)?.name} · {fmt.longDate(match.date)}
+            </p>
+            <h2 className="mt-1 font-display text-[20px] font-semibold text-chalk">
+              {match.home} <span className="board text-chalk-dim">{match.score}</span> {match.away}
+            </h2>
+            {referee && (
+              <Link
+                href={`/referees/${referee.id}`}
+                className="mt-1 inline-flex items-center gap-1 text-[12px] text-chalk-faint hover:text-chalk"
+              >
+                {t("common.referee")}: {referee.name}
+                <ArrowUpRight size={11} />
+              </Link>
+            )}
+          </div>
+          <div className="grid grid-cols-3 gap-2 sm:w-[300px]">
+            <Board label={t("matchReview.matchArps")} value={match.arpsForMatch} />
+            <Board label={t("arae.rmcs")} value={match.rmcs} />
+            <Board label={t("matchReview.overturned")} value={overturned} tone={overturned ? "amber" : "pitch"} />
+          </div>
+        </div>
+      </Card>
+
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+        <Card className="lg:col-span-2" padded={false}>
+          <div className="px-4 py-3">
+            <CardHeader
+              title={t("matchReview.timeline")}
+              subtitle={t("matchReview.timelineSub", { n: match.decisions.length })}
+              className="mb-0"
+            />
+          </div>
+          <div className="chalk-rule" />
+          <ul>
+            {match.decisions.map((decision) => (
+              <li key={decision.id}>
+                <button
+                  onClick={() => setDecisionId(decision.id)}
+                  className={cn(
+                    "flex w-full items-center gap-3 border-b border-line px-4 py-3 text-left last:border-0 transition-colors",
+                    active.id === decision.id ? "bg-white/[0.06]" : "hover:bg-white/[0.03]",
+                  )}
+                >
+                  <span className="board w-9 shrink-0 text-[13px] text-chalk-faint">{decision.minute}&apos;</span>
+                  <Badge tone={typeTone[decision.type]} className="shrink-0">
+                    {typeLabel[decision.type][locale]}
+                  </Badge>
+                  <span className="min-w-0 flex-1 truncate text-[12.5px] text-chalk-dim">
+                    {decision.description[locale]}
+                  </span>
+                  {decision.varReview && <Radio size={13} className="shrink-0 text-var" />}
+                  {decision.finalCall === "overturned" ? (
+                    <AlertTriangle size={14} className="shrink-0 text-amber" />
+                  ) : (
+                    <CheckCircle2 size={14} className="shrink-0 text-pitch" />
+                  )}
+                </button>
+              </li>
+            ))}
+          </ul>
         </Card>
 
         <Card>
-          <CardHeader title="Decision detail" subtitle={`Minute ${active.minute}'`} icon={<Gauge size={16} />} />
-          <div className="space-y-4">
-            <div>
-              <Badge tone={typeTone[active.type]}>{active.type}</Badge>
-              <p className="mt-3 text-sm text-aris-text leading-relaxed">{active.description}</p>
+          <CardHeader
+            title={t("matchReview.detail")}
+            subtitle={`${t("matchReview.minute")} ${active.minute}'`}
+          />
+          <Badge tone={typeTone[active.type]}>{typeLabel[active.type][locale]}</Badge>
+          <p className="mt-3 text-[13px] leading-relaxed text-chalk">{active.description[locale]}</p>
+
+          <dl className="mt-4 grid grid-cols-2 gap-2">
+            <Fact label={t("matchReview.initialCall")} value={t(active.initialCall === "given" ? "matchReview.given" : "matchReview.notGiven")} />
+            <Fact
+              label={t("matchReview.finalCall")}
+              value={t(active.finalCall === "confirmed" ? "matchReview.confirmedCall" : "matchReview.overturnedCall")}
+              tone={active.finalCall === "confirmed" ? "text-pitch" : "text-amber"}
+            />
+            <Fact
+              label={t("matchReview.varReview")}
+              value={active.varReview ? (locale === "fr" ? "Oui" : "Yes") : locale === "fr" ? "Non" : "No"}
+              tone={active.varReview ? "text-var" : "text-chalk"}
+            />
+            <Fact label={t("matchReview.confidence")} value={`${active.confidence}%`} />
+            <Fact label={t("positioning.decisionPoints")} value={`${active.distance} m`} />
+          </dl>
+
+          <div className="mt-4">
+            <div className="mb-1.5 flex items-center justify-between text-[11.5px]">
+              <span className="text-chalk-faint">{t("matchReview.pressure")}</span>
+              <span className="board text-chalk">{active.pressureIndex}</span>
             </div>
-            <div className="grid grid-cols-2 gap-3 text-sm">
-              <div className="rounded-lg bg-white/5 border border-aris-border px-3 py-2">
-                <p className="text-[10px] text-aris-muted uppercase">Initial call</p>
-                <p className="text-aris-text font-medium mt-0.5">{active.initialCall}</p>
-              </div>
-              <div className="rounded-lg bg-white/5 border border-aris-border px-3 py-2">
-                <p className="text-[10px] text-aris-muted uppercase">Final call</p>
-                <p className={cn("font-medium mt-0.5", active.finalCall === "Overturned" ? "text-aris-gold" : "text-aris-emerald-light")}>
-                  {active.finalCall}
-                </p>
-              </div>
-              <div className="rounded-lg bg-white/5 border border-aris-border px-3 py-2">
-                <p className="text-[10px] text-aris-muted uppercase">VAR review</p>
-                <p className="text-aris-text font-medium mt-0.5">{active.varReview ? "Yes" : "No"}</p>
-              </div>
-              <div className="rounded-lg bg-white/5 border border-aris-border px-3 py-2">
-                <p className="text-[10px] text-aris-muted uppercase">Confidence</p>
-                <p className="text-aris-text font-medium mt-0.5">{active.confidence}%</p>
-              </div>
+            <Meter
+              value={active.pressureIndex}
+              tone={active.pressureIndex > 80 ? "red" : active.pressureIndex > 60 ? "amber" : "chalk"}
+            />
+          </div>
+
+          <div className="mt-4">
+            <p className="mb-1.5 text-[11px] uppercase tracking-[0.1em] text-chalk-faint">
+              {t("matchReview.playersInvolved")}
+            </p>
+            <div className="flex flex-wrap gap-1.5">
+              {active.players.map((player) => (
+                <Badge key={player} tone="neutral">
+                  {player}
+                </Badge>
+              ))}
             </div>
-            <div>
-              <p className="text-[10px] text-aris-muted uppercase mb-1.5">Pressure index at decision</p>
-              <div className="h-2 rounded-full bg-aris-border overflow-hidden">
-                <div
-                  className="h-full rounded-full bg-gradient-to-r from-aris-emerald to-aris-red"
-                  style={{ width: `${active.pressureIndex}%` }}
-                />
-              </div>
-              <p className="text-xs text-aris-muted mt-1">{active.pressureIndex} / 100</p>
-            </div>
-            <div>
-              <p className="text-[10px] text-aris-muted uppercase mb-1.5">Players involved</p>
-              <div className="flex flex-wrap gap-1.5">
-                {active.players.map((p) => (
-                  <Badge key={p} tone="muted">{p}</Badge>
-                ))}
-              </div>
-            </div>
+          </div>
+
+          <div className="mt-4 flex flex-wrap gap-2">
+            <Link
+              href="/heatmaps"
+              className="inline-flex items-center gap-1 rounded-md border border-line bg-ink-1 px-2.5 py-1.5 text-[12px] text-chalk-dim hover:text-chalk"
+            >
+              <Ruler size={12} />
+              {t("nav.positioning")}
+            </Link>
+            {report && (
+              <Link
+                href="/assessments"
+                className="inline-flex items-center gap-1 rounded-md border border-line bg-ink-1 px-2.5 py-1.5 text-[12px] text-chalk-dim hover:text-chalk"
+              >
+                {t("assessments.observer")} {report.state === "filed" ? report.overall.toFixed(1) : "—"}
+                <ArrowUpRight size={11} />
+              </Link>
+            )}
           </div>
         </Card>
       </div>
 
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+        <Card>
+          <CardHeader title={t("matchReview.crewOnTheDay")} subtitle={t("matchReview.crewOnTheDaySub")} />
+          {fixture ? (
+            <CrewStrip crew={fixture.crew} size="md" />
+          ) : (
+            <EmptyState title={t("common.empty")} />
+          )}
+          <dl className="mt-4 grid grid-cols-2 gap-2">
+            <Fact label={t("matchReview.farCalls")} value={`${farCalls} / ${match.decisions.length}`} tone={farCalls > 2 ? "text-amber" : "text-chalk"} />
+            <Fact label={t("matchReview.reviewRate")} value={`${varReviews} / ${match.decisions.length}`} tone="text-var" />
+          </dl>
+        </Card>
+
+        <Card className="lg:col-span-2">
+          <CardHeader title={t("matchReview.againstSeason")} subtitle={t("matchReview.againstSeasonSub")} />
+          <ul className="space-y-3">
+            {comparison.map((row) => (
+              <li key={row.label}>
+                <div className="mb-1 flex items-center justify-between text-[12px]">
+                  <span className="text-chalk-dim">{row.label}</span>
+                  <span className="flex items-center gap-3">
+                    <span className="text-chalk-faint">
+                      {t("matchReview.seasonAvg")} <span className="board text-chalk-dim">{row.season}</span>
+                    </span>
+                    <span
+                      className={cn(
+                        "board",
+                        row.now >= row.season ? "text-pitch" : "text-amber",
+                      )}
+                    >
+                      {row.now}
+                    </span>
+                  </span>
+                </div>
+                <div className="relative">
+                  <Meter value={(row.now / row.max) * 100} tone={row.now >= row.season ? "pitch" : "amber"} />
+                  <span
+                    className="absolute top-1/2 h-3 w-px -translate-y-1/2 bg-chalk-dim"
+                    style={{ left: `${Math.min(100, (row.season / row.max) * 100)}%` }}
+                    title={t("matchReview.seasonAvg")}
+                  />
+                </div>
+              </li>
+            ))}
+          </ul>
+        </Card>
+      </div>
+
       <Card>
-        <CardHeader title="Match pressure index" subtitle="Contextual pressure over 90 minutes — decisions plotted" />
-        <div className="h-56">
+        <CardHeader
+          title={t("matchReview.pressureChart")}
+          subtitle={t("matchReview.pressureChartSub")}
+          action={
+            <span className="text-[11.5px] text-chalk-faint">
+              {varReviews} {t("matchReview.varReview")}
+            </span>
+          }
+        />
+        <div className="h-52">
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={match.pressureTimeline} margin={{ top: 4, right: 8, bottom: 0, left: -20 }}>
+            <AreaChart data={match.pressureTimeline} margin={{ top: 4, right: 6, bottom: 0, left: -24 }}>
               <defs>
                 <linearGradient id="pressure" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#ef4453" stopOpacity={0.35} />
-                  <stop offset="100%" stopColor="#ef4453" stopOpacity={0} />
+                  <stop offset="0%" stopColor={chartColors.red} stopOpacity={0.28} />
+                  <stop offset="100%" stopColor={chartColors.red} stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid stroke="#1c2837" vertical={false} />
-              <XAxis dataKey="minute" stroke="#5c6d82" fontSize={12} tickLine={false} axisLine={false} unit="'" />
-              <YAxis stroke="#5c6d82" fontSize={12} tickLine={false} axisLine={false} />
-              <Tooltip contentStyle={tooltipStyle} />
+              <CartesianGrid stroke={chartColors.grid} vertical={false} />
+              <XAxis dataKey="minute" {...axisProps} unit="'" />
+              <YAxis domain={[0, 100]} {...axisProps} />
+              <Tooltip contentStyle={tooltipStyle} cursor={{ stroke: chartColors.grid }} />
               {match.decisions.map((d) => (
-                <ReferenceLine key={d.id} x={d.minute} stroke="#e2b13c" strokeDasharray="3 3" />
+                <ReferenceLine
+                  key={d.id}
+                  x={d.minute}
+                  stroke={d.id === active.id ? chartColors.chalk : "rgba(255,255,255,0.2)"}
+                  strokeDasharray={d.id === active.id ? undefined : "3 3"}
+                />
               ))}
-              <Area type="monotone" dataKey="pressure" stroke="#ef4453" strokeWidth={2.5} fill="url(#pressure)" />
+              <Area
+                type="monotone"
+                dataKey="pressure"
+                name={t("matchReview.pressure")}
+                stroke={chartColors.red}
+                strokeWidth={1.8}
+                fill="url(#pressure)"
+              />
             </AreaChart>
           </ResponsiveContainer>
         </div>
       </Card>
+    </div>
+  );
+}
+
+function Fact({ label, value, tone = "text-chalk" }: { label: string; value: string; tone?: string }) {
+  return (
+    <div className="rounded-md border border-line bg-ink-1 px-2.5 py-2">
+      <dt className="text-[10px] uppercase tracking-wide text-chalk-faint">{label}</dt>
+      <dd className={cn("mt-0.5 text-[12.5px] font-medium", tone)}>{value}</dd>
     </div>
   );
 }

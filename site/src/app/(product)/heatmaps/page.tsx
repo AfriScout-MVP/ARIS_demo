@@ -1,111 +1,221 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Card, CardHeader } from "@/components/ui/Card";
-import { Badge } from "@/components/ui/Badge";
-import { Pitch } from "@/components/pitch/Pitch";
-import { referees, generateHeatPoints } from "@/lib/mock-data";
+import { Bar, BarChart, CartesianGrid, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { cn } from "@/lib/utils";
-import { Flame, Info } from "lucide-react";
+import { useFormatters, useLocale, useT } from "@/lib/i18n/LocaleProvider";
+import { useScope } from "@/lib/scope/ScopeProvider";
+import { PageHeading } from "@/components/layout/PageHeading";
+import { Badge, Board, Card, CardHeader, EmptyState, Meter } from "@/components/ui";
+import { Pitch } from "@/components/pitch/Pitch";
+import { axisProps, chartColors, tooltipStyle } from "@/components/charts/theme";
+import { competitionById, countryFlag, heatPointsFor, matches, refereeById } from "@/lib/mock-data";
 
-export default function HeatmapsPage() {
-  const [refId, setRefId] = useState(referees[0].id);
-  const referee = referees.find((r) => r.id === refId)!;
+export default function PositioningPage() {
+  const t = useT();
+  const { locale } = useLocale();
+  const fmt = useFormatters();
+  const { matches: inScope } = useScope();
 
-  const points = useMemo(() => generateHeatPoints(referee.name.length * 7), [referee.name]);
+  const list = useMemo(() => matches.filter((m) => inScope(m.countryCode)), [inScope]);
+  const [matchId, setMatchId] = useState(list[0]?.id ?? matches[0].id);
+  const match = list.find((m) => m.id === matchId) ?? list[0];
 
-  const zoneStats = useMemo(() => {
-    const zones = { defensive: 0, middle: 0, attacking: 0 };
-    points.forEach((p) => {
-      if (p.x < 33) zones.defensive++;
-      else if (p.x < 66) zones.middle++;
-      else zones.attacking++;
-    });
-    const total = points.length;
-    return [
-      { label: "Defensive third", pct: Math.round((zones.defensive / total) * 100) },
-      { label: "Middle third", pct: Math.round((zones.middle / total) * 100) },
-      { label: "Attacking third", pct: Math.round((zones.attacking / total) * 100) },
-    ];
-  }, [points]);
+  const points = useMemo(() => (match ? heatPointsFor(match.id) : []), [match]);
+
+  if (!match) {
+    return (
+      <div className="space-y-4">
+        <PageHeading titleKey="positioning.title" subtitleKey="subtitles.positioning" />
+        <Card>
+          <EmptyState title={t("calendar.noFixtures")} hint={t("calendar.noFixturesHint")} />
+        </Card>
+      </div>
+    );
+  }
+
+  const referee = refereeById.get(match.refereeId);
+  const distances = match.decisions.map((d) => ({
+    minute: `${d.minute}'`,
+    distance: d.distance,
+    overturned: d.finalCall === "overturned",
+    type: d.type,
+  }));
+  const farCalls = match.decisions.filter((d) => d.distance > 20).length;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-5">
+      <PageHeading titleKey="positioning.title" subtitleKey="subtitles.positioning" />
+
       <Card>
-        <CardHeader title="Select referee" subtitle="Positional heat map, enriched by AfriScout event coordinates" icon={<Flame size={16} />} />
-        <div className="flex flex-wrap gap-2">
-          {referees.map((r) => (
-            <button
-              key={r.id}
-              onClick={() => setRefId(r.id)}
-              className={cn(
-                "flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
-                refId === r.id
-                  ? "border-aris-emerald/40 bg-aris-emerald/10 text-aris-emerald-light"
-                  : "border-aris-border text-aris-muted hover:text-aris-text",
-              )}
-            >
-              <span>{r.flag}</span>
-              {r.name}
-            </button>
-          ))}
+        <CardHeader title={t("positioning.selectMatch")} subtitle={referee?.name} />
+        <div className="scroll-x -mx-1 px-1">
+          <div className="flex gap-2">
+            {list.map((m) => (
+              <button
+                key={m.id}
+                onClick={() => setMatchId(m.id)}
+                className={cn(
+                  "shrink-0 rounded-md border px-3 py-1.5 text-[12.5px] transition-colors",
+                  m.id === match.id
+                    ? "border-pitch bg-pitch text-[#04140c]"
+                    : "border-line bg-ink-1 text-chalk-dim hover:border-line-strong hover:text-chalk",
+                )}
+              >
+                {countryFlag(m.countryCode)} {m.home} — {m.away}
+              </button>
+            ))}
+          </div>
         </div>
       </Card>
 
-      <div className="grid gap-6 lg:grid-cols-3">
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
+        <Board primary label={t("positioning.distance")} value={match.physical.distanceKm} unit={t("positioning.km")} />
+        <Board label={t("positioning.sprints")} value={match.physical.sprints} />
+        <Board label={t("positioning.topSpeed")} value={match.physical.topSpeed} unit={t("positioning.kmh")} />
+        <Board
+          label={t("positioning.avgDistanceToBall")}
+          value={match.physical.avgDistanceToBall}
+          unit={t("positioning.metres")}
+        />
+        <Board
+          label={t("positioning.diagonal")}
+          value={`${match.physical.diagonalAdherence}%`}
+          tone={match.physical.diagonalAdherence >= 85 ? "pitch" : match.physical.diagonalAdherence >= 78 ? "amber" : "red"}
+        />
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <Card className="lg:col-span-2">
           <CardHeader
-            title={`${referee.name} — positioning map`}
-            subtitle="Last officiated match · attacking direction left → right"
+            title={t("positioning.heatmap")}
+            subtitle={t("positioning.heatmapSub")}
+            action={
+              <span className="text-[11.5px] text-chalk-faint">
+                {competitionById.get(match.competitionId)?.name} · {fmt.date(match.date)}
+              </span>
+            }
           />
-          <div className="rounded-xl overflow-hidden border border-aris-border aspect-[100/64]">
+          <div className="aspect-[100/64] w-full overflow-hidden rounded-lg border border-line">
             <Pitch>
               {points.map((p, i) => (
                 <circle
                   key={i}
                   cx={p.x}
                   cy={p.y}
-                  r={0.9 + p.intensity * 1.4}
-                  fill="#17c778"
-                  fillOpacity={0.12 + p.intensity * 0.35}
+                  r={1.6 + p.intensity * 1.5}
+                  fill="#4ade80"
+                  fillOpacity={0.06 + p.intensity * 0.13}
                 />
               ))}
+              {match.decisions.map((d) => {
+                const x = 8 + (d.minute / 90) * 84;
+                const y = 10 + ((d.distance * 1.6) % 44);
+                const colour =
+                  d.type === "Red Card" || d.type === "Penalty"
+                    ? "#ef4444"
+                    : d.type === "Yellow Card" || d.type === "Handball"
+                      ? "#f5c518"
+                      : d.varReview
+                        ? "#4da3ff"
+                        : "#f1f5f9";
+                return (
+                  <g key={d.id}>
+                    <circle cx={x} cy={y} r="1.5" fill={colour} />
+                    <circle cx={x} cy={y} r="3" fill="none" stroke={colour} strokeOpacity="0.4" strokeWidth="0.3" />
+                  </g>
+                );
+              })}
             </Pitch>
           </div>
-          <p className="mt-3 flex items-center gap-1.5 text-xs text-aris-muted">
-            <Info size={13} /> Positions are inferred from AfriScout tagged event coordinates near the referee&apos;s match location — demo data.
-          </p>
+          <div className="mt-3 flex flex-wrap items-center gap-3 text-[11px] text-chalk-faint">
+            <span className="inline-flex items-center gap-1.5">
+              <span className="h-2 w-2 rounded-full bg-card-red" />
+              {locale === "fr" ? "Penalty / rouge" : "Penalty / red"}
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <span className="h-2 w-2 rounded-full bg-amber" />
+              {locale === "fr" ? "Jaune / main" : "Yellow / handball"}
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <span className="h-2 w-2 rounded-full bg-var" />
+              {t("matchReview.varReview")}
+            </span>
+            <span className="ml-auto">
+              {locale === "fr"
+                ? `${farCalls} décisions prises à plus de 20 m`
+                : `${farCalls} calls made from beyond 20 m`}
+            </span>
+          </div>
         </Card>
 
         <Card>
-          <CardHeader title="Zone occupancy" subtitle="Share of tracked positions" />
-          <div className="space-y-4">
-            {zoneStats.map((z) => (
-              <div key={z.label}>
-                <div className="flex items-center justify-between text-xs mb-1.5">
-                  <span className="text-aris-muted">{z.label}</span>
-                  <span className="text-aris-text font-medium">{z.pct}%</span>
-                </div>
-                <div className="h-2 rounded-full bg-aris-border overflow-hidden">
-                  <div className="h-full rounded-full bg-aris-emerald" style={{ width: `${z.pct}%` }} />
-                </div>
+          <CardHeader title={t("positioning.diagonal")} subtitle={t("positioning.diagonalSub")} />
+          <div className="space-y-3">
+            <div>
+              <div className="mb-1 flex items-center justify-between text-[12px]">
+                <span className="text-chalk-dim">{t("positioning.inChannel")}</span>
+                <span className="board text-chalk">{match.physical.diagonalAdherence}%</span>
               </div>
-            ))}
+              <Meter
+                value={match.physical.diagonalAdherence}
+                tone={match.physical.diagonalAdherence >= 85 ? "pitch" : "amber"}
+              />
+            </div>
+            <div>
+              <div className="mb-1 flex items-center justify-between text-[12px]">
+                <span className="text-chalk-dim">{t("positioning.outOfChannel")}</span>
+                <span className="board text-chalk">{100 - match.physical.diagonalAdherence}%</span>
+              </div>
+              <Meter value={100 - match.physical.diagonalAdherence} tone="red" />
+            </div>
           </div>
 
-          <div className="mt-6 grid grid-cols-2 gap-3">
-            <div className="rounded-lg border border-aris-border bg-aris-surface-2/60 p-3 text-center">
-              <p className="font-display text-xl font-semibold text-aris-text">{referee.fitness}</p>
-              <p className="text-[10px] text-aris-muted uppercase mt-0.5">Fitness index</p>
-            </div>
-            <div className="rounded-lg border border-aris-border bg-aris-surface-2/60 p-3 text-center">
-              <p className="font-display text-xl font-semibold text-aris-text">~9.8km</p>
-              <p className="text-[10px] text-aris-muted uppercase mt-0.5">Est. distance</p>
-            </div>
+          <p className="mt-4 text-[12.5px] leading-relaxed text-chalk-faint">
+            {locale === "fr"
+              ? "La diagonale est le couloir que l'arbitre est censé tenir. Chaque décision prise en dehors coûte de l'angle de vue — c'est le lien direct entre placement et justesse."
+              : "The diagonal is the channel the referee is meant to hold. Every call made outside it costs viewing angle — that is the direct link between positioning and accuracy."}
+          </p>
+
+          <div className="mt-4 space-y-1.5">
+            {match.decisions
+              .slice()
+              .sort((a, b) => b.distance - a.distance)
+              .slice(0, 3)
+              .map((d) => (
+                <div key={d.id} className="flex items-center justify-between gap-2 rounded-md border border-line bg-ink-1 px-2.5 py-1.5">
+                  <span className="board w-8 text-[11.5px] text-chalk-faint">{d.minute}&apos;</span>
+                  <span className="min-w-0 flex-1 truncate text-[12px] text-chalk-dim">{d.type}</span>
+                  <Badge tone={d.distance > 25 ? "red" : d.distance > 18 ? "amber" : "neutral"}>{d.distance} m</Badge>
+                </div>
+              ))}
           </div>
-          <Badge tone="blue" className="mt-4 w-full justify-center">GPS/optical tracking planned — Vision roadmap</Badge>
         </Card>
       </div>
+
+      <Card>
+        <CardHeader title={t("positioning.decisionPoints")} subtitle={t("positioning.decisionPointsSub")} />
+        <div className="h-52">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={distances} margin={{ top: 4, right: 6, bottom: 0, left: -24 }}>
+              <CartesianGrid stroke={chartColors.grid} vertical={false} />
+              <XAxis dataKey="minute" {...axisProps} />
+              <YAxis {...axisProps} unit=" m" />
+              <Tooltip contentStyle={tooltipStyle} cursor={{ fill: "rgba(255,255,255,0.04)" }} />
+              <Bar dataKey="distance" name={t("positioning.decisionPoints")} radius={[3, 3, 0, 0]}>
+                {distances.map((d, i) => (
+                  <Cell key={i} fill={d.overturned ? chartColors.amber : chartColors.chalkDim} />
+                ))}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="mt-2 text-[11.5px] text-chalk-faint">
+          {locale === "fr"
+            ? "Les barres ambre sont les décisions annulées après revue."
+            : "Amber bars are the calls overturned on review."}
+        </p>
+      </Card>
     </div>
   );
 }

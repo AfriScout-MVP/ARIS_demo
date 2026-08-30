@@ -1,97 +1,252 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
-import { rankings } from "@/lib/mock-data";
-import { Card, CardHeader } from "@/components/ui/Card";
-import { Badge } from "@/components/ui/Badge";
+import { Fragment, useMemo, useState } from "react";
+import { Minus, TrendingDown, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Trophy, TrendingDown, TrendingUp, Medal } from "lucide-react";
+import { useLocale, useT } from "@/lib/i18n/LocaleProvider";
+import { useScope } from "@/lib/scope/ScopeProvider";
+import { PageHeading } from "@/components/layout/PageHeading";
+import { Avatar, Badge, Board, Card, CardHeader, EmptyState, Meter, ScoreRing, Segmented, Td, Th } from "@/components/ui";
+import {
+  countryByCode,
+  countryFlag,
+  countryName,
+  rankingsFor,
+  zones,
+  type RefereeLevel,
+} from "@/lib/mock-data";
 
-const zones = ["All zones", "UNIFFAC", "UFOA", "COSAFA", "CECAFA", "UNAF"];
-
-const medalColor = ["#e2b13c", "#c7ccd6", "#a97f1f"];
+const PROMOTION_LINE = 8;
+const levels: Array<RefereeLevel | "all"> = ["all", "CAF Elite", "FIFA Listed", "National D1", "Regional"];
 
 export default function RankingsPage() {
-  const [zone, setZone] = useState("All zones");
-  const rows = zone === "All zones" ? rankings : rankings.filter((r) => r.zone === zone);
+  const t = useT();
+  const { locale } = useLocale();
+  const { codes } = useScope();
+  const [level, setLevel] = useState<RefereeLevel | "all">("all");
+
+  const rows = useMemo(() => {
+    const all = rankingsFor(codes);
+    return level === "all" ? all : all.filter((r) => r.level === level);
+  }, [codes, level]);
+
+  const rising = rows.filter((r) => r.delta > 1).length;
+
+  const levelMix = useMemo(() => {
+    const order: RefereeLevel[] = ["CAF Elite", "FIFA Listed", "National D1", "Regional"];
+    const all = rankingsFor(codes);
+    return order.map((lvl) => ({
+      level: lvl,
+      count: all.filter((r) => r.level === lvl).length,
+      share: all.length ? (all.filter((r) => r.level === lvl).length / all.length) * 100 : 0,
+    }));
+  }, [codes]);
+
+  const zoneLeaders = useMemo(() => {
+    const all = rankingsFor(codes);
+    return zones
+      .map((zone) => ({
+        zone,
+        leader: all.find((r) => countryByCode.get(r.countryCode)?.zone === zone) ?? null,
+        size: all.filter((r) => countryByCode.get(r.countryCode)?.zone === zone).length,
+      }))
+      .filter((z) => z.leader);
+  }, [codes]);
+
+  const movers = useMemo(
+    () =>
+      rankingsFor(codes)
+        .slice()
+        .sort((a, b) => Math.abs(b.delta) - Math.abs(a.delta))
+        .slice(0, 6),
+    [codes],
+  );
 
   return (
-    <div className="space-y-6">
-      <div className="grid gap-4 sm:grid-cols-3">
-        {rankings.slice(0, 3).map((r, i) => (
-          <Link
-            key={r.refereeId}
-            href={`/referees/${r.refereeId}`}
-            className="rounded-2xl border border-aris-border bg-gradient-to-br from-aris-surface to-aris-surface-2 p-5 text-center card-hover"
-          >
-            <Medal size={24} style={{ color: medalColor[i] }} className="mx-auto mb-2" />
-            <p className="font-display text-lg font-semibold text-aris-text">{r.name}</p>
-            <p className="text-xs text-aris-muted">{r.flag} {r.country}</p>
-            <p className="font-display text-3xl font-bold text-aris-emerald-light mt-3">{r.arps}</p>
-            <p className="text-[10px] text-aris-muted uppercase mt-1">ARPS · Rank #{r.rank}</p>
-          </Link>
-        ))}
+    <div className="space-y-4 sm:space-y-5">
+      <PageHeading titleKey="rankings.title" subtitleKey="subtitles.rankings" />
+
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <Board primary label={t("rankings.title")} value={rows.length} hint={t("rankings.tableSub")} />
+        <Board label={t("overview.kpiArps")} value={rows.length ? (rows.reduce((s, r) => s + r.arps, 0) / rows.length).toFixed(1) : "—"} />
+        <Board label={t("rankings.movement")} value={`+${rising}`} tone="pitch" />
+        <Board label={t("rankings.promotionLine")} value={Math.min(PROMOTION_LINE, rows.length)} hint={t("rankings.promotionLineNote")} />
       </div>
 
-      <Card>
-        <CardHeader title="Continental leaderboard" subtitle="Cumulative performance ranking, all tracked referees" icon={<Trophy size={16} />} />
-        <div className="flex flex-wrap gap-2 mb-4">
-          {zones.map((z) => (
-            <button
-              key={z}
-              onClick={() => setZone(z)}
-              className={cn(
-                "rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
-                zone === z
-                  ? "border-aris-emerald/40 bg-aris-emerald/10 text-aris-emerald-light"
-                  : "border-aris-border text-aris-muted hover:text-aris-text",
-              )}
-            >
-              {z}
-            </button>
-          ))}
-        </div>
+      <Segmented
+        value={level}
+        onChange={setLevel}
+        options={levels.map((l) => ({ value: l, label: l === "all" ? t("common.all") : l }))}
+      />
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm min-w-[640px]">
-            <thead>
-              <tr className="border-b border-aris-border text-left text-xs uppercase tracking-wide text-aris-muted">
-                <th className="py-2.5 pr-3 font-medium">#</th>
-                <th className="py-2.5 pr-3 font-medium">Referee</th>
-                <th className="py-2.5 pr-3 font-medium">Zone</th>
-                <th className="py-2.5 pr-3 font-medium">Matches</th>
-                <th className="py-2.5 pr-3 font-medium">ARPS</th>
-                <th className="py-2.5 pr-3 font-medium">Trend</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((r) => (
-                <tr key={r.refereeId} className="border-b border-aris-border-soft hover:bg-white/5">
-                  <td className="py-3 pr-3 text-aris-muted">{r.rank}</td>
-                  <td className="py-3 pr-3">
-                    <Link href={`/referees/${r.refereeId}`} className="text-aris-text font-medium hover:text-aris-emerald-light">
-                      {r.flag} {r.name}
-                    </Link>
-                    <p className="text-xs text-aris-muted">{r.country}</p>
-                  </td>
-                  <td className="py-3 pr-3">
-                    <Badge tone="muted">{r.zone}</Badge>
-                  </td>
-                  <td className="py-3 pr-3 text-aris-text">{r.matches}</td>
-                  <td className="py-3 pr-3 font-display font-semibold text-aris-text">{r.arps}</td>
-                  <td className="py-3 pr-3">
-                    <span className={cn("flex items-center gap-1 text-xs font-medium", r.delta >= 0 ? "text-aris-emerald-light" : "text-aris-red")}>
-                      {r.delta >= 0 ? <TrendingUp size={13} /> : <TrendingDown size={13} />}
-                      {r.delta >= 0 ? "+" : ""}{r.delta}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </Card>
+      {rows.length === 0 ? (
+        <Card>
+          <EmptyState title={t("common.noResults")} hint={t("common.noResultsHint")} />
+        </Card>
+      ) : (
+        <>
+          <ul className="space-y-2 lg:hidden">
+            {rows.map((row) => (
+              <li key={row.refereeId}>
+                <Link
+                  href={`/referees/${row.refereeId}`}
+                  className={cn(
+                    "flex items-center gap-3 rounded-xl border bg-ink-2 p-3 lift",
+                    row.rank <= PROMOTION_LINE ? "border-line-strong" : "border-line",
+                  )}
+                >
+                  <span className="board w-6 text-[15px] text-chalk-faint">{row.rank}</span>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-[13.5px] text-chalk">{row.name}</p>
+                    <p className="truncate text-[11.5px] text-chalk-faint">
+                      {countryFlag(row.countryCode)} {countryName(row.countryCode, locale)} · {row.zone}
+                    </p>
+                  </div>
+                  <Movement delta={row.delta} />
+                  <ScoreRing value={row.arps} size={38} />
+                </Link>
+              </li>
+            ))}
+          </ul>
+
+          <Card padded={false} className="hidden lg:block">
+            <div className="scroll-x">
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="border-b border-line">
+                    <Th className="w-14">{t("common.rank")}</Th>
+                    <Th>{t("common.referee")}</Th>
+                    <Th>{t("common.country")}</Th>
+                    <Th>{t("common.zone")}</Th>
+                    <Th>{t("common.level")}</Th>
+                    <Th className="text-right">ARPS</Th>
+                    <Th className="text-right">{t("referees.matchesOfficiated")}</Th>
+                    <Th className="text-right">{t("rankings.movement")}</Th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {rows.map((row) => (
+                    <Fragment key={row.refereeId}>
+                      <tr className="border-b border-line last:border-0 row-hover">
+                        <Td className="board text-chalk-faint">{row.rank}</Td>
+                        <Td>
+                          <Link href={`/referees/${row.refereeId}`} className="flex items-center gap-2.5">
+                            <Avatar initials={row.name.split(" ").map((p) => p[0]).join("")} size={26} />
+                            <span className="text-chalk hover:underline">{row.name}</span>
+                          </Link>
+                        </Td>
+                        <Td>
+                          {countryFlag(row.countryCode)} {countryName(row.countryCode, locale)}
+                        </Td>
+                        <Td>{row.zone}</Td>
+                        <Td>
+                          <Badge tone={row.level === "CAF Elite" ? "pitch" : "neutral"}>{row.level}</Badge>
+                        </Td>
+                        <Td className="board text-right text-chalk">{row.arps.toFixed(1)}</Td>
+                        <Td className="tnum text-right">{row.matches}</Td>
+                        <Td className="text-right">
+                          <span className="inline-flex justify-end">
+                            <Movement delta={row.delta} />
+                          </span>
+                        </Td>
+                      </tr>
+                      {row.rank === PROMOTION_LINE && rows.length > PROMOTION_LINE && (
+                        <tr>
+                          <td colSpan={8} className="px-3 py-1.5">
+                            <div className="flex items-center gap-3">
+                              <span className="chalk-rule flex-1" />
+                              <span className="whitespace-nowrap text-[10.5px] uppercase tracking-[0.1em] text-chalk-faint">
+                                {t("rankings.promotionLineNote")}
+                              </span>
+                              <span className="chalk-rule flex-1" />
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </Fragment>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </Card>
+        </>
+      )}
+
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+        <Card>
+          <CardHeader title={t("rankings.levelMix")} subtitle={t("rankings.levelMixSub")} />
+          <ul className="space-y-3">
+            {levelMix.map((row) => (
+              <li key={row.level}>
+                <div className="mb-1 flex items-center justify-between text-[12.5px]">
+                  <span className="text-chalk-dim">{row.level}</span>
+                  <span className="board text-chalk">{row.count}</span>
+                </div>
+                <Meter value={row.share} tone={row.level === "CAF Elite" ? "pitch" : "chalk"} />
+              </li>
+            ))}
+          </ul>
+        </Card>
+
+        <Card>
+          <CardHeader title={t("rankings.zoneLeaders")} subtitle={t("rankings.zoneLeadersSub")} />
+          <ul className="space-y-1.5">
+            {zoneLeaders.map((z) => (
+              <li key={z.zone}>
+                <Link
+                  href={`/referees/${z.leader!.refereeId}`}
+                  className="flex items-center gap-3 rounded-lg border border-line bg-ink-1 px-3 py-2 lift"
+                >
+                  <span className="board w-16 shrink-0 text-[11px] text-chalk-faint">{z.zone}</span>
+                  <span className="min-w-0 flex-1 truncate text-[12.5px] text-chalk">
+                    {countryFlag(z.leader!.countryCode)} {z.leader!.name}
+                  </span>
+                  <span className="board shrink-0 text-[12.5px] text-pitch">{z.leader!.arps.toFixed(1)}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </Card>
+
+        <Card>
+          <CardHeader title={t("rankings.biggestMovers")} subtitle={t("rankings.biggestMoversSub")} />
+          <ul className="space-y-1.5">
+            {movers.map((row) => (
+              <li key={row.refereeId}>
+                <Link
+                  href={`/referees/${row.refereeId}`}
+                  className="flex items-center gap-3 rounded-lg border border-line bg-ink-1 px-3 py-2 lift"
+                >
+                  <span className="min-w-0 flex-1 truncate text-[12.5px] text-chalk">
+                    {countryFlag(row.countryCode)} {row.name}
+                  </span>
+                  <Movement delta={row.delta} />
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </Card>
+      </div>
     </div>
+  );
+}
+
+function Movement({ delta }: { delta: number }) {
+  if (Math.abs(delta) < 0.2) {
+    return (
+      <span className="inline-flex items-center gap-1 text-[12px] text-chalk-faint">
+        <Minus size={12} />
+        0.0
+      </span>
+    );
+  }
+  return (
+    <span
+      className={cn("inline-flex items-center gap-1 tnum text-[12px]", delta > 0 ? "text-pitch" : "text-card-red")}
+    >
+      {delta > 0 ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
+      {Math.abs(delta).toFixed(1)}
+    </span>
   );
 }

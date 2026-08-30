@@ -1,52 +1,77 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { Menu } from "lucide-react";
-import { AvatarMenu } from "./AvatarMenu";
+import { Menu, Search } from "lucide-react";
+import { useT } from "@/lib/i18n/LocaleProvider";
+import { ScopeSelect } from "./ScopeSelect";
+import { LocaleToggle } from "./LocaleToggle";
 import { NotificationsMenu } from "./NotificationsMenu";
-import { GlobalSearch } from "./GlobalSearch";
-import { Badge } from "@/components/ui/Badge";
-import { navItems } from "./nav-items";
+import { AvatarMenu } from "./AvatarMenu";
+import { navItemFor } from "./nav-items";
+import { Dot } from "@/components/ui";
 
-const descriptions: Record<string, string> = {
-  "/dashboard": "Continental refereeing intelligence, at a glance.",
-  "/referees": "Directory of tracked officials across CAF zones.",
-  "/decision-engine": "Automated review of match decisions & VAR calls.",
-  "/heatmaps": "Referee positioning, enriched with AfriScout event data.",
-  "/arae": "AI-recommended referee team for upcoming fixtures.",
-  "/rankings": "Cumulative performance leaderboard.",
-  "/career": "Digital passport: licenses, training, progression.",
-  "/reports": "Combined Match + Refereeing report export.",
-  "/federations": "Federations and CAF zones directory.",
-  "/compare": "Side-by-side referee performance comparison.",
-};
-
-export function Topbar() {
+export function Topbar({
+  onOpenPalette,
+  onOpenDrawer,
+}: {
+  onOpenPalette: () => void;
+  onOpenDrawer: () => void;
+}) {
   const pathname = usePathname();
-  const current = navItems.find((n) => pathname === n.href || pathname.startsWith(n.href + "/"));
-  const title = current?.label ?? "ARIS";
-  const description = current ? descriptions[current.href] : undefined;
+  const t = useT();
+  const item = navItemFor(pathname);
+  const isProfile = pathname.startsWith("/referees/") && pathname !== "/referees";
 
   return (
-    <header className="sticky top-0 z-40 flex items-center justify-between gap-4 border-b border-aris-border bg-aris-bg/90 backdrop-blur px-4 sm:px-6 py-4">
-      <div className="flex items-center gap-3 min-w-0">
-        <button className="lg:hidden text-aris-muted">
-          <Menu size={20} />
+    <header className="sticky top-0 z-40 border-b border-line bg-ink-0/85 backdrop-blur-md">
+      <div className="flex items-center gap-2 px-3 py-2.5 sm:px-5 sm:gap-3">
+        <button
+          onClick={onOpenDrawer}
+          aria-label={t("common.menu")}
+          className="rounded-md p-1.5 text-chalk-dim hover:bg-white/5 hover:text-chalk lg:hidden"
+        >
+          <Menu size={19} />
         </button>
-        <div className="min-w-0">
-          <h1 className="font-display text-lg sm:text-xl font-semibold text-aris-text truncate">{title}</h1>
-          {description && <p className="text-xs text-aris-muted hidden sm:block truncate">{description}</p>}
-        </div>
-      </div>
 
-      <div className="flex items-center gap-2 sm:gap-3">
-        <GlobalSearch />
-        <Badge tone="emerald" className="hidden sm:inline-flex">
-          <span className="h-1.5 w-1.5 rounded-full bg-aris-emerald animate-pulse-slow" />
-          Demo data
-        </Badge>
-        <NotificationsMenu />
-        <AvatarMenu />
+        <div className="min-w-0 flex-1 sm:flex-none">
+          <ScopeSelect />
+        </div>
+
+        <div className="ml-1 hidden min-w-0 flex-1 md:block">
+          <h1 className="truncate font-display text-[15px] font-semibold text-chalk">
+            {isProfile ? t("referees.title") : item ? t(item.labelKey) : "ARIS"}
+          </h1>
+          {item && !isProfile && (
+            <p className="truncate text-[11.5px] text-chalk-faint">{t(item.subtitleKey)}</p>
+          )}
+        </div>
+
+        <div className="ml-auto flex shrink-0 items-center gap-1.5 sm:gap-2">
+          <button
+            onClick={onOpenPalette}
+            className="hidden items-center gap-2 rounded-md border border-line bg-ink-2 py-1.5 pl-2.5 pr-2 text-[12.5px] text-chalk-faint transition-colors hover:border-line-strong hover:text-chalk-dim sm:flex"
+          >
+            <Search size={13} />
+            <span className="w-28 text-left lg:w-40">{t("common.search")}</span>
+            <kbd className="rounded border border-line px-1 py-0.5 text-[10px]">⌘K</kbd>
+          </button>
+          <button
+            onClick={onOpenPalette}
+            aria-label={t("common.search")}
+            className="rounded-md p-1.5 text-chalk-dim hover:bg-white/5 hover:text-chalk sm:hidden"
+          >
+            <Search size={18} />
+          </button>
+
+          <span className="hidden items-center gap-1.5 rounded-md border border-line bg-ink-2 px-2 py-1 text-[11px] text-chalk-faint xl:inline-flex">
+            <Dot tone="pitch" pulse />
+            {t("common.demoData")}
+          </span>
+
+          <LocaleToggle />
+          <NotificationsMenu />
+          <AvatarMenu />
+        </div>
       </div>
     </header>
   );

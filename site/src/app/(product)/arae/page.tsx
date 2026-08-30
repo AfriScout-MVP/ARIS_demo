@@ -1,159 +1,413 @@
 "use client";
 
-import { useState } from "react";
-import { Card, CardHeader } from "@/components/ui/Card";
-import { Badge } from "@/components/ui/Badge";
-import { fixtures } from "@/lib/mock-data";
+import { useMemo, useState } from "react";
+import { BedDouble, Check, Plane, Shield, Sparkles, TrendingUp, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Radar, Plane, BedDouble, History, ShieldAlert, CheckCircle2, Sparkles, CalendarClock } from "lucide-react";
-
-const riskTone = { Low: "emerald", Medium: "gold", High: "red" } as const;
+import { useFormatters, useLocale, useT } from "@/lib/i18n/LocaleProvider";
+import { useScope } from "@/lib/scope/ScopeProvider";
+import { useAppointments } from "@/lib/appointments/AppointmentsProvider";
+import { PageHeading } from "@/components/layout/PageHeading";
+import { Avatar, Badge, Board, Button, Card, CardHeader, EmptyState, Meter } from "@/components/ui";
+import { CrewStrip } from "@/components/officiating/CrewStrip";
+import { candidatesForSlot, type Candidate } from "@/lib/assignment";
+import {
+  competitionById,
+  countryFlag,
+  fixtures,
+  officialById,
+  roleKey,
+  type CrewRole,
+} from "@/lib/mock-data";
 
 export default function AraePage() {
-  const [fixtureId, setFixtureId] = useState(fixtures[0].id);
-  const [confirmed, setConfirmed] = useState<Record<string, string>>({});
+  const t = useT();
+  const { locale } = useLocale();
+  const fmt = useFormatters();
+  const { matches: inScope } = useScope();
+  const { crewFor, assign, confirmAll, trace } = useAppointments();
 
-  const fixture = fixtures.find((f) => f.id === fixtureId) ?? fixtures[0];
-  const top = fixture.candidates.find((c) => c.recommended) ?? fixture.candidates[0];
-  const activeConfirmed = confirmed[fixture.id];
+  const queue = useMemo(
+    () =>
+      fixtures
+        .filter((f) => !f.played && inScope(f.countryCode))
+        .sort((a, b) => b.importance - a.importance)
+        .slice(0, 12),
+    [inScope],
+  );
+
+  const [fixtureId, setFixtureId] = useState<string | null>(queue[0]?.id ?? null);
+  const fixture = queue.find((f) => f.id === fixtureId) ?? queue[0];
+  const crew = useMemo(() => (fixture ? crewFor(fixture) : []), [fixture, crewFor]);
+
+  const firstOpen = crew.find((s) => s.role !== "OBS" && (s.state === "empty" || s.state === "declined"))?.role;
+  const [role, setRole] = useState<CrewRole | null>(null);
+  const activeRole: CrewRole | null = role ?? firstOpen ?? crew[0]?.role ?? null;
+
+  const candidates = useMemo(
+    () => (fixture && activeRole ? candidatesForSlot(fixture, activeRole, crew).slice(0, 6) : []),
+    [fixture, activeRole, crew],
+  );
+
+  const eligible = candidates.filter((c) => c.blockers.length === 0);
+  const top = eligible[0];
+  const openCount = crew.filter((s) => s.role !== "OBS" && (s.state === "empty" || s.state === "declined")).length;
+  const fixtureTrace = trace.filter((entry) => entry.fixtureId === fixture?.id);
+
+  if (!fixture) {
+    return (
+      <div className="space-y-4">
+        <PageHeading titleKey="arae.title" subtitleKey="subtitles.arae" />
+        <Card>
+          <EmptyState title={t("calendar.noFixtures")} hint={t("calendar.noFixturesHint")} />
+        </Card>
+      </div>
+    );
+  }
+
+  const comp = competitionById.get(fixture.competitionId);
 
   return (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader title="Fixture queue" subtitle={`${fixtures.length} upcoming fixtures awaiting designation`} icon={<CalendarClock size={16} />} />
-        <div className="space-y-2">
-          {fixtures.map((f) => (
-            <button
-              key={f.id}
-              onClick={() => setFixtureId(f.id)}
-              className={cn(
-                "w-full flex flex-col sm:flex-row sm:items-center justify-between gap-1 rounded-lg border px-4 py-3 text-left transition-colors",
-                fixtureId === f.id
-                  ? "border-aris-emerald/40 bg-aris-emerald/5"
-                  : "border-aris-border bg-aris-surface-2/40 hover:border-aris-border",
-              )}
-            >
-              <div>
-                <p className="text-sm font-medium text-aris-text">{f.home} vs. {f.away}</p>
-                <p className="text-xs text-aris-muted">{f.competition}</p>
-              </div>
-              <div className="flex items-center gap-2">
-                {confirmed[f.id] ? (
-                  <Badge tone="emerald"><CheckCircle2 size={11} /> Assigned</Badge>
-                ) : (
-                  <Badge tone="muted">Pending</Badge>
-                )}
-                <span className="text-xs text-aris-muted-2">{f.date}</span>
-              </div>
-            </button>
-          ))}
-        </div>
-      </Card>
+    <div className="space-y-4 sm:space-y-5">
+      <PageHeading titleKey="arae.title" subtitleKey="subtitles.arae" />
 
-      <Card className="bg-gradient-to-br from-aris-surface to-aris-surface-2">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <Badge tone="gold">{fixture.competition}</Badge>
-            <h2 className="font-display text-xl font-semibold text-aris-text mt-2">{fixture.home} vs. {fixture.away}</h2>
-            <p className="text-xs text-aris-muted mt-1">{fixture.venue}</p>
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-[320px_minmax(0,1fr)]">
+        <Card padded={false} className="h-fit">
+          <div className="px-4 py-3">
+            <CardHeader title={t("arae.queue")} subtitle={t("arae.queueSub")} className="mb-0" />
           </div>
-          <div className="flex items-center gap-2 text-xs text-aris-muted">
-            <Radar size={15} className="text-aris-emerald-light" />
-            ARAE evaluated {fixture.candidates.length} eligible referees in 1.2s
-          </div>
-        </div>
-      </Card>
-
-      <div className="grid gap-4">
-        {fixture.candidates.map((c) => (
-          <Card key={c.refereeId} className={cn(c.recommended && "border-aris-emerald/40 bg-aris-emerald/5")} hover>
-            <div className="flex flex-col lg:flex-row lg:items-center gap-5">
-              <div className="flex items-center gap-3 lg:w-56 shrink-0">
-                <span className="flex h-11 w-11 items-center justify-center rounded-full bg-aris-surface-2 border border-aris-border text-sm font-semibold text-aris-text">
-                  {c.name.split(" ").map((n) => n[0]).join("")}
-                </span>
-                <div>
-                  <p className="font-medium text-aris-text text-sm">{c.name}</p>
-                  {c.recommended && (
-                    <span className="flex items-center gap-1 text-[11px] text-aris-emerald-light">
-                      <Sparkles size={11} /> ARAE recommended
-                    </span>
-                  )}
-                </div>
-              </div>
-
-              <div className="flex-1 grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <Metric label="RMCS" value={`${c.rmcs}`} icon={<Radar size={13} />} highlight={c.rmcs >= 90} />
-                <Metric label="Fitness" value={`${c.fitness}`} icon={<History size={13} />} />
-                <Metric label="Travel" value={`${c.travelHours}h`} icon={<Plane size={13} />} />
-                <Metric label="Rest days" value={`${c.restDays}d`} icon={<BedDouble size={13} />} />
-              </div>
-
-              <div className="flex items-center gap-3 lg:w-56 justify-between lg:justify-end shrink-0">
-                <Badge tone={riskTone[c.frictionRisk]}>
-                  <ShieldAlert size={12} /> {c.frictionRisk} friction risk
-                </Badge>
-                {activeConfirmed === c.refereeId ? (
-                  <Badge tone="emerald"><CheckCircle2 size={12} /> Confirmed</Badge>
-                ) : (
+          <div className="chalk-rule" />
+          <ul className="max-h-[420px] overflow-y-auto xl:max-h-[620px]">
+            {queue.map((item) => {
+              const itemCrew = crewFor(item);
+              const open = itemCrew.filter((s) => s.role !== "OBS" && (s.state === "empty" || s.state === "declined")).length;
+              return (
+                <li key={item.id}>
                   <button
-                    onClick={() => setConfirmed((prev) => ({ ...prev, [fixture.id]: c.refereeId }))}
-                    disabled={!!activeConfirmed}
+                    onClick={() => {
+                      setFixtureId(item.id);
+                      setRole(null);
+                    }}
                     className={cn(
-                      "rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors disabled:opacity-40 disabled:cursor-not-allowed",
-                      c.recommended
-                        ? "bg-aris-emerald text-[#04140c] hover:bg-aris-emerald-light"
-                        : "border border-aris-border text-aris-muted hover:text-aris-text",
+                      "flex w-full flex-col gap-1 border-b border-line px-4 py-2.5 text-left last:border-0 transition-colors",
+                      item.id === fixture.id ? "bg-white/[0.06]" : "hover:bg-white/[0.03]",
                     )}
                   >
-                    Assign
+                    <span className="flex items-center justify-between gap-2">
+                      <span className="truncate text-[12.5px] text-chalk">
+                        {countryFlag(item.countryCode)} {item.home} — {item.away}
+                      </span>
+                      <span className={cn("board shrink-0 text-[12px]", open ? "text-card-red" : "text-pitch")}>
+                        {open || "✓"}
+                      </span>
+                    </span>
+                    <span className="truncate text-[11px] text-chalk-faint">
+                      {competitionById.get(item.competitionId)?.name} · {fmt.date(item.date)}
+                    </span>
                   </button>
-                )}
+                </li>
+              );
+            })}
+          </ul>
+        </Card>
+
+        <div className="space-y-4">
+          <Card>
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+              <div className="min-w-0">
+                <Badge tone="neutral">{comp?.name}</Badge>
+                <h2 className="mt-2 font-display text-[19px] font-semibold text-chalk">
+                  {fixture.home} <span className="text-chalk-faint">—</span> {fixture.away}
+                </h2>
+                <p className="mt-1 text-[12px] text-chalk-faint">
+                  {fixture.venue}, {fixture.city} · {fmt.longDate(fixture.date)} · {fixture.kickoff}
+                </p>
+              </div>
+              <div className="flex shrink-0 items-center gap-2">
+                <Badge tone={openCount === 0 ? "pitch" : "amber"}>
+                  {openCount === 0 ? t("arae.crewComplete") : t("arae.crewIncomplete", { n: openCount })}
+                </Badge>
+                <Button
+                  size="sm"
+                  variant="primary"
+                  disabled={openCount > 0}
+                  onClick={() => confirmAll(fixture.id)}
+                >
+                  <Check size={13} />
+                  {t("arae.confirmCrew")}
+                </Button>
               </div>
             </div>
+
+            <div className="mt-4">
+              <p className="mb-2 text-[11px] uppercase tracking-[0.1em] text-chalk-faint">{t("arae.buildCrew")}</p>
+              <CrewStrip
+                crew={crew}
+                size="md"
+                activeRole={activeRole ?? undefined}
+                onSlotClick={(slot) => setRole(slot.role)}
+              />
+            </div>
           </Card>
-        ))}
+
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+            <Card className="lg:col-span-2">
+              <CardHeader
+                title={`${t("arae.candidates")} — ${activeRole ? t(roleKey[activeRole]) : ""}`}
+                subtitle={t("arae.candidatesSub")}
+                action={
+                  <span className="inline-flex items-center gap-1.5 text-[11.5px] text-chalk-faint">
+                    <Sparkles size={12} className="text-var" />
+                    {t("arae.evaluated", { n: candidates.length, ms: "0.4s" })}
+                  </span>
+                }
+              />
+              {eligible.length === 0 ? (
+                <EmptyState title={t("calendar.ineligible")} hint={t("calendar.noFixturesHint")} />
+              ) : (
+                <ul className="space-y-2">
+                  {candidates.map((candidate, i) => (
+                    <CandidateRow
+                      key={candidate.id}
+                      candidate={candidate}
+                      recommended={i === 0 && candidate.blockers.length === 0}
+                      selected={crew.find((s) => s.role === activeRole)?.officialId === candidate.id}
+                      onAssign={() => {
+                        if (!activeRole) return;
+                        assign(fixture.id, activeRole, candidate.id, "you");
+                      }}
+                    />
+                  ))}
+                </ul>
+              )}
+            </Card>
+
+            <Card>
+              <CardHeader title={t("arae.why")} subtitle={t("arae.whySub")} />
+              {top ? (
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2.5">
+                    <Avatar initials={top.initials} size={34} />
+                    <div className="min-w-0">
+                      <p className="truncate text-[13px] text-chalk">{top.name}</p>
+                      <p className="text-[11px] text-chalk-faint">{countryFlag(top.countryCode)}</p>
+                    </div>
+                    <span className="board ml-auto text-[18px] font-semibold text-chalk">{top.score.toFixed(0)}</span>
+                  </div>
+
+                  <Factor
+                    icon={<Users size={12} />}
+                    label={t("arae.factorRmcs")}
+                    value={top.rating.toFixed(0)}
+                    pct={top.rating}
+                    tone="chalk"
+                  />
+                  <Factor
+                    icon={<BedDouble size={12} />}
+                    label={t("arae.factorRest")}
+                    value={`${top.rest} ${t("common.days")}`}
+                    pct={Math.min(100, top.rest * 10)}
+                    tone={top.rest >= 5 ? "pitch" : "amber"}
+                  />
+                  <Factor
+                    icon={<Plane size={12} />}
+                    label={t("arae.factorTravel")}
+                    value={`${top.travelHours}${t("common.hours")}`}
+                    pct={Math.max(0, 100 - top.travelHours * 10)}
+                    tone={top.travelHours <= 3 ? "pitch" : "amber"}
+                  />
+                  <Factor
+                    icon={<Shield size={12} />}
+                    label={t("arae.factorH2h")}
+                    value={`${top.h2h} · ${t(
+                      top.frictionRisk === "high" ? "arae.riskHigh" : top.frictionRisk === "medium" ? "arae.riskMedium" : "arae.riskLow",
+                    )}`}
+                    pct={Math.max(0, 100 - top.h2h * 14)}
+                    tone={top.frictionRisk === "low" ? "pitch" : top.frictionRisk === "medium" ? "amber" : "red"}
+                  />
+                  <Factor
+                    icon={<TrendingUp size={12} />}
+                    label={t("arae.factorNeutral")}
+                    value={locale === "fr" ? "Validé" : "Passed"}
+                    pct={100}
+                    tone="pitch"
+                  />
+                </div>
+              ) : (
+                <EmptyState title={t("calendar.ineligible")} />
+              )}
+            </Card>
+          </div>
+
+          <Card>
+            <CardHeader title={t("arae.trace")} subtitle={t("arae.traceSub")} />
+            <ol className="space-y-2">
+              <TraceLine
+                at="—"
+                text={`${t("arae.evaluated", { n: candidates.length, ms: "0.4s" })} · ${
+                  activeRole ? t(roleKey[activeRole]) : ""
+                }`}
+              />
+              {top && (
+                <TraceLine
+                  at="—"
+                  tone="var"
+                  text={`${t("arae.recommended")}: ${top.name} — ${t("arae.rmcs")} ${top.rating.toFixed(
+                    0,
+                  )}, ${t("arae.rest")} ${top.rest}${t("common.days").slice(0, 1)}, ${t("arae.travel")} ${
+                    top.travelHours
+                  }${t("common.hours")}`}
+                />
+              )}
+              {fixtureTrace.map((entry) => {
+                const official = entry.officialId ? officialById(entry.officialId) : null;
+                return (
+                  <TraceLine
+                    key={entry.id}
+                    at={entry.at}
+                    tone={entry.actor === "engine" ? "var" : "chalk"}
+                    text={
+                      official
+                        ? `${entry.actor === "engine" ? t("arae.recommended") : t("common.assigned")}: ${t(
+                            roleKey[entry.role],
+                          )} — ${official.name}`
+                        : `${t("calendar.clearSlot")}: ${t(roleKey[entry.role])}`
+                    }
+                  />
+                );
+              })}
+              {openCount === 0 && <TraceLine at="—" tone="pitch" text={t("arae.crewConfirmed")} />}
+            </ol>
+          </Card>
+        </div>
       </div>
 
-      <Card>
-        <CardHeader title="Assignment traceability" subtitle="Audit log for this designation — justification chain" />
-        <ol className="space-y-3 text-sm">
-          <li className="flex gap-3">
-            <span className="text-aris-muted-2 text-xs w-24 shrink-0">08:14:02</span>
-            <span className="text-aris-muted">ARAE pulled {fixture.candidates.length} eligible referees for {fixture.home} vs. {fixture.away}.</span>
-          </li>
-          <li className="flex gap-3">
-            <span className="text-aris-muted-2 text-xs w-24 shrink-0">08:14:03</span>
-            <span className="text-aris-muted">Computed RMCS using match tier, historical head-to-head friction, and travel/rest constraints.</span>
-          </li>
-          <li className="flex gap-3">
-            <span className="text-aris-muted-2 text-xs w-24 shrink-0">08:14:03</span>
-            <span className="text-aris-emerald-light">
-              Recommended {top.name} — highest RMCS ({top.rmcs}), lowest friction risk, within rest-day threshold.
-            </span>
-          </li>
-          {activeConfirmed && (
-            <li className="flex gap-3">
-              <span className="text-aris-muted-2 text-xs w-24 shrink-0">08:16:41</span>
-              <span className="text-aris-text">
-                Admin confirmed assignment: <span className="font-medium">{fixture.candidates.find((c) => c.refereeId === activeConfirmed)?.name}</span>.
-              </span>
-            </li>
-          )}
-        </ol>
-      </Card>
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <Board label={t("arae.queue")} value={queue.length} />
+        <Board label={t("calendar.slotsOpen")} value={openCount} tone={openCount ? "amber" : "pitch"} />
+        <Board label={t("arae.candidates")} value={eligible.length} />
+        <Board label={t("calendar.importance")} value={fixture.importance} tone={fixture.importance > 88 ? "red" : "chalk"} />
+      </div>
     </div>
   );
 }
 
-function Metric({ label, value, icon, highlight }: { label: string; value: string; icon: React.ReactNode; highlight?: boolean }) {
+function CandidateRow({
+  candidate,
+  recommended,
+  selected,
+  onAssign,
+}: {
+  candidate: Candidate;
+  recommended: boolean;
+  selected: boolean;
+  onAssign: () => void;
+}) {
+  const t = useT();
+  const blocked = candidate.blockers.length > 0;
+
   return (
-    <div className="rounded-lg border border-aris-border bg-aris-surface-2/50 px-3 py-2">
-      <span className="flex items-center gap-1.5 text-[10px] text-aris-muted uppercase">
-        {icon}
-        {label}
-      </span>
-      <p className={cn("font-display text-base font-semibold mt-0.5", highlight ? "text-aris-emerald-light" : "text-aris-text")}>{value}</p>
+    <li
+      className={cn(
+        "flex flex-col gap-3 rounded-lg border px-3 py-2.5 sm:flex-row sm:items-center",
+        blocked ? "border-line opacity-50" : "border-line bg-ink-1 lift",
+        recommended && "border-line-strong bg-white/[0.04]",
+      )}
+    >
+      <div className="flex min-w-0 flex-1 items-center gap-2.5">
+        <Avatar initials={candidate.initials} size={32} />
+        <div className="min-w-0">
+          <p className="truncate text-[13px] text-chalk">
+            {countryFlag(candidate.countryCode)} {candidate.name}
+          </p>
+          <p className="text-[11px] text-chalk-faint">
+            {recommended && !blocked ? (
+              <span className="inline-flex items-center gap-1 text-var">
+                <Sparkles size={10} />
+                {t("arae.recommended")}
+              </span>
+            ) : blocked ? (
+              t("calendar.ineligible")
+            ) : candidate.cover ? (
+              <span className="text-var">{t("calendar.coverNote")}</span>
+            ) : (
+              `${t("arae.rmcs")} ${candidate.rating.toFixed(0)}`
+            )}
+          </p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-3 gap-2 sm:w-[240px]">
+        <Cell label={t("arae.travel")} value={`${candidate.travelHours}${t("common.hours")}`} />
+        <Cell label={t("arae.rest")} value={`${candidate.rest}${t("common.days").slice(0, 1)}`} />
+        <Cell label={t("arae.friction")} value={t(
+          candidate.frictionRisk === "high" ? "arae.riskHigh" : candidate.frictionRisk === "medium" ? "arae.riskMedium" : "arae.riskLow",
+        )} />
+      </div>
+
+      <div className="flex shrink-0 items-center gap-2 sm:w-[110px] sm:justify-end">
+        <span className="board text-[15px] font-semibold text-chalk">{blocked ? "—" : candidate.score.toFixed(0)}</span>
+        {selected ? (
+          <Badge tone="pitch">
+            <Check size={11} />
+            {t("common.assigned")}
+          </Badge>
+        ) : (
+          <Button size="sm" variant={recommended ? "primary" : "secondary"} disabled={blocked} onClick={onAssign}>
+            {t("common.assign")}
+          </Button>
+        )}
+      </div>
+    </li>
+  );
+}
+
+function Cell({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-md border border-line bg-ink-2 px-2 py-1">
+      <p className="truncate text-[9.5px] uppercase tracking-wide text-chalk-faint">{label}</p>
+      <p className="board text-[12px] text-chalk">{value}</p>
     </div>
+  );
+}
+
+function Factor({
+  icon,
+  label,
+  value,
+  pct,
+  tone,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+  pct: number;
+  tone: "chalk" | "pitch" | "amber" | "red";
+}) {
+  return (
+    <div>
+      <div className="mb-1 flex items-center justify-between gap-2 text-[11.5px]">
+        <span className="flex min-w-0 items-center gap-1.5 text-chalk-faint">
+          <span className="text-chalk-faint">{icon}</span>
+          <span className="truncate">{label}</span>
+        </span>
+        <span className="board shrink-0 text-chalk">{value}</span>
+      </div>
+      <Meter value={pct} tone={tone} />
+    </div>
+  );
+}
+
+function TraceLine({ at, text, tone = "chalk" }: { at: string; text: string; tone?: "chalk" | "var" | "pitch" }) {
+  return (
+    <li className="flex gap-3 text-[12.5px]">
+      <span className="board w-16 shrink-0 text-chalk-faint">{at}</span>
+      <span
+        className={cn(
+          tone === "var" ? "text-var" : tone === "pitch" ? "text-pitch" : "text-chalk-dim",
+        )}
+      >
+        {text}
+      </span>
+    </li>
   );
 }

@@ -1,98 +1,267 @@
 "use client";
 
-import { useState } from "react";
-import { Card, CardHeader } from "@/components/ui/Card";
-import { Badge } from "@/components/ui/Badge";
-import { zoneDistribution, federations, clientSegments } from "@/lib/mock-data";
+import { useMemo, useState } from "react";
+import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { RefreshCcw } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Landmark, Users, ShieldCheck } from "lucide-react";
-
-const zones = ["All zones", "UNIFFAC", "UFOA", "COSAFA", "CECAFA", "UNAF"];
+import { useLocale, useT } from "@/lib/i18n/LocaleProvider";
+import { useScope } from "@/lib/scope/ScopeProvider";
+import { PageHeading } from "@/components/layout/PageHeading";
+import { Badge, Board, Button, Card, CardHeader, EmptyState, Segmented, Td, Th } from "@/components/ui";
+import { axisProps, chartColors, tooltipStyle } from "@/components/charts/theme";
+import {
+  competitions,
+  countryByCode,
+  countryName,
+  federationRows,
+  zoneDistribution,
+  zoneNames,
+  zoneNamesFr,
+  zones,
+  type Zone,
+} from "@/lib/mock-data";
 
 export default function FederationsPage() {
-  const [zone, setZone] = useState("All zones");
-  const rows = zone === "All zones" ? federations : federations.filter((f) => f.zone === zone);
+  const t = useT();
+  const { locale } = useLocale();
+  const { setScope, codes } = useScope();
+  const [zoneFilter, setZoneFilter] = useState<Zone | "all">("all");
+
+  const zoneLabel = locale === "fr" ? zoneNamesFr : zoneNames;
+
+  const rows = useMemo(
+    () =>
+      federationRows
+        .filter((row) => zoneFilter === "all" || row.zone === zoneFilter)
+        .sort((a, b) => b.avgArps - a.avgArps),
+    [zoneFilter],
+  );
+
+  const totals = rows.reduce(
+    (acc, row) => ({
+      referees: acc.referees + row.refereeCount,
+      fixtures: acc.fixtures + row.fixtures,
+      open: acc.open + row.openSlots,
+      stale: acc.stale + (row.syncHealth === "healthy" ? 0 : 1),
+    }),
+    { referees: 0, fixtures: 0, open: 0, stale: 0 },
+  );
 
   return (
-    <div className="space-y-6">
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-        {zoneDistribution.map((z) => (
-          <button
-            key={z.zone}
-            onClick={() => setZone(z.zone)}
-            className={cn(
-              "rounded-2xl border p-5 text-left card-hover transition-colors",
-              zone === z.zone ? "border-aris-emerald/40 bg-aris-emerald/5" : "border-aris-border bg-aris-surface/80",
-            )}
-          >
-            <Landmark size={16} className="text-aris-emerald-light mb-2" />
-            <p className="font-display text-xl font-semibold text-aris-text">{z.zone}</p>
-            <p className="text-xs text-aris-muted mt-1">{z.referees.toLocaleString()} referees</p>
-            <p className="text-xs text-aris-muted">Avg. ARPS {z.avgArps}</p>
-          </button>
-        ))}
+    <div className="space-y-4 sm:space-y-5">
+      <PageHeading titleKey="federations.title" subtitleKey="subtitles.federations" />
+
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <Board primary label={t("federations.title")} value={rows.length} hint={t("federations.tableSub")} />
+        <Board label={t("common.referees")} value={totals.referees} />
+        <Board label={t("federations.fixturesSeason")} value={totals.fixtures} />
+        <Board
+          label={t("federations.syncStale")}
+          value={totals.stale}
+          tone={totals.stale ? "amber" : "pitch"}
+          hint={t("federations.calendarSync")}
+        />
       </div>
 
-      <Card>
-        <CardHeader title="Federations directory" subtitle="Tracked referee corps by national federation" icon={<Users size={16} />} />
-        <div className="flex flex-wrap gap-2 mb-4">
-          {zones.map((z) => (
-            <button
-              key={z}
-              onClick={() => setZone(z)}
-              className={cn(
-                "rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
-                zone === z
-                  ? "border-aris-emerald/40 bg-aris-emerald/10 text-aris-emerald-light"
-                  : "border-aris-border text-aris-muted hover:text-aris-text",
-              )}
-            >
-              {z}
-            </button>
-          ))}
-        </div>
+      <div className="scroll-x -mx-3 px-3 sm:mx-0 sm:px-0">
+        <Segmented
+          value={zoneFilter}
+          onChange={setZoneFilter}
+          options={[
+            { value: "all" as const, label: t("common.all") },
+            ...zones.map((z) => ({ value: z, label: z })),
+          ]}
+        />
+      </div>
 
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {rows.map((f) => (
-            <div key={f.code} className="rounded-xl border border-aris-border bg-aris-surface-2/50 p-4">
-              <div className="flex items-center justify-between mb-2">
-                <span className="flex items-center gap-2 text-sm font-medium text-aris-text">
-                  <span className="text-lg">{f.flag}</span>
-                  {f.code}
-                </span>
-                <Badge tone="muted">{f.zone}</Badge>
-              </div>
-              <p className="text-xs text-aris-muted mb-3">{f.country}</p>
-              <div className="grid grid-cols-3 gap-2 text-center">
-                <div>
-                  <p className="text-sm font-semibold text-aris-text">{f.refereeCount}</p>
-                  <p className="text-[9px] text-aris-muted-2 uppercase">Referees</p>
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-aris-emerald-light">{f.avgArps}</p>
-                  <p className="text-[9px] text-aris-muted-2 uppercase">Avg. ARPS</p>
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-aris-gold">{f.eliteCount}</p>
-                  <p className="text-[9px] text-aris-muted-2 uppercase">Elite</p>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </Card>
+      {rows.length === 0 ? (
+        <Card>
+          <EmptyState title={t("common.noResults")} />
+        </Card>
+      ) : (
+        <>
+          <ul className="space-y-2 lg:hidden">
+            {rows.map((row) => {
+              const country = countryByCode.get(row.countryCode)!;
+              return (
+                <li key={row.code}>
+                  <Card interactive>
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="truncate text-[13.5px] font-medium text-chalk">
+                          {country.flag} {countryName(row.countryCode, locale)}
+                        </p>
+                        <p className="text-[11.5px] text-chalk-faint">
+                          {row.code} · {row.zone}
+                        </p>
+                      </div>
+                      <Badge
+                        tone={row.syncHealth === "healthy" ? "pitch" : row.syncHealth === "stale" ? "amber" : "neutral"}
+                      >
+                        {t(
+                          row.syncHealth === "healthy"
+                            ? "federations.syncHealthy"
+                            : row.syncHealth === "stale"
+                              ? "federations.syncStale"
+                              : "federations.syncManual",
+                        )}
+                      </Badge>
+                    </div>
+                    <div className="mt-3 grid grid-cols-4 gap-2 text-center">
+                      <Mini label={t("federations.corps")} value={row.refereeCount} />
+                      <Mini label={t("federations.avgArps")} value={row.avgArps || "—"} />
+                      <Mini label={t("calendar.fixtures")} value={row.fixtures} />
+                      <Mini label={t("federations.openSlots")} value={row.openSlots} />
+                    </div>
+                    <Button
+                      className="mt-3 w-full"
+                      size="sm"
+                      variant={codes.length === 1 && codes[0] === row.countryCode ? "primary" : "secondary"}
+                      onClick={() => setScope({ kind: "country", code: row.countryCode })}
+                    >
+                      {t("federations.switchScope")}
+                    </Button>
+                  </Card>
+                </li>
+              );
+            })}
+          </ul>
 
-      <Card>
-        <CardHeader title="Client segments" subtitle="Who ARIS federations data serves" icon={<ShieldCheck size={16} />} />
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {clientSegments.map((s) => (
-            <div key={s.segment} className="rounded-lg border border-aris-border bg-aris-surface-2/40 p-3.5">
-              <p className="text-sm font-medium text-aris-text">{s.segment}</p>
-              <p className="text-xs text-aris-muted mt-1.5 leading-relaxed">{s.usage}</p>
+          <Card padded={false} className="hidden lg:block">
+            <div className="scroll-x">
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="border-b border-line">
+                    <Th>{t("common.federation")}</Th>
+                    <Th>{t("common.zone")}</Th>
+                    <Th className="text-right">{t("federations.corps")}</Th>
+                    <Th className="text-right">{t("federations.eliteCount")}</Th>
+                    <Th className="text-right">{t("federations.avgArps")}</Th>
+                    <Th className="text-right">{t("federations.competitionsTracked")}</Th>
+                    <Th className="text-right">{t("federations.fixturesSeason")}</Th>
+                    <Th className="text-right">{t("federations.openSlots")}</Th>
+                    <Th>{t("federations.calendarSync")}</Th>
+                    <Th />
+                  </tr>
+                </thead>
+                <tbody>
+                  {rows.map((row) => {
+                    const country = countryByCode.get(row.countryCode)!;
+                    return (
+                      <tr key={row.code} className="border-b border-line last:border-0 row-hover">
+                        <Td>
+                          <span className="text-chalk">
+                            {country.flag} {countryName(row.countryCode, locale)}
+                          </span>
+                          <span className="ml-1.5 text-chalk-faint">{row.code}</span>
+                        </Td>
+                        <Td>{row.zone}</Td>
+                        <Td className="tnum text-right">{row.refereeCount}</Td>
+                        <Td className="tnum text-right">{row.eliteCount}</Td>
+                        <Td className="board text-right text-chalk">{row.avgArps || "—"}</Td>
+                        <Td className="tnum text-right">{row.competitions}</Td>
+                        <Td className="tnum text-right">{row.fixtures}</Td>
+                        <Td className={cn("tnum text-right", row.openSlots > 0 && "text-amber")}>{row.openSlots}</Td>
+                        <Td>
+                          <span className="flex items-center gap-2">
+                            <Badge
+                              tone={
+                                row.syncHealth === "healthy" ? "pitch" : row.syncHealth === "stale" ? "amber" : "neutral"
+                              }
+                            >
+                              {t(
+                                row.syncHealth === "healthy"
+                                  ? "federations.syncHealthy"
+                                  : row.syncHealth === "stale"
+                                    ? "federations.syncStale"
+                                    : "federations.syncManual",
+                              )}
+                            </Badge>
+                            <span className="text-[11px] text-chalk-faint">
+                              {row.lastSyncHours}
+                              {t("common.hours")}
+                            </span>
+                          </span>
+                        </Td>
+                        <Td className="text-right">
+                          <Button size="sm" variant="ghost" onClick={() => setScope({ kind: "country", code: row.countryCode })}>
+                            {t("federations.switchScope")}
+                          </Button>
+                        </Td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
             </div>
-          ))}
-        </div>
-      </Card>
+          </Card>
+        </>
+      )}
+
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+        <Card className="lg:col-span-2">
+          <CardHeader title={t("federations.zoneSummary")} subtitle={t("federations.zoneSummarySub")} />
+          <div className="h-56">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={zoneDistribution} margin={{ top: 4, right: 6, bottom: 0, left: -24 }}>
+                <CartesianGrid stroke={chartColors.grid} vertical={false} />
+                <XAxis dataKey="zone" {...axisProps} interval={0} angle={-12} textAnchor="end" height={44} />
+                <YAxis {...axisProps} />
+                <Tooltip contentStyle={tooltipStyle} cursor={{ fill: "rgba(255,255,255,0.04)" }} />
+                <Bar dataKey="referees" name={t("common.referees")} fill={chartColors.chalkDim} radius={[3, 3, 0, 0]} />
+                <Bar dataKey="countries" name={t("common.countries")} fill={chartColors.pitch} radius={[3, 3, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </Card>
+
+        <Card>
+          <CardHeader
+            title={t("common.competitions")}
+            subtitle={t("federations.competitionsTracked")}
+            action={
+              <Button size="sm" variant="secondary">
+                <RefreshCcw size={12} />
+                {t("common.syncNow")}
+              </Button>
+            }
+          />
+          <ul className="max-h-[320px] space-y-1.5 overflow-y-auto">
+            {competitions
+              .filter((c) => zoneFilter === "all" || countryByCode.get(c.countryCode)?.zone === zoneFilter || c.countryCode === "CAF")
+              .map((comp) => (
+                <li
+                  key={comp.id}
+                  className="flex items-center justify-between gap-2 rounded-lg border border-line bg-ink-1 px-3 py-2"
+                >
+                  <div className="min-w-0">
+                    <p className="truncate text-[12.5px] text-chalk">{comp.name}</p>
+                    <p className="text-[11px] text-chalk-faint">
+                      {comp.countryCode === "CAF" ? "CAF" : countryName(comp.countryCode, locale)} ·{" "}
+                      {t("common.matchday")} {comp.currentMatchday}/{comp.matchdays}
+                    </p>
+                  </div>
+                  {comp.varEnabled && <Badge tone="var">VAR</Badge>}
+                </li>
+              ))}
+          </ul>
+        </Card>
+      </div>
+
+      <p className="text-[11.5px] text-chalk-faint">
+        {locale === "fr"
+          ? `Zones CAF : ${zones.map((z) => `${z} (${zoneLabel[z]})`).join(" · ")}`
+          : `CAF zones: ${zones.map((z) => `${z} (${zoneLabel[z]})`).join(" · ")}`}
+      </p>
+    </div>
+  );
+}
+
+function Mini({ label, value }: { label: string; value: string | number }) {
+  return (
+    <div className="rounded-md border border-line bg-ink-1 px-1.5 py-1.5">
+      <p className="truncate text-[9.5px] uppercase tracking-wide text-chalk-faint">{label}</p>
+      <p className="board text-[13px] text-chalk">{value}</p>
     </div>
   );
 }

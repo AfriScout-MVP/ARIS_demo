@@ -1,135 +1,178 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
-import { Card, CardHeader } from "@/components/ui/Card";
-import { ScoreRing } from "@/components/ui/ScoreRing";
-import { CompareRadar } from "@/components/charts/CompareRadar";
-import { referees, getSubIndices } from "@/lib/mock-data";
+import { ArrowUpRight } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { GitCompareArrows, X } from "lucide-react";
-
-const COLORS = ["#17c778", "#e2b13c", "#3b82f6"];
-const MAX_SELECTION = 3;
+import { useLocale, useT } from "@/lib/i18n/LocaleProvider";
+import { useScope } from "@/lib/scope/ScopeProvider";
+import { PageHeading } from "@/components/layout/PageHeading";
+import { Avatar, Badge, Card, CardHeader, EmptyState, Meter, ScoreRing, Select } from "@/components/ui";
+import { CompareRadar } from "@/components/charts/CompareRadar";
+import { countryFlag, countryName, getSubIndices, referees } from "@/lib/mock-data";
 
 export default function ComparePage() {
-  const [selected, setSelected] = useState<string[]>([referees[0].id, referees[2].id]);
+  const t = useT();
+  const { locale } = useLocale();
+  const { codes } = useScope();
 
-  function toggle(id: string) {
-    setSelected((prev) => {
-      if (prev.includes(id)) return prev.filter((x) => x !== id);
-      if (prev.length >= MAX_SELECTION) return prev;
-      return [...prev, id];
-    });
+  const pool = useMemo(
+    () => referees.filter((r) => codes.includes(r.countryCode)).sort((a, b) => b.arps - a.arps),
+    [codes],
+  );
+
+  const [aId, setAId] = useState(pool[0]?.id ?? referees[0].id);
+  const [bId, setBId] = useState(pool[1]?.id ?? referees[1].id);
+
+  const a = pool.find((r) => r.id === aId) ?? pool[0];
+  const b = pool.find((r) => r.id === bId) ?? pool[1];
+
+  if (!a || !b) {
+    return (
+      <div className="space-y-4">
+        <PageHeading titleKey="compare.title" subtitleKey="subtitles.compare" />
+        <Card>
+          <EmptyState title={t("compare.pickTwo")} hint={t("common.noResultsHint")} />
+        </Card>
+      </div>
+    );
   }
 
-  const selectedReferees = selected.map((id) => referees.find((r) => r.id === id)!).filter(Boolean);
+  const subA = getSubIndices(a);
+  const subB = getSubIndices(b);
 
-  const radarData = useMemo(() => {
-    const metrics: { key: keyof ReturnType<typeof getSubIndices>; label: string }[] = [
-      { key: "ras", label: "RAS" },
-      { key: "cei", label: "CEI" },
-      { key: "mds", label: "MDS" },
-      { key: "prs", label: "PRS" },
-      { key: "ci", label: "CI" },
-    ];
-    return metrics.map((m) => {
-      const row: Record<string, string | number> = { metric: m.label };
-      selectedReferees.forEach((r) => {
-        row[r.name] = getSubIndices(r)[m.key];
-      });
-      return row;
-    });
-  }, [selectedReferees]);
+  const metrics = [
+    { key: "ras", label: t("referees.ras") },
+    { key: "cei", label: t("referees.cei") },
+    { key: "mds", label: t("referees.mds") },
+    { key: "prs", label: t("referees.prs") },
+    { key: "ci", label: t("referees.ci") },
+  ] as const;
 
-  const barData = [
-    { stat: "ARPS", ...Object.fromEntries(selectedReferees.map((r) => [r.name, r.arps])) },
-    { stat: "RMCS", ...Object.fromEntries(selectedReferees.map((r) => [r.name, r.rmcsAvg])) },
-    { stat: "Fitness", ...Object.fromEntries(selectedReferees.map((r) => [r.name, r.fitness])) },
-    { stat: "VAR acc.", ...Object.fromEntries(selectedReferees.map((r) => [r.name, r.varAccuracy])) },
+  const radar = metrics.map((m) => ({
+    metric: m.label,
+    [a.name]: subA[m.key],
+    [b.name]: subB[m.key],
+  }));
+
+  const headToHead = [
+    { label: "ARPS", a: a.arps, b: b.arps, max: 100 },
+    { label: t("arae.rmcs"), a: a.rmcsAvg, b: b.rmcsAvg, max: 100 },
+    { label: t("referees.varAccuracy"), a: a.varAccuracy, b: b.varAccuracy, max: 100 },
+    { label: t("arae.fitness"), a: a.fitness, b: b.fitness, max: 100 },
+    { label: t("referees.matchesOfficiated"), a: a.matches, b: b.matches, max: Math.max(a.matches, b.matches) },
+    {
+      label: locale === "fr" ? "Cartons / rencontre" : "Cards per match",
+      a: Number(((a.cards.yellow + a.cards.red) / a.matches).toFixed(2)),
+      b: Number(((b.cards.yellow + b.cards.red) / b.matches).toFixed(2)),
+      max: 5,
+      lowerIsBetter: true,
+    },
   ];
 
+  const gaps = metrics
+    .map((m) => ({ label: m.label, diff: subA[m.key] - subB[m.key] }))
+    .sort((x, y) => Math.abs(y.diff) - Math.abs(x.diff));
+
+  const options = pool.map((r) => ({ value: r.id, label: `${r.name} — ${r.arps.toFixed(1)}` }));
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-5">
+      <PageHeading titleKey="compare.title" subtitleKey="subtitles.compare" />
+
       <Card>
-        <CardHeader
-          title="Select referees to compare"
-          subtitle={`${selected.length}/${MAX_SELECTION} selected`}
-          icon={<GitCompareArrows size={16} />}
-        />
-        <div className="flex flex-wrap gap-2">
-          {referees.map((r) => (
-            <button
-              key={r.id}
-              onClick={() => toggle(r.id)}
-              disabled={!selected.includes(r.id) && selected.length >= MAX_SELECTION}
-              className={cn(
-                "flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors disabled:opacity-30 disabled:cursor-not-allowed",
-                selected.includes(r.id)
-                  ? "border-aris-emerald/40 bg-aris-emerald/10 text-aris-emerald-light"
-                  : "border-aris-border text-aris-muted hover:text-aris-text",
-              )}
-            >
-              <span>{r.flag}</span>
-              {r.name}
-              {selected.includes(r.id) && <X size={12} />}
-            </button>
-          ))}
+        <CardHeader title={t("compare.pickTwo")} />
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <Select label={t("compare.refereeA")} value={a.id} onChange={setAId} options={options} />
+          <Select label={t("compare.refereeB")} value={b.id} onChange={setBId} options={options} />
         </div>
       </Card>
 
-      {selectedReferees.length === 0 ? (
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        {[a, b].map((referee, i) => (
+          <Card key={referee.id} className={cn(i === 0 ? "border-line-strong" : "border-pitch/30")}>
+            <div className="flex items-center gap-3">
+              <Avatar initials={referee.initials} size={44} tone={i === 0 ? "chalk" : "neutral"} />
+              <div className="min-w-0 flex-1">
+                <Link href={`/referees/${referee.id}`} className="flex items-center gap-1 text-[14px] text-chalk hover:underline">
+                  {referee.name}
+                  <ArrowUpRight size={12} />
+                </Link>
+                <p className="truncate text-[11.5px] text-chalk-faint">
+                  {countryFlag(referee.countryCode)} {countryName(referee.countryCode, locale)} · {referee.level}
+                </p>
+                <Badge className="mt-1.5" tone={referee.trend >= 0 ? "pitch" : "red"}>
+                  {referee.trend >= 0 ? "+" : "−"}
+                  {Math.abs(referee.trend).toFixed(1)} {t("common.points")}
+                </Badge>
+              </div>
+              <ScoreRing value={referee.arps} size={52} />
+            </div>
+          </Card>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <Card>
-          <p className="text-sm text-aris-muted text-center py-8">Select at least one referee to begin comparing.</p>
+          <CardHeader title={t("compare.profile")} subtitle={t("compare.profileSub")} />
+          <CompareRadar data={radar} seriesNames={[a.name, b.name]} />
         </Card>
-      ) : (
-        <>
-          <div className={cn("grid gap-4", selectedReferees.length === 1 ? "sm:grid-cols-1" : selectedReferees.length === 2 ? "sm:grid-cols-2" : "sm:grid-cols-3")}>
-            {selectedReferees.map((r, i) => (
-              <Card key={r.id} className="text-center" style={{ borderColor: `${COLORS[i]}40` } as React.CSSProperties}>
-                <ScoreRing value={r.arps} size={64} label="ARPS" />
-                <p className="font-display font-semibold text-aris-text mt-2">{r.name}</p>
-                <p className="text-xs text-aris-muted">{r.flag} {r.country} · {r.zone}</p>
-                <div className="grid grid-cols-2 gap-2 mt-4 text-center">
-                  <div className="rounded-lg bg-white/5 border border-aris-border px-2 py-2">
-                    <p className="text-sm font-semibold text-aris-text">{r.rmcsAvg}</p>
-                    <p className="text-[9px] text-aris-muted-2 uppercase">RMCS</p>
+
+        <Card>
+          <CardHeader title={t("compare.headToHead")} />
+          <div className="space-y-3.5">
+            {headToHead.map((row) => {
+              const aWins = row.lowerIsBetter ? row.a < row.b : row.a > row.b;
+              return (
+                <div key={row.label}>
+                  <div className="mb-1 flex items-center justify-between text-[12px]">
+                    <span className={cn("board", aWins ? "text-chalk" : "text-chalk-faint")}>{row.a}</span>
+                    <span className="text-chalk-faint">{row.label}</span>
+                    <span className={cn("board", !aWins ? "text-pitch" : "text-chalk-faint")}>{row.b}</span>
                   </div>
-                  <div className="rounded-lg bg-white/5 border border-aris-border px-2 py-2">
-                    <p className="text-sm font-semibold text-aris-text">{r.matches}</p>
-                    <p className="text-[9px] text-aris-muted-2 uppercase">Matches</p>
+                  <div className="flex gap-1">
+                    <div className="flex flex-1 justify-end">
+                      <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/[0.07]">
+                        <div
+                          className="ml-auto h-full rounded-full bg-pitch"
+                          style={{ width: `${Math.min(100, (row.a / row.max) * 100)}%` }}
+                        />
+                      </div>
+                    </div>
+                    <div className="flex-1">
+                      <Meter value={(row.b / row.max) * 100} tone="pitch" />
+                    </div>
                   </div>
                 </div>
-              </Card>
-            ))}
+              );
+            })}
           </div>
+        </Card>
+      </div>
 
-          <div className="grid gap-6 lg:grid-cols-2">
-            <Card>
-              <CardHeader title="Sub-index overlay" subtitle="RAS · CEI · MDS · PRS · CI" />
-              <CompareRadar data={radarData} seriesNames={selectedReferees.map((r) => r.name)} />
-            </Card>
-
-            <Card>
-              <CardHeader title="Core stats" subtitle="Side-by-side comparison" />
-              <div className="h-72">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={barData} margin={{ top: 4, right: 8, bottom: 0, left: -20 }}>
-                    <CartesianGrid stroke="#1c2837" vertical={false} />
-                    <XAxis dataKey="stat" stroke="#5c6d82" fontSize={12} tickLine={false} axisLine={false} />
-                    <YAxis stroke="#5c6d82" fontSize={12} tickLine={false} axisLine={false} />
-                    <Tooltip contentStyle={{ background: "#0d141e", border: "1px solid #1c2837", borderRadius: 10, fontSize: 12, color: "#eef3f8" }} />
-                    <Legend wrapperStyle={{ fontSize: 12, color: "#8b9bb0" }} />
-                    {selectedReferees.map((r, i) => (
-                      <Bar key={r.id} dataKey={r.name} fill={COLORS[i % COLORS.length]} radius={[6, 6, 0, 0]} />
-                    ))}
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </Card>
-          </div>
-        </>
-      )}
+      <Card>
+        <CardHeader title={t("compare.verdict")} subtitle={t("compare.verdictSub")} />
+        <ul className="space-y-2">
+          {gaps.map((gap) => {
+            const leader = gap.diff >= 0 ? a : b;
+            return (
+              <li
+                key={gap.label}
+                className="flex items-center justify-between gap-3 rounded-lg border border-line bg-ink-1 px-3 py-2.5"
+              >
+                <span className="min-w-0 text-[12.5px] text-chalk-dim">{gap.label}</span>
+                <span className="shrink-0 text-[12.5px]">
+                  <span className={cn(gap.diff >= 0 ? "text-chalk" : "text-pitch")}>{leader.name}</span>
+                  <span className="text-chalk-faint">
+                    {" "}
+                    {t("compare.aheadOn")} {t("compare.by")} {Math.abs(gap.diff).toFixed(1)}
+                  </span>
+                </span>
+              </li>
+            );
+          })}
+        </ul>
+      </Card>
     </div>
   );
 }

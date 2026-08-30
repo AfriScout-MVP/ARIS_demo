@@ -1,86 +1,87 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { Bell, ShieldAlert, Trophy, BadgeCheck, ClipboardCheck } from "lucide-react";
-import { notifications as initialNotifications, type Notification } from "@/lib/mock-data";
+import { Bell } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-const toneIcon: Record<Notification["tone"], React.ComponentType<{ size?: number; className?: string }>> = {
-  emerald: Trophy,
-  gold: BadgeCheck,
-  red: ShieldAlert,
-  blue: ClipboardCheck,
-};
-
-const toneClasses: Record<Notification["tone"], string> = {
-  emerald: "bg-aris-emerald/10 text-aris-emerald-light",
-  gold: "bg-aris-gold/10 text-aris-gold",
-  red: "bg-aris-red/10 text-aris-red",
-  blue: "bg-aris-blue/10 text-blue-300",
-};
+import { useLocale, useT } from "@/lib/i18n/LocaleProvider";
+import { notifications as seed, type Notification } from "@/lib/mock-data";
+import { Dot, type Tone } from "@/components/ui";
 
 export function NotificationsMenu() {
+  const t = useT();
+  const { locale } = useLocale();
   const [open, setOpen] = useState(false);
-  const [items, setItems] = useState<Notification[]>(initialNotifications);
+  const [items, setItems] = useState<Notification[]>(seed);
   const ref = useRef<HTMLDivElement>(null);
   const unread = items.filter((n) => !n.read).length;
 
   useEffect(() => {
-    function onClick(e: MouseEvent) {
+    function onPointer(e: MouseEvent) {
       if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
     }
-    document.addEventListener("mousedown", onClick);
-    return () => document.removeEventListener("mousedown", onClick);
+    document.addEventListener("mousedown", onPointer);
+    return () => document.removeEventListener("mousedown", onPointer);
   }, []);
 
   return (
     <div className="relative" ref={ref}>
       <button
         onClick={() => setOpen((v) => !v)}
-        className="relative flex h-9 w-9 items-center justify-center rounded-lg border border-aris-border bg-aris-surface text-aris-muted hover:text-aris-text transition-colors"
+        aria-label={t("common.notifications")}
+        className="relative rounded-md border border-line bg-ink-2 p-1.5 text-chalk-dim transition-colors hover:border-line-strong hover:text-chalk"
       >
-        <Bell size={16} />
+        <Bell size={15} />
         {unread > 0 && (
-          <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-aris-red text-[9px] flex items-center justify-center text-white">
+          <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-card-red px-1 text-[9px] font-semibold text-white">
             {unread}
           </span>
         )}
       </button>
 
       {open && (
-        <div className="absolute right-0 mt-2 w-80 rounded-xl border border-aris-border bg-aris-surface-2 glass shadow-2xl shadow-black/40 overflow-hidden z-50">
-          <div className="flex items-center justify-between p-3 border-b border-aris-border-soft">
-            <p className="text-sm font-medium text-aris-text">Notifications</p>
+        <div className="absolute right-0 z-50 mt-2 w-[320px] overflow-hidden rounded-lg border border-line bg-ink-2 shadow-2xl shadow-black/60">
+          <div className="flex items-center justify-between border-b border-line px-3 py-2.5">
+            <p className="text-[13px] font-medium text-chalk">{t("common.notifications")}</p>
             {unread > 0 && (
               <button
                 onClick={() => setItems((prev) => prev.map((n) => ({ ...n, read: true })))}
-                className="text-xs text-aris-emerald-light hover:underline"
+                className="text-[11.5px] text-chalk-faint hover:text-chalk"
               >
-                Mark all read
+                {t("common.markAllRead")}
               </button>
             )}
           </div>
-          <div className="max-h-96 overflow-y-auto py-1">
-            {items.map((n) => {
-              const Icon = toneIcon[n.tone];
-              return (
-                <button
-                  key={n.id}
-                  onClick={() => setItems((prev) => prev.map((x) => (x.id === n.id ? { ...x, read: true } : x)))}
-                  className="flex w-full items-start gap-3 px-3 py-2.5 text-left hover:bg-white/5 transition-colors"
-                >
-                  <span className={cn("flex h-8 w-8 shrink-0 items-center justify-center rounded-lg", toneClasses[n.tone])}>
-                    <Icon size={14} />
+
+          <div className="max-h-[380px] overflow-y-auto">
+            {items.length === 0 && (
+              <p className="px-3 py-6 text-center text-[12.5px] text-chalk-faint">{t("common.noNotifications")}</p>
+            )}
+            {items.map((n) => (
+              <Link
+                key={n.id}
+                href={n.href}
+                onClick={() => {
+                  setItems((prev) => prev.map((x) => (x.id === n.id ? { ...x, read: true } : x)));
+                  setOpen(false);
+                }}
+                className={cn(
+                  "flex gap-2.5 border-b border-line px-3 py-2.5 text-left transition-colors last:border-0 hover:bg-white/[0.04]",
+                  !n.read && "bg-white/[0.02]",
+                )}
+              >
+                <span className="mt-1.5">
+                  <Dot tone={n.tone as Tone} />
+                </span>
+                <span className="min-w-0">
+                  <span className={cn("block text-[12.5px]", n.read ? "text-chalk-dim" : "font-medium text-chalk")}>
+                    {n.title[locale]}
                   </span>
-                  <div className="min-w-0 flex-1">
-                    <p className={cn("text-sm truncate", n.read ? "text-aris-muted" : "text-aris-text font-medium")}>{n.title}</p>
-                    <p className="text-xs text-aris-muted mt-0.5 line-clamp-2">{n.detail}</p>
-                    <p className="text-[10px] text-aris-muted-2 mt-1">{n.time}</p>
-                  </div>
-                  {!n.read && <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-aris-emerald" />}
-                </button>
-              );
-            })}
+                  <span className="mt-0.5 block text-[11.5px] leading-snug text-chalk-faint">{n.detail[locale]}</span>
+                  <span className="mt-1 block text-[10.5px] text-chalk-faint">{n.time[locale]}</span>
+                </span>
+              </Link>
+            ))}
           </div>
         </div>
       )}

@@ -1,37 +1,51 @@
-import type { Metadata } from "next";
-import { Inter, Space_Grotesk, Geist_Mono } from "next/font/google";
+import type { Metadata, Viewport } from "next";
+import { Archivo, Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
+import { LocaleProvider } from "@/lib/i18n/LocaleProvider";
+import { ScopeProvider } from "@/lib/scope/ScopeProvider";
+import { AppointmentsProvider } from "@/lib/appointments/AppointmentsProvider";
 
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-});
+const inter = Inter({ variable: "--font-inter", subsets: ["latin"], display: "swap" });
 
-const spaceGrotesk = Space_Grotesk({
-  variable: "--font-space-grotesk",
+const archivo = Archivo({
+  variable: "--font-archivo",
   subsets: ["latin"],
   weight: ["500", "600", "700"],
+  display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const jetbrains = JetBrains_Mono({
+  variable: "--font-jetbrains",
   subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
   title: "ARIS — Africa Referee Intelligence System",
   description:
-    "ARIS is the continental intelligence platform for refereeing: performance scoring, AI-powered match assignment, and digital career management — built for CAF, federations, and leagues across Africa.",
+    "ARIS runs the refereeing operation for African federations: national fixture calendars, crew appointments, performance scoring, observer reports and development tracking.",
+};
+
+export const viewport: Viewport = {
+  themeColor: "#08090a",
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${spaceGrotesk.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${inter.variable} ${archivo.variable} ${jetbrains.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-aris-bg text-aris-text">
-        {children}
+      <body className="min-h-full bg-ink-0 text-chalk">
+        <LocaleProvider>
+          <ScopeProvider>
+            <AppointmentsProvider>{children}</AppointmentsProvider>
+          </ScopeProvider>
+        </LocaleProvider>
       </body>
     </html>
   );
