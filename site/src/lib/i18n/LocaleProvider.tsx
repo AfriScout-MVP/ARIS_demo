@@ -22,8 +22,9 @@ const LocaleContext = createContext<LocaleContextValue | null>(null);
 
 const STORAGE_KEY = "aris.locale";
 
+/** French is the default: it is the working language of most CAF federations. */
 function parseLocale(raw: string | null): Locale {
-  return raw === "fr" ? "fr" : "en";
+  return raw === "en" ? "en" : "fr";
 }
 
 function lookup(dict: Dict, key: string): string | undefined {
@@ -44,7 +45,7 @@ function interpolate(template: string, vars?: Vars) {
 }
 
 export function LocaleProvider({ children }: { children: React.ReactNode }) {
-  const locale = usePersistent(STORAGE_KEY, parseLocale, "en");
+  const locale = usePersistent(STORAGE_KEY, parseLocale, "fr");
 
   useEffect(() => {
     document.documentElement.lang = locale;

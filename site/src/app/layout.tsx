@@ -22,9 +22,9 @@ const jetbrains = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ARIS — Africa Referee Intelligence System",
+  title: "ARIS — Système africain d'intelligence de l'arbitrage",
   description:
-    "ARIS runs the refereeing operation for African federations: national fixture calendars, crew appointments, performance scoring, observer reports and development tracking.",
+    "ARIS pilote l'arbitrage des fédérations africaines : calendriers nationaux, désignations des trios, notation des performances, rapports d'observateur et suivi du développement.",
 };
 
 export const viewport: Viewport = {
@@ -37,7 +37,7 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html
-      lang="en"
+      lang="fr"
       className={`${inter.variable} ${archivo.variable} ${jetbrains.variable} h-full antialiased`}
     >
       <body className="min-h-full bg-ink-0 text-chalk">

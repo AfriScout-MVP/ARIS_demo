@@ -1033,5 +1033,5 @@ export const fr: Dict = {
 
 export const dictionaries = { en, fr };
 export type Locale = keyof typeof dictionaries;
-export const locales: Locale[] = ["en", "fr"];
+export const locales: Locale[] = ["fr", "en"];
 export const localeLabels: Record<Locale, string> = { en: "EN", fr: "FR" };
