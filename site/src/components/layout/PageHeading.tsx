@@ -16,7 +16,7 @@ export function PageHeading({
   return (
     <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
       <div className="min-w-0">
-        <h1 className="text-2xl font-bold text-chalk lg:text-3xl">{t(titleKey)}</h1>
+        <h1 className="text-2xl font-extrabold text-chalk lg:text-[2rem] lg:leading-tight">{t(titleKey)}</h1>
         {subtitleKey && <p className="mt-1 text-chalk-dim">{t(subtitleKey)}</p>}
       </div>
       {action && <div className="shrink-0">{action}</div>}

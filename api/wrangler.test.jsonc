@@ -1,0 +1,11 @@
+{
+  // Used only by vitest: the same bindings as production, minus the static assets
+  // (site/out does not exist until the app is built) and minus cron triggers.
+  "name": "aris-test",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-10-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "d1_databases": [{ "binding": "DB", "database_name": "ARIS_DB", "database_id": "00000000-0000-0000-0000-000000000000", "migrations_dir": "migrations" }],
+  "r2_buckets": [{ "binding": "MEDIA", "bucket_name": "aris-media" }],
+  "vars": { "ENVIRONMENT": "test" }
+}

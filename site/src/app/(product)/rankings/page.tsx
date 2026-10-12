@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Fragment, useMemo, useState } from "react";
-import { Gauge, Globe2, Layers, Medal, Minus, TrendingDown, TrendingUp, Trophy } from "lucide-react";
+import { Gauge, Globe2, Layers, Medal, Minus, TrendingDown, TrendingUp, Trophy } from "@/components/icons/glyphs";
 import { cn } from "@/lib/utils";
 import { useLocale, useT } from "@/lib/i18n/LocaleProvider";
 import { useScope } from "@/lib/scope/ScopeProvider";
@@ -110,7 +110,7 @@ export default function RankingsPage() {
                 <Link
                   href={`/referees/${row.refereeId}`}
                   className={cn(
-                    "flex items-center gap-3 rounded-2xl border bg-ink-2 p-3 lift",
+                    "flex items-center gap-3 rounded-[14px] border bg-ink-2 p-3 lift",
                     row.rank <= PROMOTION_LINE ? "border-line-strong" : "border-line",
                   )}
                 >
@@ -174,7 +174,7 @@ export default function RankingsPage() {
                           <td colSpan={8} className="px-3 py-1.5">
                             <div className="flex items-center gap-3">
                               <span className="chalk-rule flex-1" />
-                              <span className="whitespace-nowrap text-[10.5px] uppercase tracking-[0.1em] text-chalk-faint">
+                              <span className="whitespace-nowrap text-xs font-medium text-chalk-faint">
                                 {t("rankings.promotionLineNote")}
                               </span>
                               <span className="chalk-rule flex-1" />
@@ -214,7 +214,7 @@ export default function RankingsPage() {
               <li key={z.zone}>
                 <Link
                   href={`/referees/${z.leader!.refereeId}`}
-                  className="flex items-center gap-3 rounded-xl border border-line bg-ink-1 px-3 py-2.5 lift"
+                  className="flex items-center gap-3 rounded-[10px] border border-line bg-ink-1 px-3 py-2.5 lift"
                 >
                   <span className="board w-16 shrink-0 text-[11px] text-chalk-faint">{z.zone}</span>
                   <span className="min-w-0 flex-1 truncate text-xs text-chalk">
@@ -234,7 +234,7 @@ export default function RankingsPage() {
               <li key={row.refereeId}>
                 <Link
                   href={`/referees/${row.refereeId}`}
-                  className="flex items-center gap-3 rounded-xl border border-line bg-ink-1 px-3 py-2.5 lift"
+                  className="flex items-center gap-3 rounded-[10px] border border-line bg-ink-1 px-3 py-2.5 lift"
                 >
                   <span className="min-w-0 flex-1 truncate text-xs text-chalk">
                     {countryFlag(row.countryCode)} {row.name}

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { BadgeCheck, GraduationCap, HeartPulse, ShieldAlert, Timer, Users } from "lucide-react";
+import { BadgeCheck, GraduationCap, HeartPulse, ShieldAlert, Timer, Users } from "@/components/icons/glyphs";
 import { cn } from "@/lib/utils";
 import { useFormatters, useLocale, useT } from "@/lib/i18n/LocaleProvider";
 import { useScope } from "@/lib/scope/ScopeProvider";
@@ -216,7 +216,7 @@ export default function DevelopmentPage() {
                   return (
                     <li
                       key={test.refereeId}
-                      className="flex items-center gap-2.5 rounded-xl border border-card-red/25 bg-card-red/[0.06] px-3 py-2.5"
+                      className="flex items-center gap-2.5 rounded-[10px] border border-card-red/25 bg-card-red/[0.06] px-3 py-2.5"
                     >
                       <Timer size={14} className="shrink-0 text-card-red" />
                       <div className="min-w-0 flex-1">
@@ -233,7 +233,7 @@ export default function DevelopmentPage() {
                   return (
                     <li
                       key={licence.id}
-                      className="flex items-center gap-2.5 rounded-xl border border-amber/25 bg-amber/[0.06] px-3 py-2.5"
+                      className="flex items-center gap-2.5 rounded-[10px] border border-amber/25 bg-amber/[0.06] px-3 py-2.5"
                     >
                       <ShieldAlert size={14} className="shrink-0 text-amber" />
                       <div className="min-w-0 flex-1">

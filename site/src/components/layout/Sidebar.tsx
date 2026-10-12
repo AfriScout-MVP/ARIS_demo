@@ -12,13 +12,14 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ChevronDown, LogOut, Moon, Sun, X } from "lucide-react";
+import { ChevronDown, LogOut, Moon, Sun, X } from "@/components/icons/glyphs";
 import { cn } from "@/lib/utils";
 import { useT } from "@/lib/i18n/LocaleProvider";
 import { useTheme } from "@/lib/theme/ThemeProvider";
+import { useDataset } from "@/lib/dataset/DatasetProvider";
 import { navGroups, type NavItem } from "./nav-items";
 import { LocaleToggle } from "./LocaleToggle";
-import { Mark } from "@/components/icons/Mark";
+import { MarkTile } from "@/components/icons/Mark";
 
 const isActive = (pathname: string, item: NavItem) =>
   item.href === "/" ? pathname === "/" : pathname === item.href || pathname.startsWith(`${item.href}/`);
@@ -40,6 +41,7 @@ export function Sidebar({
 }) {
   const pathname = usePathname();
   const t = useT();
+  const { signOut } = useDataset();
   const { theme, toggle } = useTheme();
   // Only the groups the visitor has opened or closed by hand are stored; the
   // rest follow the page — a group is open while it holds the current route.
@@ -54,13 +56,13 @@ export function Sidebar({
         onClick={onCloseMobile}
         aria-current={active ? "page" : undefined}
         className={cn(
-          "group flex items-center gap-3 rounded-xl border-l-4 px-3 py-2.5 transition-all",
+          "group flex items-center gap-3 rounded-r-lg border-l-[3px] px-3 py-2.5 transition-colors",
           active
-            ? "border-red-500 font-semibold text-chalk"
-            : "border-transparent text-chalk-faint hover:bg-red-500/10 hover:text-chalk",
+            ? "border-red-500 bg-red-500/[0.07] font-semibold text-chalk"
+            : "border-transparent text-chalk-faint hover:border-line-strong hover:bg-wash/[0.04] hover:text-chalk",
         )}
       >
-        <item.icon className="h-5 w-5 shrink-0" />
+        <item.icon className={cn("h-5 w-5 shrink-0 transition-colors", active && "text-red-500")} />
         <span className="min-w-0 flex-1 font-medium leading-snug">{t(item.labelKey)}</span>
       </Link>
     );
@@ -84,7 +86,7 @@ export function Sidebar({
         <div className="relative shrink-0 border-b border-line px-4 pb-4 pt-5">
           <button
             onClick={onToggleDesktop}
-            className="absolute right-3 top-4 hidden h-8 w-8 items-center justify-center rounded-lg bg-ink-2 transition-colors hover:bg-ink-4 dark:bg-ink-3 lg:flex"
+            className="absolute right-3 top-4 hidden h-8 w-8 items-center justify-center rounded-md bg-ink-2 transition-colors hover:bg-ink-4 dark:bg-ink-3 lg:flex"
             title={t("nav.closeSidebar")}
             aria-label={t("nav.closeSidebar")}
           >
@@ -99,13 +101,11 @@ export function Sidebar({
             <X className="h-4 w-4 text-chalk-dim" aria-hidden="true" />
           </button>
 
-          <div className="flex flex-col items-center gap-3">
-            <span className="flex h-16 w-16 items-center justify-center rounded-2xl bg-linear-to-br from-red-500 to-orange-500 text-white shadow-md shadow-red-500/20">
-              <Mark size={32} />
-            </span>
-            <div className="min-w-0 text-center">
-              <p className="truncate text-sm font-bold tracking-[0.12em] text-chalk">ARIS</p>
-              <p className="text-xs text-chalk-dim">{t("nav.role")}</p>
+          <div className="flex items-center gap-3 pr-10">
+            <MarkTile size={44} />
+            <div className="min-w-0">
+              <p className="font-display truncate text-[22px] font-extrabold leading-none tracking-[-0.04em] text-chalk">ARIS</p>
+              <p className="mt-1 truncate text-xs text-chalk-dim">{t("nav.role")}</p>
             </div>
           </div>
         </div>
@@ -124,21 +124,17 @@ export function Sidebar({
                   aria-expanded={open}
                   onClick={() => setManual((prev) => ({ ...prev, [group.labelKey]: !open }))}
                   className={cn(
-                    "flex w-full items-center gap-2 rounded-xl border px-3 py-2.5 transition-colors lg:py-2",
-                    hasActive && open
-                      ? "border-red-500/30 bg-red-500/5 text-chalk"
-                      : "border-line bg-ink-3/60 text-chalk-faint hover:bg-ink-3 hover:text-chalk",
+                    "flex min-h-10 w-full items-center gap-2 px-3 py-2 transition-colors lg:min-h-0",
+                    hasActive ? "text-chalk" : "text-chalk-faint hover:text-chalk",
                   )}
                 >
-                  <span className="flex-1 text-left text-xs font-bold uppercase tracking-wider">
-                    {t(group.labelKey)}
-                  </span>
-                  {hasActive && !open && <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-red-500" />}
+                  <span className="eyebrow flex-1 text-left !text-inherit">{t(group.labelKey)}</span>
+                  {hasActive && !open && <span className="h-1.5 w-1.5 shrink-0 rotate-45 bg-red-500" />}
                   <ChevronDown
                     className={cn("h-3.5 w-3.5 shrink-0 transition-transform", !open && "-rotate-90")}
                   />
                 </button>
-                {open && <div className="mt-1 space-y-1 pl-1">{group.items.map(renderItem)}</div>}
+                {open && <div className="mt-0.5 space-y-0.5">{group.items.map(renderItem)}</div>}
               </div>
             );
           })}
@@ -149,7 +145,7 @@ export function Sidebar({
           <div className="flex items-center gap-2">
             <button
               onClick={toggle}
-              className="flex flex-1 items-center gap-2 rounded-xl px-3 py-2.5 text-chalk-dim transition-all hover:bg-ink-3 hover:text-chalk"
+              className="flex flex-1 items-center gap-2 rounded-lg px-3 py-2.5 text-chalk-dim transition-all hover:bg-ink-3 hover:text-chalk"
               title={themeLabel}
             >
               {theme === "dark" ? (
@@ -162,7 +158,10 @@ export function Sidebar({
             <LocaleToggle />
           </div>
 
-          <button className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-red-700 transition-all hover:bg-red-500/10 dark:text-red-400">
+          <button
+            onClick={() => void signOut()}
+            className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-red-700 transition-all hover:bg-red-500/10 dark:text-red-400"
+          >
             <LogOut className="h-5 w-5 shrink-0" />
             <span className="whitespace-nowrap text-sm font-medium">{t("common.signOut")}</span>
           </button>

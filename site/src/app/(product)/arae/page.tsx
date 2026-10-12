@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { BedDouble, Check, Flame, History, ListChecks, Plane, Shield, Sparkles, TrendingUp, UserPlus, Users } from "lucide-react";
+import { BedDouble, Check, Flame, History, ListChecks, Plane, Shield, Sparkles, TrendingUp, UserPlus, Users } from "@/components/icons/glyphs";
 import { cn } from "@/lib/utils";
 import { useFormatters, useLocale, useT } from "@/lib/i18n/LocaleProvider";
 import { useScope } from "@/lib/scope/ScopeProvider";
@@ -139,7 +139,7 @@ export default function AraePage() {
             </div>
 
             <div className="mt-4">
-              <p className="mb-2 text-[11px] uppercase tracking-[0.1em] text-chalk-faint">{t("arae.buildCrew")}</p>
+              <p className="mb-2 text-xs font-medium text-chalk-faint">{t("arae.buildCrew")}</p>
               <CrewStrip
                 crew={crew}
                 size="md"
@@ -318,7 +318,7 @@ function CandidateRow({
   return (
     <li
       className={cn(
-        "flex flex-col gap-3 rounded-xl border px-3 py-2.5 sm:flex-row sm:items-center",
+        "flex flex-col gap-3 rounded-[10px] border px-3 py-2.5 sm:flex-row sm:items-center",
         blocked ? "border-line opacity-50" : "border-line bg-ink-1 lift",
         recommended && "border-line-strong bg-wash/[0.04]",
       )}
@@ -374,7 +374,7 @@ function CandidateRow({
 function Cell({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-lg border border-line bg-ink-2 px-2 py-1">
-      <p className="truncate text-[10px] uppercase tracking-wide text-chalk-faint">{label}</p>
+      <p className="truncate text-xs font-medium text-chalk-faint">{label}</p>
       <p className="board text-xs text-chalk">{value}</p>
     </div>
   );

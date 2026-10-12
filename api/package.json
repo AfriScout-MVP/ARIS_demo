@@ -1,0 +1,31 @@
+{
+  "name": "aris-api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "ARIS backend \u2014 a serverless Cloudflare Worker (Hono + D1 + R2)",
+  "scripts": {
+    "dev": "wrangler dev",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p scripts",
+    "test": "vitest run",
+    "db:migrate:local": "wrangler d1 migrations apply ARIS_DB --local",
+    "db:migrate:remote": "wrangler d1 migrations apply ARIS_DB --remote",
+    "db:seed": "tsx scripts/seed.ts > .seed/seed.sql && wrangler d1 execute ARIS_DB --local --file .seed/seed.sql",
+    "db:seed:remote": "tsx scripts/seed.ts > .seed/seed.sql && wrangler d1 execute ARIS_DB --remote --file .seed/seed.sql",
+    "user:create": "tsx scripts/create-user.ts",
+    "deploy": "wrangler deploy"
+  },
+  "dependencies": {
+    "hono": "^4.13.13",
+    "zod": "^4.6.6"
+  },
+  "devDependencies": {
+    "@cloudflare/vitest-plugin": "^1.4.0",
+    "@cloudflare/workers-types": "^5.20261012.1",
+    "@types/node": "^22.20.5",
+    "tsx": "^4.23.15",
+    "typescript": "^5",
+    "vitest": "^4.1.0",
+    "wrangler": "^4.149.0"
+  }
+}

@@ -16,10 +16,11 @@ import {
   YAxis,
   CartesianGrid,
 } from "recharts";
-import { Activity, ArrowUpRight, CalendarDays, ClipboardList, Gauge, Globe2, RefreshCcw, Scale, ShieldAlert, Timer, TrendingUp, Trophy, UserPlus, Users } from "lucide-react";
+import { Activity, ArrowUpRight, CalendarDays, ClipboardList, Gauge, Globe2, RefreshCcw, Scale, ShieldAlert, Timer, TrendingUp, Trophy, UserPlus, Users } from "@/components/icons/glyphs";
 import { useLocale, useT } from "@/lib/i18n/LocaleProvider";
 import { useFormatters } from "@/lib/i18n/LocaleProvider";
 import { useScope } from "@/lib/scope/ScopeProvider";
+import { LIVE } from "@/lib/api/config";
 import { PageHeading } from "@/components/layout/PageHeading";
 import { Badge, Board, Card, CardHeader, Dot, EmptyState, Meter, ScoreRing } from "@/components/ui";
 import { CrewStrip } from "@/components/officiating/CrewStrip";
@@ -230,7 +231,7 @@ export default function OverviewPage() {
                   <li key={fixture.id}>
                     <Link
                       href="/calendar"
-                      className="flex flex-col gap-2.5 rounded-xl border border-line bg-ink-1 p-3 lift sm:flex-row sm:items-center sm:justify-between"
+                      className="flex flex-col gap-2.5 rounded-[10px] border border-line bg-ink-1 p-3 lift sm:flex-row sm:items-center sm:justify-between"
                     >
                       <div className="min-w-0">
                         <p className="truncate text-sm font-medium text-chalk">
@@ -265,7 +266,7 @@ export default function OverviewPage() {
                 <li key={alert.id}>
                   <Link
                     href={alert.href}
-                    className="flex items-center gap-2.5 rounded-xl border border-line bg-ink-1 px-3 py-2.5 lift"
+                    className="flex items-center gap-2.5 rounded-[10px] border border-line bg-ink-1 px-3 py-2.5 lift"
                   >
                     <alert.icon
                       size={15}
@@ -290,7 +291,7 @@ export default function OverviewPage() {
         ) : (
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
             <div>
-              <p className="mb-2 flex items-center gap-1.5 text-[11px] uppercase tracking-[0.1em] text-chalk-faint">
+              <p className="mb-2 flex items-center gap-1.5 text-xs font-medium text-chalk-faint">
                 <Dot tone="amber" />
                 {t("overview.workloadHeavy")}
               </p>
@@ -299,7 +300,7 @@ export default function OverviewPage() {
               ) : (
                 <ul className="space-y-1.5">
                   {data.heavy.map((row) => (
-                    <li key={row.officialId} className="rounded-xl border border-line bg-ink-1 px-3 py-2">
+                    <li key={row.officialId} className="rounded-[10px] border border-line bg-ink-1 px-3 py-2">
                       <div className="flex items-center justify-between gap-2">
                         <span className="min-w-0 truncate text-xs text-chalk">
                           {countryFlag(row.countryCode)} {row.name}
@@ -324,7 +325,7 @@ export default function OverviewPage() {
             </div>
 
             <div>
-              <p className="mb-2 flex items-center gap-1.5 text-[11px] uppercase tracking-[0.1em] text-chalk-faint">
+              <p className="mb-2 flex items-center gap-1.5 text-xs font-medium text-chalk-faint">
                 <Dot tone="red" />
                 {t("overview.workloadIdle")}
               </p>
@@ -335,7 +336,7 @@ export default function OverviewPage() {
                   {data.idle.map((row) => (
                     <li
                       key={row.officialId}
-                      className="flex items-center justify-between gap-2 rounded-xl border border-line bg-ink-1 px-3 py-2.5"
+                      className="flex items-center justify-between gap-2 rounded-[10px] border border-line bg-ink-1 px-3 py-2.5"
                     >
                       <span className="min-w-0 truncate text-xs text-chalk">
                         {countryFlag(row.countryCode)} {row.name}
@@ -446,7 +447,7 @@ export default function OverviewPage() {
                 <li key={referee.id}>
                   <Link
                     href={`/referees/${referee.id}`}
-                    className="flex items-center gap-3 rounded-xl border border-line bg-ink-1 px-3 py-2 lift"
+                    className="flex items-center gap-3 rounded-[10px] border border-line bg-ink-1 px-3 py-2 lift"
                   >
                     <span className="board w-4 text-xs text-chalk-faint">{i + 1}</span>
                     <span className="min-w-0 flex-1">
@@ -477,8 +478,8 @@ export default function OverviewPage() {
       <p className="flex items-center gap-2 pt-1 text-xs text-chalk-faint">
         <CalendarDays size={13} />
         {locale === "fr"
-          ? `Semaine de démonstration — ${fmt.longDate(weekStarts[1])} au ${fmt.longDate(weekStarts[2])}`
-          : `Demo week — ${fmt.longDate(weekStarts[1])} to ${fmt.longDate(weekStarts[2])}`}
+          ? `${LIVE ? "Semaine en cours" : "Semaine de démonstration"} — ${fmt.longDate(weekStarts[1])} au ${fmt.longDate(weekStarts[2])}`
+          : `${LIVE ? "Current week" : "Demo week"} — ${fmt.longDate(weekStarts[1])} to ${fmt.longDate(weekStarts[2])}`}
       </p>
     </div>
   );

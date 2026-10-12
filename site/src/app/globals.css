@@ -16,7 +16,7 @@
             white / gray-300 / gray-400 text   (the default, as in AfriScout)
 
   Chrome is red: the active nav rule, primary buttons, focus ring and count
-  badges are AfriScout's red-500 → orange-500, exactly as in the admin panel.
+  badges. One solid red-600 — the admin panel's red without its orange gradient.
   Data keeps its own meaning on top of that, tinted the way AfriScout's
   `kpi-colors.ts` tints a counter:
     green  → confirmed, correct, available
@@ -121,9 +121,9 @@ html.dark {
   --color-terracotta: var(--terracotta);
   --color-var: var(--var);
 
-  --font-sans: var(--font-inter);
-  --font-display: var(--font-inter);
-  --font-mono: var(--font-inter);
+  --font-sans: var(--face-body);
+  --font-display: var(--face-display);
+  --font-mono: var(--face-mono);
 
   --color-background: var(--ink-0);
   --color-foreground: var(--chalk);
@@ -143,7 +143,8 @@ html {
 body {
   background: var(--ink-0);
   color: var(--chalk);
-  font-family: var(--font-sans), "Inter", system-ui, sans-serif;
+  font-family: var(--face-body), system-ui, sans-serif;
+  font-feature-settings: "ss01", "kern";
   overflow-wrap: break-word;
   transition:
     background-color 0.3s ease,
@@ -168,18 +169,35 @@ html.dark body {
   background: transparent;
 }
 
-/* AfriScout uses Inter for everything — headings and figures included. */
+/* Headings and headline figures share one face; everything else is body. */
+h1,
+h2,
+h3,
 .font-display {
-  font-family: var(--font-sans), "Inter", system-ui, sans-serif;
-  letter-spacing: -0.01em;
+  font-family: var(--face-display), var(--face-body), system-ui, sans-serif;
+  letter-spacing: -0.022em;
+  text-wrap: balance;
+}
+h1 {
+  letter-spacing: -0.032em;
+}
+p {
+  text-wrap: pretty;
 }
 
-/* A headline figure — AdminStatCard's "text-2xl font-extrabold tabular-nums". */
+/* A headline figure: tabular so columns of them line up, set in the display face. */
 .board {
-  font-family: var(--font-sans), "Inter", system-ui, sans-serif;
+  font-family: var(--face-display), var(--face-body), system-ui, sans-serif;
+  font-variant-numeric: tabular-nums lining-nums;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+kbd,
+code,
+.mono {
+  font-family: var(--face-mono), ui-monospace, monospace;
   font-variant-numeric: tabular-nums;
-  font-weight: 800;
-  letter-spacing: -0.02em;
 }
 
 .tnum {
@@ -294,6 +312,61 @@ html.dark body {
 
 .live-dot {
   animation: blink 1.8s ease-in-out infinite;
+}
+
+/* Grain: a fixed, non-interactive film of noise so flat surfaces read as
+   paper rather than as vector fill. Tiny, tiled, and nearly invisible. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  opacity: 0.045;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .9 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+html.dark body::before {
+  opacity: 0.07;
+  mix-blend-mode: screen;
+}
+
+/* A panel's shadow carries the page's own hue — forest in light, ink in dark —
+   and falls from one light source, top-left. */
+.panel {
+  box-shadow:
+    0 1px 0 color-mix(in srgb, var(--ink-2) 80%, transparent) inset,
+    1px 6px 18px -12px color-mix(in srgb, var(--chalk) 38%, transparent);
+}
+html.dark .panel {
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.035) inset,
+    1px 8px 22px -14px rgba(0, 0, 0, 0.7);
+}
+
+/* Section label: sentence case, display face, a short tick instead of caps. */
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--face-display), var(--face-body), system-ui, sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  color: var(--chalk-dim);
+}
+.eyebrow::before {
+  content: "";
+  width: 10px;
+  height: 2px;
+  background: rgb(239 68 68 / 0.85);
+  flex: none;
+}
+
+/* Press feedback shared by every button. */
+button:not(:disabled):active,
+[role="button"]:active {
+  transform: translateY(1px);
 }
 
 @media (prefers-reduced-motion: reduce) {

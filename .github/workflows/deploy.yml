@@ -1,0 +1,117 @@
+name: Deploy to Cloudflare
+
+# One Worker serves the app and the API. On every push to main: run CI, make sure
+# the D1 database and R2 bucket exist, apply SQL migrations, publish, smoke-test.
+#
+# Repository secrets (Settings → Secrets and variables → Actions):
+#   CLOUDFLARE_API_TOKEN   token with Workers Scripts:Edit, D1:Edit, Workers R2 Storage:Edit
+#   CLOUDFLARE_ACCOUNT_ID  the account id
+#   JWT_SECRET             64+ random characters — signs session tokens (generate: openssl rand -base64 48)
+# Optional secrets: MAIL_WEBHOOK_URL, MAIL_WEBHOOK_TOKEN (delivery of e-mail / SMS / WhatsApp notifications)
+# Optional variable: ARIS_URL — the public address (custom domain); otherwise the workers.dev URL is used.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "api/**"
+      - "site/**"
+      - ".github/workflows/ci.yml"
+      - ".github/workflows/deploy.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-cloudflare
+  cancel-in-progress: false
+
+jobs:
+  ci:
+    uses: ./.github/workflows/ci.yml
+
+  deploy:
+    name: Migrate & publish
+    needs: ci
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    # Add required reviewers to this environment in GitHub if production deploys should be approved.
+    environment: production
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - name: Check credentials are configured
+        env:
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+        run: |
+          missing=0
+          for name in CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID JWT_SECRET; do
+            if [ -z "${!name:-}" ]; then echo "::error::Missing repository secret $name"; missing=1; fi
+          done
+          exit $missing
+
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            api/package-lock.json
+            site/package-lock.json
+
+      - name: Build the app (static export, live API)
+        working-directory: site
+        run: |
+          npm ci
+          npm run build:cloudflare
+
+      - name: Install Worker dependencies
+        working-directory: api
+        run: npm ci
+
+      - name: Ensure D1 database and R2 bucket exist
+        working-directory: api
+        run: ./scripts/cf-bootstrap.sh
+
+      - name: Apply SQL migrations
+        working-directory: api
+        run: npx --no-install wrangler d1 migrations apply ARIS_DB --remote
+
+      - name: Publish the Worker
+        id: publish
+        working-directory: api
+        run: |
+          npx --no-install wrangler deploy 2>&1 | tee deploy.log
+          url="$(grep -oE 'https://[A-Za-z0-9._-]+\.workers\.dev' deploy.log | head -n1 || true)"
+          echo "url=${url}" >> "$GITHUB_OUTPUT"
+
+      # Secrets are set after the first publish (a Worker must exist to hold them) and
+      # take effect on the next request; the smoke test below proves the result.
+      - name: Set Worker secrets
+        working-directory: api
+        env:
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          MAIL_WEBHOOK_URL: ${{ secrets.MAIL_WEBHOOK_URL }}
+          MAIL_WEBHOOK_TOKEN: ${{ secrets.MAIL_WEBHOOK_TOKEN }}
+        run: |
+          printf '%s' "$JWT_SECRET" | npx --no-install wrangler secret put JWT_SECRET
+          if [ -n "$MAIL_WEBHOOK_URL" ]; then printf '%s' "$MAIL_WEBHOOK_URL" | npx --no-install wrangler secret put MAIL_WEBHOOK_URL; fi
+          if [ -n "$MAIL_WEBHOOK_TOKEN" ]; then printf '%s' "$MAIL_WEBHOOK_TOKEN" | npx --no-install wrangler secret put MAIL_WEBHOOK_TOKEN; fi
+
+      - name: Smoke test
+        env:
+          URL: ${{ vars.ARIS_URL || steps.publish.outputs.url }}
+        run: |
+          if [ -z "$URL" ]; then echo "::warning::No public URL known — set the ARIS_URL repository variable to enable the smoke test"; exit 0; fi
+          for attempt in 1 2 3 4 5 6; do
+            body="$(curl -fsS --max-time 15 "$URL/api/health" || true)"
+            if echo "$body" | jq -e '.ok == true and .database == "ok"' >/dev/null 2>&1; then
+              echo "Healthy: $body"
+              curl -fsS --max-time 15 -o /dev/null "$URL/" && echo "App is served at $URL"
+              exit 0
+            fi
+            echo "Attempt $attempt: $body"; sleep 10
+          done
+          echo "::error::The Worker did not report healthy at $URL/api/health"
+          exit 1

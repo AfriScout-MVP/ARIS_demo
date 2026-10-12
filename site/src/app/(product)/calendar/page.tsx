@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { CalendarCheck, CalendarDays, CheckCircle2, ChevronLeft, ChevronRight, LayoutGrid, RefreshCcw, Trophy, UserPlus, Wand2 } from "lucide-react";
+import { CalendarCheck, CalendarDays, CheckCircle2, ChevronLeft, ChevronRight, LayoutGrid, RefreshCcw, Trophy, UserPlus, Wand2 } from "@/components/icons/glyphs";
 import { cn } from "@/lib/utils";
 import { useFormatters, useLocale, useT } from "@/lib/i18n/LocaleProvider";
 import { useScope } from "@/lib/scope/ScopeProvider";
@@ -92,9 +92,8 @@ export default function CalendarPage() {
 
   const scopedCountries = countries.filter((c) => codes.includes(c.code));
 
-  function runAutoFill() {
-    const filled = autoFill(weekFixtures);
-    setAutoFilled(filled);
+  async function runAutoFill() {
+    setAutoFilled(await autoFill(weekFixtures));
   }
 
   return (
@@ -392,7 +391,7 @@ export default function CalendarPage() {
         />
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-3">
           {scopedCountries.map((country) => (
-            <div key={country.code} className="flex items-center justify-between gap-2 rounded-xl border border-line bg-ink-1 px-3 py-2.5">
+            <div key={country.code} className="flex items-center justify-between gap-2 rounded-[10px] border border-line bg-ink-1 px-3 py-2.5">
               <div className="min-w-0">
                 <p className="truncate text-xs text-chalk">
                   {country.flag} {countryName(country.code, locale)}

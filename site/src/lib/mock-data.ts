@@ -2,14 +2,20 @@
 // Everything is deterministic: the same build always produces the same calendar,
 // which is what makes a static export safe to hydrate.
 
-export const DEMO_TODAY = "2026-08-31"; // a Monday — the demo week starts here
+// `let` because the live build replaces it with the Worker's date (see applySnapshot at the foot of this file).
+export let DEMO_TODAY = "2026-08-31"; // a Monday — the demo week starts here
 export const SEASON = "2026/27";
 
 /* ------------------------------------------------------------------ *
  * Geography
  * ------------------------------------------------------------------ */
 
-export type Zone = "UNAF" | "UFOA-A" | "UFOA-B" | "UNIFFAC" | "CECAFA" | "COSAFA";
+import type { AvailabilityState, CrewRole, CrewSlot, Fixture, SlotState, Zone } from "./core/types";
+import { crewRoles } from "./core/types";
+
+// The types the Worker shares with the app live in ./core/types.
+export type { AvailabilityState, CrewRole, CrewSlot, Fixture, SlotState, Zone };
+export { crewRoles };
 
 export const zones: Zone[] = ["UNAF", "UFOA-A", "UFOA-B", "UNIFFAC", "CECAFA", "COSAFA"];
 
@@ -331,11 +337,6 @@ export function officialById(id: string): OfficialRef | undefined {
  * Fixture calendar — the country-by-country schedule ARIS syncs against
  * ------------------------------------------------------------------ */
 
-export type CrewRole = "R" | "AR1" | "AR2" | "FOURTH" | "VAR" | "AVAR" | "OBS";
-export type SlotState = "confirmed" | "pending" | "declined" | "empty";
-
-export const crewRoles: CrewRole[] = ["R", "AR1", "AR2", "FOURTH", "VAR", "AVAR", "OBS"];
-
 export const roleKey: Record<CrewRole, "roles.R" | "roles.AR1" | "roles.AR2" | "roles.FOURTH" | "roles.VAR" | "roles.AVAR" | "roles.OBS"> = {
   R: "roles.R",
   AR1: "roles.AR1",
@@ -345,29 +346,6 @@ export const roleKey: Record<CrewRole, "roles.R" | "roles.AR1" | "roles.AR2" | "
   AVAR: "roles.AVAR",
   OBS: "roles.OBS",
 };
-
-export interface CrewSlot {
-  role: CrewRole;
-  officialId: string | null;
-  state: SlotState;
-}
-
-export interface Fixture {
-  id: string;
-  countryCode: string;
-  competitionId: string;
-  matchday: number;
-  date: string;
-  kickoff: string;
-  home: string;
-  away: string;
-  city: string;
-  venue: string;
-  importance: number;
-  risk: "low" | "medium" | "high";
-  crew: CrewSlot[];
-  played: boolean;
-}
 
 /** Deterministic PRNG — same seed, same calendar, every build. */
 function rng(seed: number) {
@@ -648,7 +626,8 @@ export function fixturesInWeek(weekStart: string) {
  * Availability
  * ------------------------------------------------------------------ */
 
-export type AvailabilityState = "available" | "unavailable" | "assigned" | "resting" | "travelling";
+/** Set only in the live build; the demo derives availability deterministically instead. */
+let liveAvailability: Map<string, AvailabilityState> | null = null;
 
 /** Declared availability, derived deterministically per official and day. */
 export function availabilityFor(officialId: string, date: string): AvailabilityState {
@@ -656,6 +635,9 @@ export function availabilityFor(officialId: string, date: string): AvailabilityS
     (f) => f.date === date && f.crew.some((s) => s.officialId === officialId && s.state !== "empty"),
   );
   if (assignedHere) return "assigned";
+
+  // Live data: what the official declared, otherwise available — nothing is invented.
+  if (liveAvailability) return liveAvailability.get(`${officialId}|${date}`) ?? "available";
 
   const r = rng(hash(officialId + date));
   const roll = r();
@@ -1402,39 +1384,47 @@ export interface FederationRow {
   lastSyncHours: number;
 }
 
-export const federationRows: FederationRow[] = countries.map((country) => {
-  const corps = referees.filter((r) => r.countryCode === country.code);
-  const countryFixtures = fixtures.filter((f) => f.countryCode === country.code);
-  return {
-    code: country.federation,
-    countryCode: country.code,
-    zone: country.zone,
-    refereeCount: corps.length,
-    eliteCount: corps.filter((r) => r.level === "CAF Elite").length,
-    avgArps: corps.length
-      ? Math.round((corps.reduce((s, r) => s + r.arps, 0) / corps.length) * 10) / 10
-      : 0,
-    competitions: competitions.filter((c) => c.countryCode === country.code).length,
-    fixtures: countryFixtures.length,
-    openSlots: countryFixtures.reduce((s, f) => s + openSlots(f), 0),
-    syncHealth: country.syncHealth,
-    syncSource: country.syncSource,
-    lastSyncHours: country.lastSyncHours,
-  };
-});
+function computeFederationRows(): FederationRow[] {
+  return countries.map((country) => {
+    const corps = referees.filter((r) => r.countryCode === country.code);
+    const countryFixtures = fixtures.filter((f) => f.countryCode === country.code);
+    return {
+      code: country.federation,
+      countryCode: country.code,
+      zone: country.zone,
+      refereeCount: corps.length,
+      eliteCount: corps.filter((r) => r.level === "CAF Elite").length,
+      avgArps: corps.length
+        ? Math.round((corps.reduce((s, r) => s + r.arps, 0) / corps.length) * 10) / 10
+        : 0,
+      competitions: competitions.filter((c) => c.countryCode === country.code).length,
+      fixtures: countryFixtures.length,
+      openSlots: countryFixtures.reduce((s, f) => s + openSlots(f), 0),
+      syncHealth: country.syncHealth,
+      syncSource: country.syncSource,
+      lastSyncHours: country.lastSyncHours,
+    };
+  });
+}
 
-export const zoneDistribution = zones.map((zone) => {
-  const zoneCountries = countries.filter((c) => c.zone === zone);
-  const corps = referees.filter((r) => zoneCountries.some((c) => c.code === r.countryCode));
-  return {
-    zone,
-    referees: corps.length,
-    avgArps: corps.length
-      ? Math.round((corps.reduce((s, r) => s + r.arps, 0) / corps.length) * 10) / 10
-      : 0,
-    countries: zoneCountries.length,
-  };
-});
+export const federationRows: FederationRow[] = computeFederationRows();
+
+function computeZoneDistribution() {
+  return zones.map((zone) => {
+    const zoneCountries = countries.filter((c) => c.zone === zone);
+    const corps = referees.filter((r) => zoneCountries.some((c) => c.code === r.countryCode));
+    return {
+      zone,
+      referees: corps.length,
+      avgArps: corps.length
+        ? Math.round((corps.reduce((s, r) => s + r.arps, 0) / corps.length) * 10) / 10
+        : 0,
+      countries: zoneCountries.length,
+    };
+  });
+}
+
+export const zoneDistribution = computeZoneDistribution();
 
 /* ------------------------------------------------------------------ *
  * Positioning
@@ -1616,3 +1606,127 @@ export const kpis = {
   decisionsReviewed: matches.reduce((s, m) => s + m.decisions.length, 0) * 2214,
   varAccuracy: 94.7,
 };
+
+/* ------------------------------------------------------------------ *
+ * Live data
+ *
+ * The screens read the exported collections above. In the Cloudflare build the
+ * Worker's snapshot replaces their contents *in place*, so every import keeps
+ * working and nothing downstream has to know where the data came from.
+ * ------------------------------------------------------------------ */
+
+type ApiSnapshotFixture = Fixture & { homeCode?: string | null; awayCode?: string | null; designationStatus?: string };
+
+export interface ApiSnapshot {
+  today: string;
+  countries: Country[];
+  competitions: Competition[];
+  referees: Referee[];
+  assistants: Assistant[];
+  fixtures: ApiSnapshotFixture[];
+  matches: Array<Omit<MatchRecord, "physical" | "pressureTimeline"> & Partial<Pick<MatchRecord, "physical" | "pressureTimeline">>>;
+  assessments: Assessment[];
+  licences: Licence[];
+  fitnessTests: FitnessTest[];
+  courses: Course[];
+  dossiers: Dossier[];
+  availability: Array<{ officialId: string; date: string; state: AvailabilityState }>;
+}
+
+function replaceAll<T>(target: T[], next: T[]) {
+  target.splice(0, target.length, ...next);
+}
+
+function replaceMap<K, V>(target: Map<K, V>, entries: Iterable<[K, V]>) {
+  target.clear();
+  for (const [k, v] of entries) target.set(k, v);
+}
+
+function mondayOf(iso: string) {
+  const day = new Date(`${iso}T12:00:00Z`).getUTCDay(); // 0 = Sunday
+  return addDays(iso, -((day + 6) % 7));
+}
+
+const EMPTY_PHYSICAL: MatchRecord["physical"] = { distanceKm: 0, sprints: 0, topSpeed: 0, avgDistanceToBall: 0, diagonalAdherence: 0 };
+
+const mean = (values: number[]) => (values.length ? Math.round((values.reduce((s, v) => s + v, 0) / values.length) * 10) / 10 : 0);
+
+/** Swap the demo data for what the Worker returned. Call before the screens render. */
+export function applySnapshot(s: ApiSnapshot) {
+  DEMO_TODAY = s.today;
+  replaceAll(weekStarts, [addDays(mondayOf(s.today), -7), mondayOf(s.today), addDays(mondayOf(s.today), 7)]);
+
+  replaceAll(countries, s.countries);
+  replaceMap(countryByCode, countries.map((c) => [c.code, c]));
+  replaceAll(competitions, s.competitions);
+  replaceMap(competitionById, competitions.map((c) => [c.id, c]));
+  replaceAll(referees, s.referees);
+  replaceMap(refereeById, referees.map((r) => [r.id, r]));
+  replaceAll(assistants, s.assistants);
+  replaceMap(assistantById, assistants.map((a) => [a.id, a]));
+
+  fixtureNations.clear();
+  const live = s.fixtures.map((f): Fixture => {
+    if (f.homeCode && f.awayCode) fixtureNations.set(f.id, [f.homeCode, f.awayCode]);
+    return {
+      id: f.id,
+      countryCode: f.countryCode,
+      competitionId: f.competitionId,
+      matchday: f.matchday,
+      date: f.date,
+      kickoff: f.kickoff,
+      home: f.home,
+      away: f.away,
+      city: f.city,
+      venue: f.venue,
+      importance: f.importance,
+      risk: f.risk,
+      crew: f.crew,
+      played: f.played,
+    };
+  });
+  replaceAll(fixtures, live.sort((a, b) => (a.date === b.date ? b.importance - a.importance : a.date.localeCompare(b.date))));
+  replaceMap(fixtureById, fixtures.map((f) => [f.id, f]));
+
+  liveAvailability = new Map(s.availability.map((a) => [`${a.officialId}|${a.date}`, a.state]));
+
+  replaceAll(
+    matches,
+    s.matches.map((m) => ({
+      ...m,
+      physical: m.physical && "distanceKm" in m.physical ? m.physical : EMPTY_PHYSICAL,
+      pressureTimeline: m.pressureTimeline ?? [],
+    })),
+  );
+  replaceMap(matchById, matches.map((m) => [m.id, m]));
+  replaceAll(assessments, s.assessments);
+  replaceMap(assessmentByMatch, assessments.map((a) => [a.matchId, a]));
+  // licences are tracked for referees; assistants' are managed in the back office
+  replaceAll(licences, s.licences.filter((l) => refereeById.has(l.refereeId)));
+  replaceAll(fitnessTests, s.fitnessTests.filter((f) => refereeById.has(f.refereeId)));
+  replaceMap(fitnessByReferee, fitnessTests.map((f) => [f.refereeId, f]));
+  replaceAll(courses, s.courses);
+  replaceAll(dossiers, s.dossiers);
+
+  replaceAll(federationRows, computeFederationRows());
+  replaceAll(zoneDistribution, computeZoneDistribution());
+  Object.assign(kpis, {
+    refereesTracked: referees.length,
+    assistantsTracked: assistants.length,
+    federations: countries.length,
+    competitions: competitions.length,
+    avgArps: mean(referees.map((r) => r.arps)),
+    // no history feeds the trend or the VAR figure yet — shown from live referee records
+    avgArpsTrend: 0,
+    decisionsReviewed: matches.reduce((n, m) => n + m.decisions.length, 0),
+    varAccuracy: mean(referees.filter((r) => r.varQualified).map((r) => r.varAccuracy)),
+  });
+}
+
+/** Live build: reflect a slot change the Worker accepted, so every screen sees it. */
+export function patchFixtureCrew(fixtureId: string, crew: CrewSlot[]) {
+  const fixture = fixtureById.get(fixtureId);
+  if (!fixture) return;
+  fixture.crew = crew;
+  replaceAll(federationRows, computeFederationRows());
+}

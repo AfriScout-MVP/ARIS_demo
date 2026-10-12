@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { Bar, BarChart, CartesianGrid, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { Compass, Gauge, Map, Route, Ruler, Video, Zap } from "lucide-react";
+import { Compass, Gauge, Map, Route, Ruler, Video, Zap } from "@/components/icons/glyphs";
 import { cn } from "@/lib/utils";
 import { useFormatters, useLocale, useT } from "@/lib/i18n/LocaleProvider";
 import { useScope } from "@/lib/scope/ScopeProvider";
@@ -132,7 +132,7 @@ export default function PositioningPage() {
               </span>
             }
           />
-          <div className="aspect-[111/74] w-full overflow-hidden rounded-xl border border-line bg-[#0b1524]">
+          <div className="aspect-[111/74] w-full overflow-hidden rounded-[10px] border border-line bg-[#0b1524]">
             <Pitch>
               <HeatField points={points} />
               <DiagonalCorridor />

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Search, X } from "lucide-react";
+import { Search, X } from "@/components/icons/glyphs";
 import { cn } from "@/lib/utils";
 import { useT } from "@/lib/i18n/LocaleProvider";
 import { Badge, Button } from "@/components/ui";
@@ -53,10 +53,10 @@ export function SlotPicker({
     <div className="fixed inset-0 z-[60] flex items-end justify-center sm:items-center sm:p-4">
       <button aria-label={t("common.close")} onClick={onClose} className="absolute inset-0 bg-ink-0/80 backdrop-blur-sm" />
 
-      <div className="relative flex max-h-[88vh] w-full flex-col overflow-hidden rounded-t-2xl border border-line-strong bg-ink-2 sm:max-w-lg sm:rounded-2xl">
+      <div className="relative flex max-h-[88vh] w-full flex-col overflow-hidden rounded-t-2xl border border-line-strong bg-ink-2 sm:max-w-lg sm:rounded-[14px]">
         <div className="flex items-start justify-between gap-3 border-b border-line px-4 py-3.5">
           <div className="min-w-0">
-            <p className="text-[11px] uppercase tracking-[0.1em] text-chalk-faint">{t("calendar.fillSlot")}</p>
+            <p className="text-xs font-medium text-chalk-faint">{t("calendar.fillSlot")}</p>
             <h2 className="mt-0.5 truncate font-display text-base font-semibold text-chalk">{t(roleKey[role])}</h2>
             <p className="mt-0.5 truncate text-xs text-chalk-faint">
               {fixture.home} — {fixture.away} · {fixture.date}

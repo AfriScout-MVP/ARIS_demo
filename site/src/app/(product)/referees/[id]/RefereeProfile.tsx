@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useMemo } from "react";
-import { ArrowLeft, CalendarDays, HeartPulse, IdCard, MapPin, Radar, Radio, Scale, Target, TrendingDown, TrendingUp } from "lucide-react";
+import { ArrowLeft, CalendarDays, HeartPulse, IdCard, MapPin, Radar, Radio, Scale, Target, TrendingDown, TrendingUp } from "@/components/icons/glyphs";
 import { cn } from "@/lib/utils";
 import { useFormatters, useLocale, useT } from "@/lib/i18n/LocaleProvider";
 import { Avatar, Badge, Board, Card, CardHeader, EmptyState, Meter, ScoreRing } from "@/components/ui";
@@ -95,7 +95,7 @@ export function RefereeProfile({ id }: { id: string }) {
 
       <Card>
         <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
-          <Avatar initials={referee.initials} size={64} tone="chalk" className="rounded-2xl" />
+          <Avatar initials={referee.initials} size={64} tone="chalk" className="rounded-[14px]" />
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
               <h1 className="font-display text-[22px] font-semibold text-chalk">{referee.name}</h1>
@@ -152,7 +152,7 @@ export function RefereeProfile({ id }: { id: string }) {
             {radar.map((d) => (
               <div key={d.metric}>
                 <p className="board text-xs text-chalk">{d.value}</p>
-                <p className="truncate text-[10px] uppercase text-chalk-faint">{d.metric}</p>
+                <p className="truncate text-[11px] text-chalk-faint">{d.metric}</p>
               </div>
             ))}
           </div>
@@ -161,15 +161,15 @@ export function RefereeProfile({ id }: { id: string }) {
         <Card>
           <CardHeader icon={Scale} tint="gold" title={t("referees.discipline")} subtitle={t("referees.disciplineSub")} />
           <ul className="space-y-2">
-            <li className="flex items-center justify-between rounded-xl border border-amber/25 bg-amber/[0.07] px-3 py-2.5">
+            <li className="flex items-center justify-between rounded-[10px] border border-amber/25 bg-amber/[0.07] px-3 py-2.5">
               <span className="text-sm text-chalk-dim">{t("referees.yellowCards")}</span>
               <span className="board text-base text-amber">{referee.cards.yellow}</span>
             </li>
-            <li className="flex items-center justify-between rounded-xl border border-card-red/25 bg-card-red/[0.07] px-3 py-2.5">
+            <li className="flex items-center justify-between rounded-[10px] border border-card-red/25 bg-card-red/[0.07] px-3 py-2.5">
               <span className="text-sm text-chalk-dim">{t("referees.redCards")}</span>
               <span className="board text-base text-card-red">{referee.cards.red}</span>
             </li>
-            <li className="flex items-center justify-between rounded-xl border border-line bg-ink-1 px-3 py-2.5">
+            <li className="flex items-center justify-between rounded-[10px] border border-line bg-ink-1 px-3 py-2.5">
               <span className="text-sm text-chalk-dim">
                 {locale === "fr" ? "Cartons par rencontre" : "Cards per match"}
               </span>
@@ -180,7 +180,7 @@ export function RefereeProfile({ id }: { id: string }) {
           </ul>
 
           <div className="mt-4">
-            <p className="mb-2 text-[11px] uppercase tracking-[0.1em] text-chalk-faint">
+            <p className="mb-2 text-xs font-medium text-chalk-faint">
               {t("referees.availabilityNext")}
             </p>
             <div className="flex gap-1">
@@ -248,7 +248,7 @@ export function RefereeProfile({ id }: { id: string }) {
                 return (
                   <li
                     key={fixture.id}
-                    className="flex items-center justify-between gap-3 rounded-xl border border-line bg-ink-1 px-3 py-2.5"
+                    className="flex items-center justify-between gap-3 rounded-[10px] border border-line bg-ink-1 px-3 py-2.5"
                   >
                     <div className="min-w-0">
                       <p className="truncate text-sm text-chalk">

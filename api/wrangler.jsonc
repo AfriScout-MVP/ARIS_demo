@@ -1,0 +1,46 @@
+{
+  // ARIS — one Worker serves both the static app (site/out) and the API (/api/*).
+  // Same origin means no CORS and cookie sessions that just work.
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "aris",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-10-01",
+  "compatibility_flags": ["nodejs_compat"],
+
+  "assets": {
+    "directory": "../site/out",
+    "binding": "ASSETS",
+    "html_handling": "auto-trailing-slash",
+    "not_found_handling": "404-page",
+    // The API always goes through the Worker; everything else is a static file.
+    "run_worker_first": ["/api/*"]
+  },
+
+  // SQL: Cloudflare D1 (SQLite). Schema lives in ./migrations.
+  // database_id is filled in by scripts/cf-bootstrap.sh once the account exists.
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "ARIS_DB",
+      "database_id": "00000000-0000-0000-0000-000000000000",
+      "migrations_dir": "migrations"
+    }
+  ],
+
+  // Media: Cloudflare R2 — referee photos, licences, medical certificates, receipts.
+  "r2_buckets": [
+    {
+      "binding": "MEDIA",
+      "bucket_name": "aris-media"
+    }
+  ],
+
+  // Licence expiry, overdue reports, notification delivery.
+  "triggers": { "crons": ["*/15 * * * *", "0 5 * * *"] },
+
+  "vars": { "ENVIRONMENT": "production" },
+  "observability": { "enabled": true }
+
+  // Secrets (never in this file): JWT_SECRET, and optionally MAIL_WEBHOOK_URL / MAIL_WEBHOOK_TOKEN.
+  // Set them with `wrangler secret put <NAME>` — the deploy workflow does this from GitHub secrets.
+}

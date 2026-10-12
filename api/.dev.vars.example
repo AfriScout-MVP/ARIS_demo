@@ -1,0 +1,2 @@
+# Copy to .dev.vars (git-ignored). Used only by `wrangler dev` and the tests.
+JWT_SECRET=change-me-to-a-long-random-string-of-at-least-48-characters

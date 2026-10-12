@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { CalendarDays, CornerDownLeft, Globe2, Search, Users } from "lucide-react";
+import { CalendarDays, CornerDownLeft, Globe2, Search, Users } from "@/components/icons/glyphs";
 import { cn } from "@/lib/utils";
 import { useLocale, useT } from "@/lib/i18n/LocaleProvider";
 import { useScope } from "@/lib/scope/ScopeProvider";
@@ -133,7 +133,7 @@ function Palette({ onClose }: { onClose: () => void }) {
         onClick={onClose}
         className="absolute inset-0 bg-ink-0/80 backdrop-blur-sm"
       />
-      <div className="relative w-full max-w-xl overflow-hidden rounded-2xl border border-line-strong bg-ink-2 shadow-2xl shadow-black/70">
+      <div className="relative w-full max-w-xl overflow-hidden rounded-[14px] border border-line-strong bg-ink-2 shadow-2xl shadow-black/70">
         <div className="flex items-center gap-2.5 border-b border-line px-4 py-3">
           <Search size={15} className="text-chalk-faint" />
           <input
@@ -164,7 +164,7 @@ function Palette({ onClose }: { onClose: () => void }) {
             return (
               <div key={row.id}>
                 {showGroup && (
-                  <p className="px-4 pb-1 pt-2.5 text-[10px] uppercase tracking-[0.1em] text-chalk-faint">
+                  <p className="px-4 pb-1 pt-2.5 text-xs font-medium text-chalk-faint">
                     {groupLabel[row.group]}
                   </p>
                 )}

@@ -12,7 +12,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { AlertTriangle, ArrowUpRight, BarChart3, CheckCircle2, Flame, ListChecks, Radio, Ruler, Scale, Users, Video } from "lucide-react";
+import { AlertTriangle, ArrowUpRight, BarChart3, CheckCircle2, Flame, ListChecks, Radio, Ruler, Scale, Users, Video } from "@/components/icons/glyphs";
 import { cn } from "@/lib/utils";
 import { useFormatters, useLocale, useT } from "@/lib/i18n/LocaleProvider";
 import { useScope } from "@/lib/scope/ScopeProvider";
@@ -229,7 +229,7 @@ export default function MatchReviewPage() {
           </div>
 
           <div className="mt-4">
-            <p className="mb-1.5 text-[11px] uppercase tracking-[0.1em] text-chalk-faint">
+            <p className="mb-1.5 text-xs font-medium text-chalk-faint">
               {t("matchReview.playersInvolved")}
             </p>
             <div className="flex flex-wrap gap-1.5">
@@ -363,7 +363,7 @@ export default function MatchReviewPage() {
 function Fact({ label, value, tone = "text-chalk" }: { label: string; value: string; tone?: string }) {
   return (
     <div className="rounded-lg border border-line bg-ink-1 px-2.5 py-2">
-      <dt className="text-[10px] uppercase tracking-wide text-chalk-faint">{label}</dt>
+      <dt className="text-xs font-medium text-chalk-faint">{label}</dt>
       <dd className={cn("mt-0.5 text-xs font-medium", tone)}>{value}</dd>
     </div>
   );

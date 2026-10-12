@@ -1,0 +1,62 @@
+name: CI
+
+# Everything that must be green before ARIS can ship: the Worker's typecheck and
+# tests, and the app's typecheck, lint and both production builds.
+on:
+  pull_request:
+  push:
+    branches-ignore: [main]
+  workflow_call:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  api:
+    name: Worker — typecheck & tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: api
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            api/package-lock.json
+            site/package-lock.json
+      # the Worker type-checks and bundles the engine that lives in site/src/lib/core
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      - name: Audit runtime dependencies
+        run: npm audit --omit=dev --audit-level=high
+
+  site:
+    name: App — typecheck, lint & builds
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: site
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: site/package-lock.json
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - name: Build — GitHub Pages demo (mock data)
+        run: npm run build:pages
+      - name: Build — Cloudflare (live API)
+        run: npm run build:cloudflare

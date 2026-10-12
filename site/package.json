@@ -6,7 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "build:pages": "DEPLOY_TARGET=gh-pages next build",
+    "build:cloudflare": "DEPLOY_TARGET=cloudflare NEXT_PUBLIC_DATA_SOURCE=api next build && cp cloudflare/_headers out/_headers",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "clsx": "^2.1.1",

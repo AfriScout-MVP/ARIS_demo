@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { Award, Gauge, Search, ShieldAlert, TrendingDown, TrendingUp, Users } from "lucide-react";
+import { Award, Gauge, Search, ShieldAlert, TrendingDown, TrendingUp, Users } from "@/components/icons/glyphs";
 import { cn } from "@/lib/utils";
 import { useLocale, useT } from "@/lib/i18n/LocaleProvider";
 import { useScope } from "@/lib/scope/ScopeProvider";
@@ -142,7 +142,7 @@ export default function RefereesPage() {
               <li key={referee.id}>
                 <Link
                   href={`/referees/${referee.id}`}
-                  className="flex items-center gap-3 rounded-2xl border border-line bg-ink-2 p-3 lift"
+                  className="flex items-center gap-3 rounded-[14px] border border-line bg-ink-2 p-3 lift"
                 >
                   <Avatar initials={referee.initials} size={38} />
                   <div className="min-w-0 flex-1">

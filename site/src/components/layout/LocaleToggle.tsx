@@ -7,7 +7,7 @@ import { localeLabels, locales } from "@/lib/i18n/dictionary";
 export function LocaleToggle() {
   const { locale, setLocale } = useLocale();
   return (
-    <div className="inline-flex rounded-xl border border-field bg-ink-2 p-0.5" role="group" aria-label="Language">
+    <div className="inline-flex rounded-[10px] border border-field bg-ink-2 p-0.5" role="group" aria-label="Language">
       {locales.map((code) => (
         <button
           key={code}

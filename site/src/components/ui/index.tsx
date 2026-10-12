@@ -1,6 +1,6 @@
 "use client";
 
-import type { LucideIcon } from "lucide-react";
+import type { IconType } from "@/components/icons/glyphs";
 import { cn } from "@/lib/utils";
 
 /* ------------------------------------------------------------------ *
@@ -97,7 +97,7 @@ export function Card({
   return (
     <section
       className={cn(
-        "rounded-2xl border",
+        "panel rounded-[14px] border",
         tint ? tints[tint].wash : "border-line bg-ink-2",
         padded && "p-4 sm:p-6",
         interactive && "lift",
@@ -120,7 +120,7 @@ export function CardHeader({
   title: string;
   subtitle?: string;
   action?: React.ReactNode;
-  icon?: LucideIcon;
+  icon?: IconType;
   tint?: Tint;
   className?: string;
 }) {
@@ -130,7 +130,7 @@ export function CardHeader({
         {Icon && (
           <span
             className={cn(
-              "mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-xl",
+              "mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-[7px]",
               tints[tint].chip,
             )}
           >
@@ -138,7 +138,7 @@ export function CardHeader({
           </span>
         )}
         <div className="min-w-0">
-          <h2 className="text-lg font-bold text-chalk">{title}</h2>
+          <h2 className="text-lg font-semibold text-chalk">{title}</h2>
           {subtitle && <p className="mt-0.5 text-sm leading-snug text-chalk-dim">{subtitle}</p>}
         </div>
       </div>
@@ -180,7 +180,7 @@ export function Badge({
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-2.5 py-0.5 text-xs font-semibold",
+        "inline-flex items-center gap-1.5 whitespace-nowrap rounded-[5px] border px-2 py-0.5 text-xs font-semibold",
         toneClass[tone],
         className,
       )}
@@ -218,11 +218,11 @@ export function Button({ variant = "secondary", size = "md", className, ...props
       {...props}
       className={cn(
         "inline-flex items-center justify-center gap-1.5 font-medium transition-all disabled:cursor-not-allowed disabled:opacity-40",
-        size === "sm" ? "min-h-10 rounded-lg px-3 py-1.5 text-xs sm:min-h-0" : "min-h-10 rounded-xl px-4 py-2.5 text-sm",
-        // red-600 → orange-700: the admin's red→orange, deep enough for white
-        // 14px text (the 500/500 pair is 2.8–3.8:1).
+        size === "sm" ? "min-h-10 rounded-md px-3 py-1.5 text-xs sm:min-h-0" : "min-h-10 rounded-lg px-4 py-2.5 text-sm",
+        // One solid accent, with a red-tinted shadow underneath. White on
+        // red-600 is 4.8:1, enough for 14px text.
         variant === "primary" &&
-          "bg-linear-to-r from-red-600 to-orange-700 text-white shadow-lg shadow-red-500/20 hover:from-red-700 hover:to-orange-800",
+          "bg-red-600 text-white shadow-[0_6px_14px_-8px_rgba(185,28,28,0.8)] hover:bg-red-700",
         variant === "secondary" && "border border-field bg-ink-2 text-chalk-dim hover:bg-ink-3 hover:text-chalk",
         variant === "ghost" && "text-chalk-dim hover:bg-red-500/10 hover:text-chalk",
         variant === "danger" && "border border-red-500/30 bg-red-500/10 text-card-red hover:bg-red-500/20",
@@ -244,7 +244,7 @@ export function Segmented<T extends string>({
   className?: string;
 }) {
   return (
-    <div className={cn("inline-flex rounded-xl border border-field bg-ink-2 p-0.5", className)} role="tablist">
+    <div className={cn("inline-flex rounded-lg border border-field bg-ink-2 p-0.5", className)} role="tablist">
       {options.map((option) => (
         <button
           key={option.value}
@@ -252,7 +252,7 @@ export function Segmented<T extends string>({
           aria-selected={value === option.value}
           onClick={() => onChange(option.value)}
           className={cn(
-            "min-h-9 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors",
+            "min-h-9 rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
             value === option.value ? "bg-red-600 text-white" : "text-chalk-faint hover:text-chalk",
           )}
         >
@@ -278,11 +278,11 @@ export function Select({
 }) {
   return (
     <label className={cn("flex flex-col gap-1", className)}>
-      {label && <span className="text-xs font-semibold uppercase tracking-wider text-chalk-dim">{label}</span>}
+      {label && <span className="text-xs font-semibold text-chalk-dim">{label}</span>}
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full appearance-none rounded-xl border border-field bg-ink-2 px-3 py-2 text-sm text-chalk outline-none hover:border-red-500/50 focus:border-red-500 focus:ring-2 focus:ring-red-500/50"
+        className="w-full appearance-none rounded-lg border border-field bg-ink-2 px-3 py-2 text-sm text-chalk outline-none hover:border-red-500/50 focus:border-red-500 focus:ring-2 focus:ring-red-500/50"
       >
         {options.map((o) => (
           <option key={o.value} value={o.value} className="bg-ink-2">
@@ -322,7 +322,7 @@ export function Board({
   unit?: string;
   delta?: number;
   hint?: string;
-  icon?: LucideIcon;
+  icon?: IconType;
   primary?: boolean;
   tone?: BoardTone;
   className?: string;
@@ -332,18 +332,18 @@ export function Board({
   return (
     <div
       className={cn(
-        "relative overflow-hidden rounded-2xl border p-4 backdrop-blur-sm",
+        "panel relative overflow-hidden rounded-[14px] border p-4",
         tint.surface,
         primary && tone === "chalk" && "border-line-strong bg-ink-3",
         className,
       )}
     >
       <div className="flex items-start justify-between gap-2">
-        <p className={cn("hyphens-auto break-words text-[11px] font-semibold uppercase leading-tight tracking-wider", tint.label)}>{label}</p>
+        <p className={cn("hyphens-auto break-words text-xs font-semibold leading-tight", tint.label)}>{label}</p>
         {Icon && (
           <span
             className={cn(
-              "inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-lg",
+              "inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md",
               tint.chip,
             )}
           >
@@ -354,7 +354,7 @@ export function Board({
       <p className="mt-2 flex items-baseline gap-1.5">
         <span
           className={cn(
-            "board font-semibold",
+            "board",
             primary ? "text-4xl leading-none" : "text-2xl leading-none",
             tint.text,
           )}
@@ -434,7 +434,7 @@ export function ScoreRing({
         <span className="board text-chalk" style={{ fontSize: size * 0.27 }}>
           {value.toFixed(0)}
         </span>
-        {label && <span className="mt-0.5 text-[10px] uppercase tracking-wide text-chalk-faint">{label}</span>}
+        {label && <span className="mt-0.5 text-[10px] text-chalk-faint">{label}</span>}
       </span>
     </div>
   );
@@ -454,9 +454,9 @@ export function Avatar({
   return (
     <span
       className={cn(
-        "inline-flex shrink-0 items-center justify-center rounded-full font-medium",
+        "inline-flex shrink-0 items-center justify-center rounded-[32%] font-semibold",
         tone === "chalk"
-          ? "bg-linear-to-br from-red-600 to-orange-700 text-white"
+          ? "bg-red-600 text-white"
           : "border border-line bg-ink-3 text-chalk-dim",
         className,
       )}
@@ -479,7 +479,7 @@ export function EmptyState({
   className?: string;
 }) {
   return (
-    <div className={cn("flex flex-col items-center gap-2 rounded-2xl border border-dashed border-line px-6 py-10 text-center", className)}>
+    <div className={cn("flex flex-col items-center gap-2 rounded-[14px] border border-dashed border-line-strong px-6 py-10 text-center", className)}>
       <p className="text-sm font-medium text-chalk-dim">{title}</p>
       {hint && <p className="max-w-sm text-sm text-chalk-faint">{hint}</p>}
       {action && <div className="mt-2">{action}</div>}
@@ -493,7 +493,7 @@ export function Th({ children, className }: { children?: React.ReactNode; classN
     <th
       scope="col"
       className={cn(
-        "whitespace-nowrap px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-chalk-dim",
+        "whitespace-nowrap px-4 py-3 text-left text-xs font-semibold text-chalk-dim",
         className,
       )}
     >

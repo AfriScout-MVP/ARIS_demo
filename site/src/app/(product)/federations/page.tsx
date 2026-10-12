@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { CalendarDays, Globe2, RefreshCcw, Trophy, Users } from "lucide-react";
+import { CalendarDays, Globe2, RefreshCcw, Trophy, Users } from "@/components/icons/glyphs";
 import { cn } from "@/lib/utils";
 import { useLocale, useT } from "@/lib/i18n/LocaleProvider";
 import { useScope } from "@/lib/scope/ScopeProvider";
@@ -247,7 +247,7 @@ export default function FederationsPage() {
               .map((comp) => (
                 <li
                   key={comp.id}
-                  className="flex items-center justify-between gap-2 rounded-xl border border-line bg-ink-1 px-3 py-2"
+                  className="flex items-center justify-between gap-2 rounded-[10px] border border-line bg-ink-1 px-3 py-2"
                 >
                   <div className="min-w-0">
                     <p className="truncate text-xs text-chalk">{comp.name}</p>
@@ -275,7 +275,7 @@ export default function FederationsPage() {
 function Mini({ label, value }: { label: string; value: string | number }) {
   return (
     <div className="rounded-lg border border-line bg-ink-1 px-1.5 py-1.5">
-      <p className="truncate text-[10px] uppercase tracking-wide text-chalk-faint">{label}</p>
+      <p className="truncate text-xs font-medium text-chalk-faint">{label}</p>
       <p className="board text-sm text-chalk">{value}</p>
     </div>
   );

@@ -22,7 +22,7 @@ export const chartColors = {
 export const tooltipStyle = {
   background: "var(--ink-2)",
   border: "1px solid var(--line-strong)",
-  borderRadius: 12,
+  borderRadius: 8,
   fontSize: 12,
   color: "var(--chalk)",
   padding: "8px 10px",

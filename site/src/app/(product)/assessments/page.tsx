@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { AlarmClock, ArrowUpRight, BarChart3, ClipboardCheck, ClipboardList, Clock, Film, Gauge, Quote, Star } from "lucide-react";
+import { AlarmClock, ArrowUpRight, BarChart3, ClipboardCheck, ClipboardList, Clock, Film, Gauge, Quote, Star } from "@/components/icons/glyphs";
 import { cn } from "@/lib/utils";
 import { useFormatters, useLocale, useT } from "@/lib/i18n/LocaleProvider";
 import { useScope } from "@/lib/scope/ScopeProvider";
@@ -203,7 +203,7 @@ export default function AssessmentsPage() {
                   <li key={report.id}>
                     <Link
                       href={`/referees/${referee.id}`}
-                      className="flex items-center gap-3 rounded-xl border border-line bg-ink-1 px-3 py-2.5 lift"
+                      className="flex items-center gap-3 rounded-[10px] border border-line bg-ink-1 px-3 py-2.5 lift"
                     >
                       <span className="min-w-0 flex-1">
                         <span className="block truncate text-xs text-chalk">
@@ -326,14 +326,14 @@ function ReportDetail({ report }: { report: Assessment }) {
 
         {report.clips.length > 0 && (
           <>
-            <p className="mb-2 mt-4 text-[11px] uppercase tracking-[0.1em] text-chalk-faint">
+            <p className="mb-2 mt-4 text-xs font-medium text-chalk-faint">
               {t("assessments.clips")}
             </p>
             <ul className="space-y-1.5">
               {report.clips.map((clip) => (
                 <li
                   key={clip.minute}
-                  className="flex items-center gap-2.5 rounded-xl border border-line bg-ink-1 px-3 py-2"
+                  className="flex items-center gap-2.5 rounded-[10px] border border-line bg-ink-1 px-3 py-2"
                 >
                   <Film size={13} className="shrink-0 text-var" />
                   <span className="board w-9 shrink-0 text-xs text-chalk-faint">{clip.minute}&apos;</span>

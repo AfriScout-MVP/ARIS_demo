@@ -16,8 +16,8 @@ import {
   Send,
   User,
   Users,
-  type LucideIcon,
-} from "lucide-react";
+  type IconType,
+} from "@/components/icons/glyphs";
 import { cn } from "@/lib/utils";
 import { useFormatters, useLocale, useT } from "@/lib/i18n/LocaleProvider";
 import type { TKey } from "@/lib/i18n/LocaleProvider";
@@ -46,7 +46,7 @@ interface SectionSpec {
   labelKey: TKey;
   hintKey: TKey;
   pages: number;
-  icon: LucideIcon;
+  icon: IconType;
 }
 
 const SECTIONS: SectionSpec[] = [
@@ -58,7 +58,7 @@ const SECTIONS: SectionSpec[] = [
   { id: "comparison", labelKey: "reports.secComparison", hintKey: "reports.secComparisonHint", pages: 2, icon: GitCompareArrows },
 ];
 
-const RECIPIENTS: { id: string; labelKey: TKey; icon: LucideIcon }[] = [
+const RECIPIENTS: { id: string; labelKey: TKey; icon: IconType }[] = [
   { id: "federation", labelKey: "reports.recipientFederation", icon: Landmark },
   { id: "referee", labelKey: "reports.recipientReferee", icon: User },
   { id: "caf", labelKey: "reports.recipientCaf", icon: Globe2 },
@@ -178,7 +178,7 @@ export default function ReportsPage() {
             }))}
           />
 
-          <div className="mt-2 flex flex-wrap items-center gap-2 rounded-xl border border-line bg-ink-1 px-3 py-2 text-xs text-chalk-faint">
+          <div className="mt-2 flex flex-wrap items-center gap-2 rounded-[10px] border border-line bg-ink-1 px-3 py-2 text-xs text-chalk-faint">
             <span>{countryFlag(match.countryCode)}</span>
             <span className="text-chalk-dim">{competition?.name}</span>
             <span>·</span>
@@ -193,7 +193,7 @@ export default function ReportsPage() {
             )}
           </div>
 
-          <p className="mb-2 mt-5 text-[11px] uppercase tracking-[0.1em] text-chalk-faint">
+          <p className="mb-2 mt-5 text-xs font-medium text-chalk-faint">
             {t("reports.sections")}
           </p>
           <div className="space-y-2">
@@ -206,7 +206,7 @@ export default function ReportsPage() {
                   onClick={() => toggle(sections, setSections, section.id)}
                   aria-pressed={on}
                   className={cn(
-                    "flex w-full items-start gap-3 rounded-xl border px-3 py-2.5 text-left transition-colors",
+                    "flex w-full items-start gap-3 rounded-[10px] border px-3 py-2.5 text-left transition-colors",
                     on
                       ? "border-pitch/35 bg-pitch/[0.07]"
                       : "border-line bg-ink-1 hover:border-line-strong",
@@ -248,7 +248,7 @@ export default function ReportsPage() {
 
           <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
-              <p className="mb-2 text-[11px] uppercase tracking-[0.1em] text-chalk-faint">
+              <p className="mb-2 text-xs font-medium text-chalk-faint">
                 {t("reports.recipients")}
               </p>
               <div className="flex flex-wrap gap-2">
@@ -276,7 +276,7 @@ export default function ReportsPage() {
             </div>
 
             <div>
-              <p className="mb-2 text-[11px] uppercase tracking-[0.1em] text-chalk-faint">
+              <p className="mb-2 text-xs font-medium text-chalk-faint">
                 {t("reports.delivery")}
               </p>
               <Segmented
@@ -314,10 +314,10 @@ export default function ReportsPage() {
          * The page that comes out — laid out as the document itself
          * ---------------------------------------------------------- */}
         <div className="space-y-2 lg:sticky lg:top-4 lg:self-start">
-          <p className="px-1 text-[11px] uppercase tracking-[0.1em] text-chalk-faint">
+          <p className="px-1 text-xs font-medium text-chalk-faint">
             {t("reports.preview")}
           </p>
-          <article className="overflow-hidden rounded-2xl border border-line-strong bg-linear-to-b from-ink-3 to-ink-2 shadow-[0_18px_40px_-24px_rgba(0,0,0,0.35)]">
+          <article className="overflow-hidden rounded-[14px] border border-line-strong bg-linear-to-b from-ink-3 to-ink-2 shadow-[0_18px_40px_-24px_rgba(0,0,0,0.35)]">
             <div className="h-1 bg-pitch" />
             <div className="p-4 sm:p-5">
               <header className="flex items-start justify-between gap-3">
@@ -332,7 +332,7 @@ export default function ReportsPage() {
                 </span>
               </header>
 
-              <p className="mt-4 text-[10px] uppercase tracking-[0.16em] text-chalk-faint">
+              <p className="mt-4 text-xs font-medium text-chalk-faint">
                 {t("reports.dossierTitle")}
               </p>
               <h3 className="mt-1 font-display text-[17px] leading-tight font-semibold text-chalk">
@@ -359,7 +359,7 @@ export default function ReportsPage() {
                 />
               </div>
 
-              <p className="mb-2 mt-4 text-[10px] uppercase tracking-[0.16em] text-chalk-faint">
+              <p className="mb-2 mt-4 text-xs font-medium text-chalk-faint">
                 {t("reports.contents")}
               </p>
               {contents.length === 0 ? (
@@ -383,7 +383,7 @@ export default function ReportsPage() {
 
               {sections.includes("crew") && fixture && (
                 <>
-                  <p className="mb-1.5 mt-4 text-[10px] uppercase tracking-[0.16em] text-chalk-faint">
+                  <p className="mb-1.5 mt-4 text-xs font-medium text-chalk-faint">
                     {t("common.crew")}
                   </p>
                   <CrewStrip crew={fixture.crew} />

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { ArrowUpRight, CornerDownLeft, Sparkles, Trash2 } from "lucide-react";
+import { ArrowUpRight, CornerDownLeft, Sparkles, Trash2 } from "@/components/icons/glyphs";
 import { cn } from "@/lib/utils";
 import { useLocale, useT } from "@/lib/i18n/LocaleProvider";
 import { useScope } from "@/lib/scope/ScopeProvider";
@@ -69,7 +69,7 @@ export default function CopilotPage() {
             <div className="space-y-4">
               <EmptyState title={t("copilot.intro")} hint={t("copilot.introSub")} />
               <div>
-                <p className="mb-2 text-[11px] uppercase tracking-[0.1em] text-chalk-faint">
+                <p className="mb-2 text-xs font-medium text-chalk-faint">
                   {t("copilot.suggestions")}
                 </p>
                 <div className="flex flex-wrap gap-2">
@@ -90,7 +90,7 @@ export default function CopilotPage() {
           {turns.map((turn) => (
             <div key={turn.id} className="space-y-3 rise">
               <div className="flex justify-end">
-                <p className="max-w-[90%] rounded-xl rounded-br-sm bg-red-600 px-3 py-2 text-sm text-white">
+                <p className="max-w-[90%] rounded-[10px] rounded-br-sm bg-red-600 px-3 py-2 text-sm text-white">
                   {turn.question}
                 </p>
               </div>
@@ -109,10 +109,10 @@ export default function CopilotPage() {
 
                       {turn.answer.rows.length > 0 && (
                         <>
-                          <p className="mb-1.5 mt-3 text-[10.5px] uppercase tracking-[0.1em] text-chalk-faint">
+                          <p className="mb-1.5 mt-3 text-xs font-medium text-chalk-faint">
                             {t("copilot.sources")}
                           </p>
-                          <ul className="overflow-hidden rounded-xl border border-line">
+                          <ul className="overflow-hidden rounded-[10px] border border-line">
                             {turn.answer.rows.map((row, i) => (
                               <li key={`${row.label}-${i}`}>
                                 {row.href ? (

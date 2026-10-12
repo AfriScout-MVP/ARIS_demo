@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Check, ChevronDown, Globe2, Search } from "lucide-react";
+import { Check, ChevronDown, Globe2, Search } from "@/components/icons/glyphs";
 import { cn } from "@/lib/utils";
 import { useLocale, useT } from "@/lib/i18n/LocaleProvider";
 import { useScope } from "@/lib/scope/ScopeProvider";
@@ -57,7 +57,7 @@ export function ScopeSelect() {
       <button
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
-        className="flex h-10 w-full min-w-0 items-center gap-2 rounded-xl border border-field bg-ink-2 px-3 text-sm text-chalk transition-colors hover:border-red-500/50 sm:w-auto sm:max-w-[280px]"
+        className="flex h-10 w-full min-w-0 items-center gap-2 rounded-[10px] border border-field bg-ink-2 px-3 text-sm text-chalk transition-colors hover:border-red-500/50 sm:w-auto sm:max-w-[280px]"
       >
         <Globe2 size={14} className="shrink-0 text-chalk-faint" />
         <span className="truncate">{label}</span>
@@ -65,7 +65,7 @@ export function ScopeSelect() {
       </button>
 
       {open && (
-        <div className="absolute left-0 z-50 mt-2 w-[min(300px,calc(100vw-32px))] overflow-hidden rounded-2xl border border-line bg-ink-2 shadow-xl shadow-black/20">
+        <div className="absolute left-0 z-50 mt-2 w-[min(300px,calc(100vw-32px))] overflow-hidden rounded-[14px] border border-line bg-ink-2 shadow-xl shadow-black/20">
           <div className="flex items-center gap-2 border-b border-line px-3 py-2">
             <Search size={13} className="text-chalk-faint" />
             <input
@@ -87,7 +87,7 @@ export function ScopeSelect() {
               }}
             />
 
-            <p className="px-3 pb-1 pt-2.5 text-[10px] uppercase tracking-[0.1em] text-chalk-faint">
+            <p className="px-3 pb-1 pt-2.5 text-xs font-medium text-chalk-faint">
               {t("common.zone")}
             </p>
             {zones.map((zone) => (
@@ -102,7 +102,7 @@ export function ScopeSelect() {
               />
             ))}
 
-            <p className="px-3 pb-1 pt-2.5 text-[10px] uppercase tracking-[0.1em] text-chalk-faint">
+            <p className="px-3 pb-1 pt-2.5 text-xs font-medium text-chalk-faint">
               {t("common.federation")}
             </p>
             {filtered.map((country) => (

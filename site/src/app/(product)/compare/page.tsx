@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { ArrowUpRight, ArrowLeftRight } from "lucide-react";
+import { ArrowUpRight, ArrowLeftRight } from "@/components/icons/glyphs";
 import { cn } from "@/lib/utils";
 import { useLocale, useT } from "@/lib/i18n/LocaleProvider";
 import { useScope } from "@/lib/scope/ScopeProvider";
@@ -30,7 +30,7 @@ function Side({
   const { locale } = useLocale();
   return (
     <div className={cn("flex items-center gap-3", side === "b" && "sm:flex-row-reverse sm:text-right")}>
-      <div className={cn("shrink-0 rounded-2xl p-1", SIDE[side].ring)}>
+      <div className={cn("shrink-0 rounded-[14px] p-1", SIDE[side].ring)}>
         <ScoreRing value={referee.arps} size={56} />
       </div>
       <div className="min-w-0 flex-1">
@@ -161,7 +161,7 @@ export default function ComparePage() {
           <Side referee={a} side="a" matchesLabel={matchesLabel} />
           <div className="flex items-center justify-center gap-3 sm:flex-col sm:gap-1">
             <span className="board text-[20px] font-semibold text-pitch">{aWins}</span>
-            <span className="text-[10px] uppercase tracking-[0.14em] text-chalk-faint">
+            <span className="text-xs font-medium text-chalk-faint">
               {locale === "fr" ? "avantages" : "wins"}
             </span>
             <span className="board text-[20px] font-semibold text-var">{headToHead.length - aWins}</span>
@@ -174,7 +174,7 @@ export default function ComparePage() {
         <div className="grid grid-cols-1 gap-5 p-4 sm:p-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,380px)]">
           {/* Diverging bars: A grows left from the centre, B grows right. */}
           <div>
-            <p className="mb-3 text-[11px] uppercase tracking-[0.1em] text-chalk-faint">
+            <p className="mb-3 text-xs font-medium text-chalk-faint">
               {t("compare.headToHead")}
             </p>
             <div className="space-y-3">
@@ -216,7 +216,7 @@ export default function ComparePage() {
               })}
             </div>
 
-            <p className="mb-2 mt-5 text-[11px] uppercase tracking-[0.1em] text-chalk-faint">
+            <p className="mb-2 mt-5 text-xs font-medium text-chalk-faint">
               {t("compare.verdict")} · {t("compare.verdictSub").toLowerCase()}
             </p>
             <ul className="space-y-1.5">
@@ -226,7 +226,7 @@ export default function ComparePage() {
                 return (
                   <li
                     key={gap.label}
-                    className="flex items-center justify-between gap-3 rounded-xl border border-line bg-ink-1 px-3 py-2"
+                    className="flex items-center justify-between gap-3 rounded-[10px] border border-line bg-ink-1 px-3 py-2"
                   >
                     <span className="min-w-0 truncate text-xs text-chalk-dim">{gap.label}</span>
                     <span className="shrink-0 text-xs">
@@ -243,7 +243,7 @@ export default function ComparePage() {
           </div>
 
           <div className="lg:border-l lg:border-line lg:pl-5">
-            <p className="mb-1 text-[11px] uppercase tracking-[0.1em] text-chalk-faint">
+            <p className="mb-1 text-xs font-medium text-chalk-faint">
               {t("compare.profile")}
             </p>
             <p className="mb-2 text-xs text-chalk-faint">{t("compare.profileSub")}</p>

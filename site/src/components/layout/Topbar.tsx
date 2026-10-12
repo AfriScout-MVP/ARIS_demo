@@ -1,17 +1,18 @@
 "use client";
 
-import { Menu, Moon, PanelLeftOpen, Search, Sun } from "lucide-react";
+import { Menu, Moon, PanelLeftOpen, Search, Sun } from "@/components/icons/glyphs";
 import { useT } from "@/lib/i18n/LocaleProvider";
 import { useTheme } from "@/lib/theme/ThemeProvider";
 import { ScopeSelect } from "./ScopeSelect";
 import { NotificationsMenu } from "./NotificationsMenu";
 import { AvatarMenu } from "./AvatarMenu";
 import { Dot } from "@/components/ui";
-import { Mark } from "@/components/icons/Mark";
+import { MarkTile } from "@/components/icons/Mark";
+import { useDataset } from "@/lib/dataset/DatasetProvider";
 
-/** AfriScout's admin icon button: 40px, rounded-xl, bordered, tinted. */
+/** AfriScout's admin icon button: 40px, rounded-[10px], bordered, tinted. */
 export const iconButton =
-  "flex h-10 w-10 items-center justify-center rounded-xl border border-field bg-ink-3 text-chalk-dim transition-colors hover:bg-ink-4 hover:text-chalk";
+  "flex h-10 w-10 items-center justify-center rounded-lg border border-field bg-ink-3 text-chalk-dim transition-colors hover:bg-ink-4 hover:text-chalk";
 
 /**
  * Two bars, one at a time.
@@ -32,6 +33,7 @@ export function Topbar({
   onOpenDesktop: () => void;
 }) {
   const t = useT();
+  const { live } = useDataset();
   const { theme, toggle } = useTheme();
   const themeLabel = theme === "dark" ? t("nav.lightMode") : t("nav.darkMode");
 
@@ -43,10 +45,8 @@ export function Topbar({
             <Menu className="h-5 w-5" aria-hidden="true" />
           </button>
           <div className="flex items-center gap-2">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-linear-to-br from-red-500 to-orange-500 text-white">
-              <Mark size={18} />
-            </span>
-            <span className="text-lg font-bold text-chalk">ARIS</span>
+            <MarkTile size={32} />
+            <span className="font-display text-xl font-extrabold tracking-[-0.04em] text-chalk">ARIS</span>
           </div>
         </div>
 
@@ -77,17 +77,19 @@ export function Topbar({
         <div className="ml-auto flex items-center gap-2">
           <button
             onClick={onOpenPalette}
-            className="flex h-10 items-center gap-2 rounded-xl border border-field bg-ink-2 pl-3 pr-2 text-sm text-chalk-faint transition-colors hover:border-red-500/50 hover:text-chalk-dim"
+            className="flex h-10 items-center gap-2 rounded-lg border border-field bg-ink-2 pl-3 pr-2 text-sm text-chalk-faint transition-colors hover:border-red-500/50 hover:text-chalk-dim"
           >
             <Search className="h-4 w-4" />
             <span className="w-32 text-left xl:w-44">{t("common.search")}</span>
-            <kbd className="rounded-md border border-line px-1.5 py-0.5 text-[10px]">⌘K</kbd>
+            <kbd className="rounded-[4px] border border-line px-1.5 py-0.5 text-[10px]">⌘K</kbd>
           </button>
 
-          <span className="hidden h-10 items-center gap-2 rounded-xl border border-line bg-ink-2 px-3 text-xs font-medium text-chalk-dim xl:inline-flex">
-            <Dot tone="pitch" pulse />
-            {t("common.demoData")}
-          </span>
+          {!live && (
+            <span className="hidden h-10 items-center gap-2 rounded-lg border border-line bg-ink-2 px-3 text-xs font-medium text-chalk-dim xl:inline-flex">
+              <Dot tone="pitch" pulse />
+              {t("common.demoData")}
+            </span>
+          )}
 
           <NotificationsMenu />
           <AvatarMenu />

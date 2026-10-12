@@ -3,6 +3,7 @@
 import { createContext, useCallback, useContext, useMemo } from "react";
 import { usePersistent, writeStore } from "@/lib/persistent-store";
 import { countries, type Zone } from "@/lib/mock-data";
+import { useDataset } from "@/lib/dataset/DatasetProvider";
 
 export type Scope =
   | { kind: "all" }
@@ -43,6 +44,8 @@ function parseScope(raw: string | null): Scope {
 
 export function ScopeProvider({ children }: { children: React.ReactNode }) {
   const scope = usePersistent(STORAGE_KEY, parseScope, ALL);
+  // the country list is replaced when live data loads, so the codes must be recomputed
+  const { version } = useDataset();
 
   const setScope = useCallback((next: Scope) => {
     writeStore(STORAGE_KEY, serialise(next));
@@ -65,7 +68,8 @@ export function ScopeProvider({ children }: { children: React.ReactNode }) {
       // fixtures a zone or federation desk most needs to see.
       matches: (code: string) => code === "CAF" || set.has(code),
     };
-  }, [scope, setScope]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [scope, setScope, version]);
 
   return <ScopeContext.Provider value={value}>{children}</ScopeContext.Provider>;
 }
