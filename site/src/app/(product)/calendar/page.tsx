@@ -35,8 +35,8 @@ type View = "list" | "board" | "availability";
 
 const availabilityTone: Record<AvailabilityState, string> = {
   available: "bg-pitch/15 text-pitch border-pitch/25",
-  assigned: "bg-pitch text-[#04140c] border-pitch",
-  resting: "bg-white/[0.05] text-chalk-faint border-line",
+  assigned: "bg-pitch text-on-pitch border-pitch",
+  resting: "bg-wash/[0.05] text-chalk-faint border-line",
   travelling: "bg-var/12 text-var border-var/25",
   unavailable: "bg-card-red/12 text-card-red border-card-red/25",
 };
@@ -102,16 +102,16 @@ export default function CalendarPage() {
       <PageHeading titleKey="calendar.title" subtitleKey="subtitles.calendar" />
 
       <div className="flex flex-wrap items-center gap-2">
-        <div className="flex items-center gap-1 rounded-md border border-line bg-ink-1 p-0.5">
+        <div className="flex items-center gap-1 rounded-lg border border-line bg-ink-1 p-0.5">
           <button
             onClick={() => setWeekIndex((i) => Math.max(0, i - 1))}
             disabled={weekIndex === 0}
             aria-label={t("calendar.prevWeek")}
-            className="rounded-[5px] p-1.5 text-chalk-faint hover:text-chalk disabled:opacity-30"
+            className="rounded-lg p-3 text-chalk-faint hover:text-chalk disabled:opacity-30 sm:p-2"
           >
             <ChevronLeft size={15} />
           </button>
-          <span className="flex items-center gap-1.5 px-2 text-[12.5px] text-chalk">
+          <span className="flex items-center gap-1.5 px-2 text-xs text-chalk">
             <CalendarDays size={13} className="text-chalk-faint" />
             {fmt.date(dates[0])} — {fmt.date(dates[6])}
           </span>
@@ -119,7 +119,7 @@ export default function CalendarPage() {
             onClick={() => setWeekIndex((i) => Math.min(weekStarts.length - 1, i + 1))}
             disabled={weekIndex === weekStarts.length - 1}
             aria-label={t("calendar.nextWeek")}
-            className="rounded-[5px] p-1.5 text-chalk-faint hover:text-chalk disabled:opacity-30"
+            className="rounded-lg p-3 text-chalk-faint hover:text-chalk disabled:opacity-30 sm:p-2"
           >
             <ChevronRight size={15} />
           </button>
@@ -138,7 +138,7 @@ export default function CalendarPage() {
         <div className="ml-auto flex items-center gap-2">
           {autoFilled !== null && (
             <>
-              <span className="hidden text-[12px] text-chalk-faint sm:inline">
+              <span className="hidden text-xs text-chalk-faint sm:inline">
                 {autoFilled > 0 ? t("calendar.autoFillDone", { n: autoFilled }) : t("calendar.autoFillNone")}
               </span>
               {autoFilled > 0 && (
@@ -200,8 +200,8 @@ export default function CalendarPage() {
           {byDate.map(([date, list]) => (
             <Card key={date} padded={false}>
               <div className="flex items-center justify-between gap-2 px-4 py-2.5">
-                <h2 className="font-display text-[13.5px] font-semibold text-chalk">{fmt.longDate(date)}</h2>
-                <span className="text-[11.5px] text-chalk-faint">
+                <h2 className="font-display text-sm font-semibold text-chalk">{fmt.longDate(date)}</h2>
+                <span className="text-xs text-chalk-faint">
                   {list.length} {t("calendar.fixtures")}
                 </span>
               </div>
@@ -218,18 +218,18 @@ export default function CalendarPage() {
                     >
                       <div className="min-w-0 xl:w-[38%]">
                         <div className="flex items-center gap-2">
-                          <span className="text-[13px]">{countryFlag(fixture.countryCode)}</span>
-                          <p className="truncate text-[13.5px] font-medium text-chalk">
+                          <span className="text-sm">{countryFlag(fixture.countryCode)}</span>
+                          <p className="truncate text-sm font-medium text-chalk">
                             {fixture.home} <span className="text-chalk-faint">—</span> {fixture.away}
                           </p>
                         </div>
-                        <p className="mt-0.5 truncate text-[11.5px] text-chalk-faint">
+                        <p className="mt-0.5 truncate text-xs text-chalk-faint">
                           {comp?.name} · {t("common.matchday")} {fixture.matchday} · {fixture.venue}
                         </p>
                       </div>
 
                       <div className="flex items-center gap-2 xl:w-[16%]">
-                        <span className="board text-[13px] text-chalk">{fixture.kickoff}</span>
+                        <span className="board text-sm text-chalk">{fixture.kickoff}</span>
                         <Badge tone={fixture.risk === "high" ? "red" : fixture.risk === "medium" ? "amber" : "neutral"}>
                           {t("calendar.importance")} {fixture.importance}
                         </Badge>
@@ -242,7 +242,7 @@ export default function CalendarPage() {
                         />
                         <span
                           className={cn(
-                            "shrink-0 text-[11.5px]",
+                            "shrink-0 text-xs",
                             open === 0 ? "text-pitch" : "text-card-red",
                           )}
                         >
@@ -280,7 +280,7 @@ export default function CalendarPage() {
                   return (
                     <tr key={fixture.id} className="border-b border-line last:border-0 row-hover">
                       <td className="sticky left-0 z-10 bg-ink-2 px-3 py-2.5">
-                        <p className="truncate text-[12.5px] text-chalk">
+                        <p className="truncate text-xs text-chalk">
                           {countryFlag(fixture.countryCode)} {fixture.home} — {fixture.away}
                         </p>
                         <p className="text-[10.5px] text-chalk-faint">
@@ -348,7 +348,7 @@ export default function CalendarPage() {
                   .map((official) => (
                     <tr key={official.id} className="border-b border-line last:border-0 row-hover">
                       <td className="sticky left-0 z-10 bg-ink-2 px-3 py-2">
-                        <p className="truncate text-[12.5px] text-chalk">
+                        <p className="truncate text-xs text-chalk">
                           {countryFlag(official.countryCode)} {official.name}
                         </p>
                         <p className="text-[10.5px] text-chalk-faint">{official.level}</p>
@@ -392,9 +392,9 @@ export default function CalendarPage() {
         />
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-3">
           {scopedCountries.map((country) => (
-            <div key={country.code} className="flex items-center justify-between gap-2 rounded-lg border border-line bg-ink-1 px-3 py-2.5">
+            <div key={country.code} className="flex items-center justify-between gap-2 rounded-xl border border-line bg-ink-1 px-3 py-2.5">
               <div className="min-w-0">
-                <p className="truncate text-[12.5px] text-chalk">
+                <p className="truncate text-xs text-chalk">
                   {country.flag} {countryName(country.code, locale)}
                 </p>
                 <p className="text-[11px] text-chalk-faint">

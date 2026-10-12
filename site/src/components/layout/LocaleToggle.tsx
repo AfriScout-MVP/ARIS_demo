@@ -7,15 +7,15 @@ import { localeLabels, locales } from "@/lib/i18n/dictionary";
 export function LocaleToggle() {
   const { locale, setLocale } = useLocale();
   return (
-    <div className="inline-flex rounded-md border border-line bg-ink-2 p-0.5" role="group" aria-label="Language">
+    <div className="inline-flex rounded-xl border border-field bg-ink-2 p-0.5" role="group" aria-label="Language">
       {locales.map((code) => (
         <button
           key={code}
           onClick={() => setLocale(code)}
           aria-pressed={locale === code}
           className={cn(
-            "rounded-[5px] px-1.5 py-1 text-[11px] font-medium transition-colors",
-            locale === code ? "bg-pitch text-[#04140c]" : "text-chalk-faint hover:text-chalk",
+            "min-h-9 min-w-9 rounded-lg px-2.5 py-2 text-xs font-semibold transition-colors",
+            locale === code ? "bg-red-600 text-white" : "text-chalk-faint hover:text-chalk",
           )}
         >
           {localeLabels[code]}

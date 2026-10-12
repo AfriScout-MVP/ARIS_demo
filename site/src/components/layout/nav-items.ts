@@ -64,13 +64,3 @@ export const navGroups: NavGroup[] = [
 ];
 
 export const navItems: NavItem[] = navGroups.flatMap((g) => g.items);
-
-/** The five that sit in the mobile tab bar. */
-export const mobilePrimary = ["/", "/calendar", "/arae", "/copilot", "/referees"];
-
-export function navItemFor(pathname: string): NavItem | undefined {
-  if (pathname === "/") return navItems[0];
-  return navItems
-    .filter((item) => item.href !== "/")
-    .find((item) => pathname === item.href || pathname.startsWith(`${item.href}/`));
-}

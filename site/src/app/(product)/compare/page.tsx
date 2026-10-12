@@ -30,21 +30,21 @@ function Side({
   const { locale } = useLocale();
   return (
     <div className={cn("flex items-center gap-3", side === "b" && "sm:flex-row-reverse sm:text-right")}>
-      <div className={cn("shrink-0 rounded-xl p-1", SIDE[side].ring)}>
+      <div className={cn("shrink-0 rounded-2xl p-1", SIDE[side].ring)}>
         <ScoreRing value={referee.arps} size={56} />
       </div>
       <div className="min-w-0 flex-1">
         <Link
           href={`/referees/${referee.id}`}
           className={cn(
-            "flex items-center gap-1 font-display text-[15px] font-semibold text-chalk hover:underline",
+            "flex items-center gap-1 font-display text-base font-semibold text-chalk hover:underline",
             side === "b" && "sm:justify-end",
           )}
         >
           <span className="truncate">{referee.name}</span>
           <ArrowUpRight size={12} className="shrink-0" />
         </Link>
-        <p className="truncate text-[11.5px] text-chalk-faint">
+        <p className="truncate text-xs text-chalk-faint">
           {countryFlag(referee.countryCode)} {countryName(referee.countryCode, locale)} · {referee.level}
         </p>
         <div className={cn("mt-1.5 flex flex-wrap gap-1.5", side === "b" && "sm:justify-end")}>
@@ -182,7 +182,7 @@ export default function ComparePage() {
                 const leadsA = row.lowerIsBetter ? row.a < row.b : row.a > row.b;
                 return (
                   <div key={row.label}>
-                    <div className="mb-1 flex items-center justify-between gap-2 text-[12px]">
+                    <div className="mb-1 flex items-center justify-between gap-2 text-xs">
                       <span className={cn("board w-14", leadsA ? "font-semibold text-pitch" : "text-chalk-faint")}>
                         {row.a}
                       </span>
@@ -197,14 +197,14 @@ export default function ComparePage() {
                       </span>
                     </div>
                     <div className="flex items-center gap-1">
-                      <div className="flex h-1.5 flex-1 justify-end overflow-hidden rounded-l-full bg-white/[0.06]">
+                      <div className="flex h-1.5 flex-1 justify-end overflow-hidden rounded-l-full bg-wash/[0.06]">
                         <div
                           className={cn("h-full rounded-l-full transition-[width] duration-500", SIDE.a.bar)}
                           style={{ width: `${Math.min(100, (row.a / row.max) * 100)}%` }}
                         />
                       </div>
                       <span className="h-2.5 w-px shrink-0 bg-line-strong" />
-                      <div className="h-1.5 flex-1 overflow-hidden rounded-r-full bg-white/[0.06]">
+                      <div className="h-1.5 flex-1 overflow-hidden rounded-r-full bg-wash/[0.06]">
                         <div
                           className={cn("h-full rounded-r-full transition-[width] duration-500", SIDE.b.bar)}
                           style={{ width: `${Math.min(100, (row.b / row.max) * 100)}%` }}
@@ -226,10 +226,10 @@ export default function ComparePage() {
                 return (
                   <li
                     key={gap.label}
-                    className="flex items-center justify-between gap-3 rounded-lg border border-line bg-ink-1 px-3 py-2"
+                    className="flex items-center justify-between gap-3 rounded-xl border border-line bg-ink-1 px-3 py-2"
                   >
-                    <span className="min-w-0 truncate text-[12.5px] text-chalk-dim">{gap.label}</span>
-                    <span className="shrink-0 text-[12px]">
+                    <span className="min-w-0 truncate text-xs text-chalk-dim">{gap.label}</span>
+                    <span className="shrink-0 text-xs">
                       <span className={tone.text}>{leader.name}</span>
                       <span className="text-chalk-faint">
                         {" "}
@@ -246,7 +246,7 @@ export default function ComparePage() {
             <p className="mb-1 text-[11px] uppercase tracking-[0.1em] text-chalk-faint">
               {t("compare.profile")}
             </p>
-            <p className="mb-2 text-[12px] text-chalk-faint">{t("compare.profileSub")}</p>
+            <p className="mb-2 text-xs text-chalk-faint">{t("compare.profileSub")}</p>
             <CompareRadar data={radar} seriesNames={[a.name, b.name]} />
           </div>
         </div>

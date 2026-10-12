@@ -1,110 +1,220 @@
 @import "tailwindcss";
 
+/* `dark:` follows the app's theme class, not the OS setting — otherwise the toggle
+   and the utilities disagree (Tailwind 4 defaults to prefers-color-scheme). */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /*
-  ARIS design system — the AfriScout dark palette, applied to refereeing.
+  ARIS design system — the AfriScout admin panel, applied to refereeing.
 
-  Surfaces are the neutral slate AfriScout uses in dark mode (dark-300 page,
-  dark-100 cards, slate-700 borders). Green is the brand accent, exactly as
-  `african-fern` resolves in dark mode. On top of that, ARIS keeps one rule of
-  its own: the other saturated colours only appear where the Laws of the Game
-  already assign them meaning.
-    green      → brand, confirmed, correct, available
-    amber      → caution / pending / expiring
-    red        → sanction / conflict / unassigned
-    sky        → a second look (VAR review, and ARIS AI output)
-    gold       → AfriScout's african-gold: the catalogue (competitions, courses)
+  This mirrors AfriScout's admin console value for value, so the two products
+  read as one platform:
 
-  Counters carry that meaning as a tint on the whole tile, the way AfriScout's
-  `kpi-colors.ts` does — a pending count is the same amber on every screen, so
-  a row of counters can be read by colour before it is read by label.
+    light   sage page (#F4F8F2), white cards, moss borders (#C4D9BB),
+            forest / fern / olive green text
+    dark    slate-950 page, slate-900 cards and rail, gray-800 borders,
+            white / gray-300 / gray-400 text   (the default, as in AfriScout)
+
+  Chrome is red: the active nav rule, primary buttons, focus ring and count
+  badges are AfriScout's red-500 → orange-500, exactly as in the admin panel.
+  Data keeps its own meaning on top of that, tinted the way AfriScout's
+  `kpi-colors.ts` tints a counter:
+    green  → confirmed, correct, available
+    amber  → caution / pending / expiring
+    red    → sanction / conflict / unassigned
+    blue   → a second look (VAR review, and ARIS AI output)
+    gold   → AfriScout's african-gold: the catalogue (competitions, courses)
+
+  Every token below is a CSS variable that flips with the theme, so a class
+  written once (`bg-ink-2 text-chalk border-line`) is right in both.
 */
 
-@theme inline {
-  --color-ink-0: #020617; /* dark-300  page            */
-  --color-ink-1: #0f172a; /* dark-200  rail, top bar   */
-  --color-ink-2: #1e293b; /* dark-100  cards           */
-  --color-ink-3: #263447; /* raised surface            */
-  --color-ink-4: #334155; /* slate-700 controls        */
+:root {
+  --ink-0: #f4f8f2; /* african-sage        page            */
+  --ink-1: #ecf4e9; /* african-eucalyptus  rail, top bar   */
+  --ink-2: #ffffff; /* african-mist        cards           */
+  --ink-3: #ecf4e9; /* eucalyptus          inset tiles     */
+  --ink-4: #e2efdc; /* african-leaf        controls        */
 
-  --color-line: rgba(148, 163, 184, 0.18);
-  --color-line-strong: rgba(148, 163, 184, 0.36);
+  --line: #c4d9bb; /* african-moss        borders         */
+  --line-strong: #a3c498; /* moss, one step darker (hover)  */
+  --field: #c4d9bb; /* control borders                     */
 
-  --color-chalk: #f1f5f9; /* slate-100 */
-  --color-chalk-dim: #cbd5e1; /* slate-300 */
-  --color-chalk-faint: #94a3b8; /* slate-400 */
+  --chalk: #0f3d22; /* african-forest      titles, values  */
+  --chalk-dim: #166534; /* african-fern        labels          */
+  --chalk-faint: #2c6e47; /* african-olive, deepened to 5.3:1 on tints */
 
-  --color-pitch: #22c55e; /* green-500 — african-fern in dark */
-  --color-pitch-soft: #4ade80; /* green-400 — african-olive in dark */
-  --color-pitch-deep: #15803d; /* green-700 — african-forest in dark */
+  --wash: #0f3d22; /* the colour a hover / overlay wash is drawn in */
 
-  --color-amber: #eab308;
-  --color-gold: #b88a0d; /* african-gold */
-  --color-gold-soft: #eab84c; /* african-gold, lifted to read on slate */
-  --color-card-red: #ef4444;
-  --color-terracotta: #b34a2d; /* african-terracotta */
-  --color-var: #38bdf8;
+  --pitch: #14723a; /* green-700, deepened: 5.2:1 on its own tint */
+  --pitch-soft: #16a34a; /* green-600 */
+  --pitch-deep: #166534; /* green-800 */
+  --on-pitch: #ffffff;
 
-  --font-sans: var(--font-inter);
-  --font-display: var(--font-archivo);
-  --font-mono: var(--font-jetbrains);
+  --amber: #a64b08; /* amber-700, deepened: amber-600 is 2.9:1 on its tint */
+  --gold: #b88a0d; /* african-gold */
+  --gold-soft: #7c5c08;
+  --card-red: #b91c1c; /* red-700: 5.5:1 on its tint */
+  --terracotta: #b34a2d; /* african-terracotta */
+  --var: #1d4ed8; /* blue-700 */
 
-  --color-background: var(--color-ink-0);
-  --color-foreground: var(--color-chalk);
+  color-scheme: light;
 }
 
-* {
-  border-color: var(--color-line);
+html.dark {
+  --ink-0: #020617; /* dark-300 */
+  --ink-1: #0f172a; /* dark-200 */
+  --ink-2: #0f172a; /* dark-200 */
+  --ink-3: #1e293b; /* dark-100 */
+  --ink-4: #334155; /* slate-700 */
+
+  --line: #1f2937; /* gray-800 */
+  --line-strong: #374151; /* gray-700 */
+  --field: #374151;
+
+  --chalk: #ffffff;
+  --chalk-dim: #d1d5db; /* gray-300 */
+  --chalk-faint: #9ca3af; /* gray-400 */
+
+  --wash: #ffffff;
+
+  --pitch: #22c55e; /* green-500 — african-fern in dark */
+  --pitch-soft: #4ade80; /* green-400 */
+  --pitch-deep: #15803d; /* green-700 */
+  --on-pitch: #04140c;
+
+  --amber: #fbbf24; /* amber-400 */
+  --gold: #b88a0d;
+  --gold-soft: #eab84c;
+  --card-red: #f87171; /* red-400 */
+  --terracotta: #b34a2d;
+  --var: #60a5fa; /* blue-400 */
+
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-ink-0: var(--ink-0);
+  --color-ink-1: var(--ink-1);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-ink-4: var(--ink-4);
+
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-field: var(--field);
+
+  --color-chalk: var(--chalk);
+  --color-chalk-dim: var(--chalk-dim);
+  --color-chalk-faint: var(--chalk-faint);
+  --color-wash: var(--wash);
+
+  --color-pitch: var(--pitch);
+  --color-pitch-soft: var(--pitch-soft);
+  --color-pitch-deep: var(--pitch-deep);
+  --color-on-pitch: var(--on-pitch);
+
+  --color-amber: var(--amber);
+  --color-gold: var(--gold);
+  --color-gold-soft: var(--gold-soft);
+  --color-card-red: var(--card-red);
+  --color-terracotta: var(--terracotta);
+  --color-var: var(--var);
+
+  --font-sans: var(--font-inter);
+  --font-display: var(--font-inter);
+  --font-mono: var(--font-inter);
+
+  --color-background: var(--ink-0);
+  --color-foreground: var(--chalk);
+}
+
+@layer base {
+  * {
+    border-color: var(--line);
+  }
 }
 
 html {
   -webkit-text-size-adjust: 100%;
+  background-color: var(--ink-0);
 }
 
 body {
-  background: var(--color-ink-0);
-  color: var(--color-chalk);
-  font-family: var(--font-sans), system-ui, sans-serif;
+  background: var(--ink-0);
+  color: var(--chalk);
+  font-family: var(--font-sans), "Inter", system-ui, sans-serif;
   overflow-wrap: break-word;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
 }
 
+/* Dark mode, as in AfriScout: neutral slate with a faint lift at the top edge.
+   Green is an accent here, never a surface. */
+html.dark {
+  background-image:
+    radial-gradient(
+      ellipse 100% 45% at 50% 0%,
+      rgba(30, 41, 59, 0.75) 0%,
+      rgba(15, 23, 42, 0.3) 55%,
+      transparent 80%
+    ),
+    linear-gradient(180deg, #050810 0%, #060a13 40%, #07101a 100%);
+  background-attachment: fixed;
+  background-size: cover;
+}
+html.dark body {
+  background: transparent;
+}
+
+/* AfriScout uses Inter for everything — headings and figures included. */
 .font-display {
-  font-family: var(--font-display), var(--font-sans), sans-serif;
-  letter-spacing: -0.015em;
+  font-family: var(--font-sans), "Inter", system-ui, sans-serif;
+  letter-spacing: -0.01em;
 }
 
-/* Board numerals — the fourth official's added-time board.
-   Reserved for the one number that matters most on a view. */
+/* A headline figure — AdminStatCard's "text-2xl font-extrabold tabular-nums". */
 .board {
-  font-family: var(--font-mono), ui-monospace, monospace;
+  font-family: var(--font-sans), "Inter", system-ui, sans-serif;
   font-variant-numeric: tabular-nums;
-  letter-spacing: -0.03em;
+  font-weight: 800;
+  letter-spacing: -0.02em;
 }
 
 .tnum {
   font-variant-numeric: tabular-nums;
 }
 
-/* Chalk line — a pitch marking, used as a section rule. */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* A section rule — red lead-in, like the admin's active nav marker. */
 .chalk-rule {
   height: 1px;
   background: linear-gradient(
     90deg,
-    rgba(34, 197, 94, 0.55) 0,
-    rgba(34, 197, 94, 0.55) 28px,
-    var(--color-line) 28px,
-    var(--color-line) 100%
+    rgba(239, 68, 68, 0.7) 0,
+    rgba(239, 68, 68, 0.7) 28px,
+    var(--line) 28px,
+    var(--line) 100%
   );
 }
 
 :where(a, button, input, select, textarea, [tabindex]):focus-visible {
-  outline: 2px solid var(--color-pitch);
+  outline: 2px solid rgba(239, 68, 68, 0.55);
   outline-offset: 2px;
-  border-radius: 6px;
+  border-radius: 8px;
 }
 
 ::selection {
-  background: var(--color-pitch);
-  color: #04140c;
+  background: rgba(239, 68, 68, 0.85);
+  color: #ffffff;
 }
 
 ::-webkit-scrollbar {
@@ -115,12 +225,12 @@ body {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--color-ink-4);
+  background: var(--ink-4);
   border-radius: 999px;
-  border: 3px solid var(--color-ink-0);
+  border: 3px solid var(--ink-0);
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #475569;
+  background: var(--line-strong);
 }
 
 .scroll-x {
@@ -131,10 +241,10 @@ body {
 
 /* Empty crew slot: an outline waiting to be filled. */
 .slot-empty {
-  border: 1px dashed rgba(148, 163, 184, 0.35);
+  border: 1px dashed var(--line-strong);
   background: repeating-linear-gradient(
     -45deg,
-    rgba(148, 163, 184, 0.05) 0 6px,
+    color-mix(in srgb, var(--wash) 5%, transparent) 0 6px,
     transparent 6px 12px
   );
 }
@@ -143,17 +253,18 @@ body {
   transition: background-color 0.12s ease;
 }
 .row-hover:hover {
-  background-color: rgba(148, 163, 184, 0.06);
+  background-color: color-mix(in srgb, var(--ink-3) 55%, transparent);
 }
 
 .lift {
   transition:
     border-color 0.14s ease,
-    background-color 0.14s ease;
+    background-color 0.14s ease,
+    box-shadow 0.14s ease;
 }
 .lift:hover {
-  border-color: rgba(34, 197, 94, 0.4);
-  background-color: rgba(148, 163, 184, 0.05);
+  border-color: rgba(239, 68, 68, 0.4);
+  background-color: color-mix(in srgb, var(--ink-3) 45%, transparent);
 }
 
 @keyframes rise {

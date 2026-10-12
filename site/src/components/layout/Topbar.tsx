@@ -1,78 +1,98 @@
 "use client";
 
-import { usePathname } from "next/navigation";
-import { Menu, Search } from "lucide-react";
+import { Menu, Moon, PanelLeftOpen, Search, Sun } from "lucide-react";
 import { useT } from "@/lib/i18n/LocaleProvider";
+import { useTheme } from "@/lib/theme/ThemeProvider";
 import { ScopeSelect } from "./ScopeSelect";
-import { LocaleToggle } from "./LocaleToggle";
 import { NotificationsMenu } from "./NotificationsMenu";
 import { AvatarMenu } from "./AvatarMenu";
-import { navItemFor } from "./nav-items";
 import { Dot } from "@/components/ui";
+import { Mark } from "@/components/icons/Mark";
 
+/** AfriScout's admin icon button: 40px, rounded-xl, bordered, tinted. */
+export const iconButton =
+  "flex h-10 w-10 items-center justify-center rounded-xl border border-field bg-ink-3 text-chalk-dim transition-colors hover:bg-ink-4 hover:text-chalk";
+
+/**
+ * Two bars, one at a time.
+ *  - below `lg`: AfriScout's AdminHeader — fixed, h-16, menu + brand on the left,
+ *    theme / search / alerts / avatar on the right. Scope sits under it.
+ *  - from `lg`: the admin has no top bar, but ARIS's scope, search and alerts
+ *    need a home, so they get a slim sticky bar in the same surface colours.
+ */
 export function Topbar({
   onOpenPalette,
-  onOpenDrawer,
+  onOpenMobileNav,
+  desktopOpen,
+  onOpenDesktop,
 }: {
   onOpenPalette: () => void;
-  onOpenDrawer: () => void;
+  onOpenMobileNav: () => void;
+  desktopOpen: boolean;
+  onOpenDesktop: () => void;
 }) {
-  const pathname = usePathname();
   const t = useT();
-  const item = navItemFor(pathname);
-  const isProfile = pathname.startsWith("/referees/") && pathname !== "/referees";
+  const { theme, toggle } = useTheme();
+  const themeLabel = theme === "dark" ? t("nav.lightMode") : t("nav.darkMode");
 
   return (
-    <header className="sticky top-0 z-40 border-b border-line bg-ink-0/85 backdrop-blur-md">
-      <div className="flex items-center gap-2 px-3 py-2.5 sm:px-5 sm:gap-3">
-        <button
-          onClick={onOpenDrawer}
-          aria-label={t("common.menu")}
-          className="rounded-md p-1.5 text-chalk-dim hover:bg-white/5 hover:text-chalk lg:hidden"
-        >
-          <Menu size={19} />
-        </button>
-
-        <div className="min-w-0 flex-1 sm:flex-none">
-          <ScopeSelect />
+    <>
+      <header className="fixed left-0 right-0 top-0 z-40 flex h-16 items-center justify-between border-b border-line bg-ink-1 px-4 lg:hidden">
+        <div className="flex min-w-0 items-center gap-3">
+          <button onClick={onOpenMobileNav} aria-label={t("common.menu")} className={iconButton}>
+            <Menu className="h-5 w-5" aria-hidden="true" />
+          </button>
+          <div className="flex items-center gap-2">
+            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-linear-to-br from-red-500 to-orange-500 text-white">
+              <Mark size={18} />
+            </span>
+            <span className="text-lg font-bold text-chalk">ARIS</span>
+          </div>
         </div>
 
-        <div className="ml-1 hidden min-w-0 flex-1 md:block">
-          <h1 className="truncate font-display text-[15px] font-semibold text-chalk">
-            {isProfile ? t("referees.title") : item ? t(item.labelKey) : "ARIS"}
-          </h1>
-          {item && !isProfile && (
-            <p className="truncate text-[11.5px] text-chalk-faint">{t(item.subtitleKey)}</p>
-          )}
+        <div className="flex items-center gap-2">
+          <button onClick={toggle} className={iconButton} title={themeLabel} aria-label={themeLabel}>
+            {theme === "dark" ? (
+              <Sun className="h-5 w-5 text-amber-400" aria-hidden="true" />
+            ) : (
+              <Moon className="h-5 w-5" aria-hidden="true" />
+            )}
+          </button>
+          <button onClick={onOpenPalette} aria-label={t("common.search")} className={`${iconButton} max-[380px]:hidden`}>
+            <Search className="h-5 w-5" aria-hidden="true" />
+          </button>
+          <NotificationsMenu />
+          <AvatarMenu />
         </div>
+      </header>
 
-        <div className="ml-auto flex shrink-0 items-center gap-1.5 sm:gap-2">
+      <div className="sticky top-0 z-30 hidden h-16 items-center gap-3 border-b border-line bg-ink-0/85 px-6 backdrop-blur-md lg:flex">
+        {!desktopOpen && (
+          <button onClick={onOpenDesktop} className={iconButton} title={t("nav.openSidebar")} aria-label={t("nav.openSidebar")}>
+            <PanelLeftOpen className="h-5 w-5" aria-hidden="true" />
+          </button>
+        )}
+        <ScopeSelect />
+
+        <div className="ml-auto flex items-center gap-2">
           <button
             onClick={onOpenPalette}
-            className="hidden items-center gap-2 rounded-md border border-line bg-ink-2 py-1.5 pl-2.5 pr-2 text-[12.5px] text-chalk-faint transition-colors hover:border-line-strong hover:text-chalk-dim sm:flex"
+            className="flex h-10 items-center gap-2 rounded-xl border border-field bg-ink-2 pl-3 pr-2 text-sm text-chalk-faint transition-colors hover:border-red-500/50 hover:text-chalk-dim"
           >
-            <Search size={13} />
-            <span className="w-28 text-left lg:w-40">{t("common.search")}</span>
-            <kbd className="rounded border border-line px-1 py-0.5 text-[10px]">⌘K</kbd>
-          </button>
-          <button
-            onClick={onOpenPalette}
-            aria-label={t("common.search")}
-            className="rounded-md p-1.5 text-chalk-dim hover:bg-white/5 hover:text-chalk sm:hidden"
-          >
-            <Search size={18} />
+            <Search className="h-4 w-4" />
+            <span className="w-32 text-left xl:w-44">{t("common.search")}</span>
+            <kbd className="rounded-md border border-line px-1.5 py-0.5 text-[10px]">⌘K</kbd>
           </button>
 
-          <span className="hidden items-center gap-1.5 rounded-md border border-line bg-ink-2 px-2 py-1 text-[11px] text-chalk-faint xl:inline-flex">
+          <span className="hidden h-10 items-center gap-2 rounded-xl border border-line bg-ink-2 px-3 text-xs font-medium text-chalk-dim xl:inline-flex">
             <Dot tone="pitch" pulse />
             {t("common.demoData")}
           </span>
 
-          <LocaleToggle />
           <NotificationsMenu />
           <AvatarMenu />
         </div>
       </div>
-    </header>
+    </>
   );
 }

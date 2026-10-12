@@ -110,14 +110,14 @@ export default function RankingsPage() {
                 <Link
                   href={`/referees/${row.refereeId}`}
                   className={cn(
-                    "flex items-center gap-3 rounded-xl border bg-ink-2 p-3 lift",
+                    "flex items-center gap-3 rounded-2xl border bg-ink-2 p-3 lift",
                     row.rank <= PROMOTION_LINE ? "border-line-strong" : "border-line",
                   )}
                 >
-                  <span className="board w-6 text-[15px] text-chalk-faint">{row.rank}</span>
+                  <span className="board w-6 text-base text-chalk-faint">{row.rank}</span>
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-[13.5px] text-chalk">{row.name}</p>
-                    <p className="truncate text-[11.5px] text-chalk-faint">
+                    <p className="truncate text-sm text-chalk">{row.name}</p>
+                    <p className="truncate text-xs text-chalk-faint">
                       {countryFlag(row.countryCode)} {countryName(row.countryCode, locale)} · {row.zone}
                     </p>
                   </div>
@@ -197,7 +197,7 @@ export default function RankingsPage() {
           <ul className="space-y-3">
             {levelMix.map((row) => (
               <li key={row.level}>
-                <div className="mb-1 flex items-center justify-between text-[12.5px]">
+                <div className="mb-1 flex items-center justify-between text-xs">
                   <span className="text-chalk-dim">{row.level}</span>
                   <span className="board text-chalk">{row.count}</span>
                 </div>
@@ -214,13 +214,13 @@ export default function RankingsPage() {
               <li key={z.zone}>
                 <Link
                   href={`/referees/${z.leader!.refereeId}`}
-                  className="flex items-center gap-3 rounded-lg border border-line bg-ink-1 px-3 py-2 lift"
+                  className="flex items-center gap-3 rounded-xl border border-line bg-ink-1 px-3 py-2.5 lift"
                 >
                   <span className="board w-16 shrink-0 text-[11px] text-chalk-faint">{z.zone}</span>
-                  <span className="min-w-0 flex-1 truncate text-[12.5px] text-chalk">
+                  <span className="min-w-0 flex-1 truncate text-xs text-chalk">
                     {countryFlag(z.leader!.countryCode)} {z.leader!.name}
                   </span>
-                  <span className="board shrink-0 text-[12.5px] text-pitch">{z.leader!.arps.toFixed(1)}</span>
+                  <span className="board shrink-0 text-xs text-pitch">{z.leader!.arps.toFixed(1)}</span>
                 </Link>
               </li>
             ))}
@@ -234,9 +234,9 @@ export default function RankingsPage() {
               <li key={row.refereeId}>
                 <Link
                   href={`/referees/${row.refereeId}`}
-                  className="flex items-center gap-3 rounded-lg border border-line bg-ink-1 px-3 py-2 lift"
+                  className="flex items-center gap-3 rounded-xl border border-line bg-ink-1 px-3 py-2.5 lift"
                 >
-                  <span className="min-w-0 flex-1 truncate text-[12.5px] text-chalk">
+                  <span className="min-w-0 flex-1 truncate text-xs text-chalk">
                     {countryFlag(row.countryCode)} {row.name}
                   </span>
                   <Movement delta={row.delta} />
@@ -253,7 +253,7 @@ export default function RankingsPage() {
 function Movement({ delta }: { delta: number }) {
   if (Math.abs(delta) < 0.2) {
     return (
-      <span className="inline-flex items-center gap-1 text-[12px] text-chalk-faint">
+      <span className="inline-flex items-center gap-1 text-xs text-chalk-faint">
         <Minus size={12} />
         0.0
       </span>
@@ -261,7 +261,7 @@ function Movement({ delta }: { delta: number }) {
   }
   return (
     <span
-      className={cn("inline-flex items-center gap-1 tnum text-[12px]", delta > 0 ? "text-pitch" : "text-card-red")}
+      className={cn("inline-flex items-center gap-1 tnum text-xs", delta > 0 ? "text-pitch" : "text-card-red")}
     >
       {delta > 0 ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
       {Math.abs(delta).toFixed(1)}

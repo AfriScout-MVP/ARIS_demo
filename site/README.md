@@ -19,6 +19,7 @@ npm run dev
 
 ## Structure
 
-- `/` — investor landing page (vision, platform, competition, market, roadmap)
-- `/dashboard` — product app shell: overview, referees, decision engine, heat maps,
-  AI assignment (ARAE), rankings, career manager, reports
+- `/` — overview of the refereeing corps
+- `/calendar`, `/arae`, `/copilot` — appointments: fixtures and crews, assisted appointment, AI assistant
+- `/decision-engine`, `/assessments`, `/heatmaps`, `/rankings`, `/compare` — performance
+- `/referees`, `/development` — the referee corps; `/federations`, `/reports` — organisation

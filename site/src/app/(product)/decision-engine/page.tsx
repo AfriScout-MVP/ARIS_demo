@@ -106,9 +106,9 @@ export default function MatchReviewPage() {
                   setDecisionId(null);
                 }}
                 className={cn(
-                  "shrink-0 rounded-md border px-3 py-1.5 text-[12.5px] transition-colors",
+                  "shrink-0 rounded-lg border px-3 py-1.5 text-xs transition-colors max-sm:min-h-10",
                   m.id === match.id
-                    ? "border-pitch bg-pitch text-[#04140c]"
+                    ? "border-red-600 bg-red-600 text-white"
                     : "border-line bg-ink-1 text-chalk-dim hover:border-line-strong hover:text-chalk",
                 )}
               >
@@ -122,7 +122,7 @@ export default function MatchReviewPage() {
       <Card>
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="min-w-0">
-            <p className="text-[11.5px] text-chalk-faint">
+            <p className="text-xs text-chalk-faint">
               {competitionById.get(match.competitionId)?.name} · {fmt.longDate(match.date)}
             </p>
             <h2 className="mt-1 font-display text-[20px] font-semibold text-chalk">
@@ -131,7 +131,7 @@ export default function MatchReviewPage() {
             {referee && (
               <Link
                 href={`/referees/${referee.id}`}
-                className="mt-1 inline-flex items-center gap-1 text-[12px] text-chalk-faint hover:text-chalk"
+                className="mt-1 inline-flex items-center gap-1 text-xs text-chalk-faint hover:text-chalk max-sm:-my-3 max-sm:py-3"
               >
                 {t("common.referee")}: {referee.name}
                 <ArrowUpRight size={11} />
@@ -169,14 +169,14 @@ export default function MatchReviewPage() {
                   onClick={() => setDecisionId(decision.id)}
                   className={cn(
                     "flex w-full items-center gap-3 border-b border-line px-4 py-3 text-left last:border-0 transition-colors",
-                    active.id === decision.id ? "bg-white/[0.06]" : "hover:bg-white/[0.03]",
+                    active.id === decision.id ? "bg-wash/[0.06]" : "hover:bg-wash/[0.03]",
                   )}
                 >
-                  <span className="board w-9 shrink-0 text-[13px] text-chalk-faint">{decision.minute}&apos;</span>
+                  <span className="board w-9 shrink-0 text-sm text-chalk-faint">{decision.minute}&apos;</span>
                   <Badge tone={typeTone[decision.type]} className="shrink-0">
                     {typeLabel[decision.type][locale]}
                   </Badge>
-                  <span className="min-w-0 flex-1 truncate text-[12.5px] text-chalk-dim">
+                  <span className="min-w-0 flex-1 truncate text-xs text-chalk-dim">
                     {decision.description[locale]}
                   </span>
                   {decision.varReview && <Radio size={13} className="shrink-0 text-var" />}
@@ -199,7 +199,7 @@ export default function MatchReviewPage() {
             subtitle={`${t("matchReview.minute")} ${active.minute}'`}
           />
           <Badge tone={typeTone[active.type]}>{typeLabel[active.type][locale]}</Badge>
-          <p className="mt-3 text-[13px] leading-relaxed text-chalk">{active.description[locale]}</p>
+          <p className="mt-3 text-sm leading-relaxed text-chalk">{active.description[locale]}</p>
 
           <dl className="mt-4 grid grid-cols-2 gap-2">
             <Fact label={t("matchReview.initialCall")} value={t(active.initialCall === "given" ? "matchReview.given" : "matchReview.notGiven")} />
@@ -218,7 +218,7 @@ export default function MatchReviewPage() {
           </dl>
 
           <div className="mt-4">
-            <div className="mb-1.5 flex items-center justify-between text-[11.5px]">
+            <div className="mb-1.5 flex items-center justify-between text-xs">
               <span className="text-chalk-faint">{t("matchReview.pressure")}</span>
               <span className="board text-chalk">{active.pressureIndex}</span>
             </div>
@@ -244,7 +244,7 @@ export default function MatchReviewPage() {
           <div className="mt-4 flex flex-wrap gap-2">
             <Link
               href="/heatmaps"
-              className="inline-flex items-center gap-1 rounded-md border border-line bg-ink-1 px-2.5 py-1.5 text-[12px] text-chalk-dim hover:text-chalk"
+              className="inline-flex items-center gap-1 rounded-lg border border-line bg-ink-1 px-2.5 py-1.5 text-xs text-chalk-dim hover:text-chalk max-sm:min-h-10"
             >
               <Ruler size={12} />
               {t("nav.positioning")}
@@ -252,7 +252,7 @@ export default function MatchReviewPage() {
             {report && (
               <Link
                 href="/assessments"
-                className="inline-flex items-center gap-1 rounded-md border border-line bg-ink-1 px-2.5 py-1.5 text-[12px] text-chalk-dim hover:text-chalk"
+                className="inline-flex items-center gap-1 rounded-lg border border-line bg-ink-1 px-2.5 py-1.5 text-xs text-chalk-dim hover:text-chalk max-sm:min-h-10"
               >
                 {t("assessments.observer")} {report.state === "filed" ? report.overall.toFixed(1) : "—"}
                 <ArrowUpRight size={11} />
@@ -281,7 +281,7 @@ export default function MatchReviewPage() {
           <ul className="space-y-3">
             {comparison.map((row) => (
               <li key={row.label}>
-                <div className="mb-1 flex items-center justify-between text-[12px]">
+                <div className="mb-1 flex items-center justify-between text-xs">
                   <span className="text-chalk-dim">{row.label}</span>
                   <span className="flex items-center gap-3">
                     <span className="text-chalk-faint">
@@ -318,7 +318,7 @@ export default function MatchReviewPage() {
           title={t("matchReview.pressureChart")}
           subtitle={t("matchReview.pressureChartSub")}
           action={
-            <span className="text-[11.5px] text-chalk-faint">
+            <span className="text-xs text-chalk-faint">
               {varReviews} {t("matchReview.varReview")}
             </span>
           }
@@ -340,7 +340,7 @@ export default function MatchReviewPage() {
                 <ReferenceLine
                   key={d.id}
                   x={d.minute}
-                  stroke={d.id === active.id ? chartColors.chalk : "rgba(255,255,255,0.2)"}
+                  stroke={d.id === active.id ? chartColors.chalk : "var(--line-strong)"}
                   strokeDasharray={d.id === active.id ? undefined : "3 3"}
                 />
               ))}
@@ -362,9 +362,9 @@ export default function MatchReviewPage() {
 
 function Fact({ label, value, tone = "text-chalk" }: { label: string; value: string; tone?: string }) {
   return (
-    <div className="rounded-md border border-line bg-ink-1 px-2.5 py-2">
+    <div className="rounded-lg border border-line bg-ink-1 px-2.5 py-2">
       <dt className="text-[10px] uppercase tracking-wide text-chalk-faint">{label}</dt>
-      <dd className={cn("mt-0.5 text-[12.5px] font-medium", tone)}>{value}</dd>
+      <dd className={cn("mt-0.5 text-xs font-medium", tone)}>{value}</dd>
     </div>
   );
 }

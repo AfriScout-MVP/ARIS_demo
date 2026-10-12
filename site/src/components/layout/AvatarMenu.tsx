@@ -2,9 +2,9 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { ChevronDown, LogOut, ShieldCheck } from "lucide-react";
+import { LogOut, ShieldCheck } from "lucide-react";
 import { useT } from "@/lib/i18n/LocaleProvider";
-import { Avatar, Badge } from "@/components/ui";
+import { Badge } from "@/components/ui";
 
 export function AvatarMenu() {
   const t = useT();
@@ -21,19 +21,21 @@ export function AvatarMenu() {
 
   return (
     <div className="relative" ref={ref}>
+      {/* The admin header's avatar: a red→orange disc with the initial. */}
       <button
         onClick={() => setOpen((v) => !v)}
-        className="flex items-center gap-1.5 rounded-md border border-line bg-ink-2 p-1 pr-1.5 transition-colors hover:border-line-strong"
+        aria-expanded={open}
+        aria-label="Nadia Boukhari"
+        className="flex h-9 w-9 items-center justify-center rounded-full bg-linear-to-br from-red-600 to-orange-700 text-sm font-medium text-white"
       >
-        <Avatar initials="NB" size={24} tone="chalk" />
-        <ChevronDown size={13} className="hidden text-chalk-faint sm:block" />
+        N
       </button>
 
       {open && (
-        <div className="absolute right-0 z-50 mt-2 w-60 overflow-hidden rounded-lg border border-line bg-ink-2 shadow-2xl shadow-black/60">
+        <div className="absolute right-0 z-50 mt-2 w-60 overflow-hidden rounded-2xl border border-line bg-ink-2 shadow-xl shadow-black/20">
           <div className="border-b border-line p-3">
-            <p className="text-[13px] font-medium text-chalk">Nadia Boukhari</p>
-            <p className="text-[11.5px] text-chalk-faint">referees@caf-demo.org</p>
+            <p className="text-sm font-semibold text-chalk">Nadia Boukhari</p>
+            <p className="text-xs text-chalk-dim">referees@caf-demo.org</p>
             <Badge tone="neutral" className="mt-2">
               <ShieldCheck size={11} />
               CAF referees department
@@ -43,20 +45,20 @@ export function AvatarMenu() {
             <Link
               href="/development"
               onClick={() => setOpen(false)}
-              className="block rounded-md px-2.5 py-2 text-[12.5px] text-chalk-dim transition-colors hover:bg-white/5 hover:text-chalk"
+              className="block rounded-xl px-3 py-2 text-sm text-chalk-dim transition-colors hover:bg-red-500/10 hover:text-chalk"
             >
               {t("nav.development")}
             </Link>
             <Link
               href="/federations"
               onClick={() => setOpen(false)}
-              className="block rounded-md px-2.5 py-2 text-[12.5px] text-chalk-dim transition-colors hover:bg-white/5 hover:text-chalk"
+              className="block rounded-xl px-3 py-2 text-sm text-chalk-dim transition-colors hover:bg-red-500/10 hover:text-chalk"
             >
               {t("nav.federations")}
             </Link>
           </div>
           <div className="border-t border-line p-1">
-            <button className="flex w-full items-center gap-2 rounded-md px-2.5 py-2 text-[12.5px] text-chalk-faint transition-colors hover:bg-white/5 hover:text-chalk">
+            <button className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm text-red-700 transition-colors hover:bg-red-500/10 dark:text-red-400">
               <LogOut size={14} />
               {t("common.signOut")}
             </button>

@@ -23,7 +23,7 @@ import { useScope } from "@/lib/scope/ScopeProvider";
 import { PageHeading } from "@/components/layout/PageHeading";
 import { Badge, Board, Card, CardHeader, Dot, EmptyState, Meter, ScoreRing } from "@/components/ui";
 import { CrewStrip } from "@/components/officiating/CrewStrip";
-import { axisProps, chartColors, decisionColors, tooltipStyle } from "@/components/charts/theme";
+import { axisProps, barCursor, chartColors, decisionColors, tooltipStyle } from "@/components/charts/theme";
 import {
   DEMO_TODAY,
   arpsTrend,
@@ -212,7 +212,7 @@ export default function OverviewPage() {
             action={
               <Link
                 href="/calendar"
-                className="inline-flex items-center gap-1 text-[12px] text-chalk-dim hover:text-chalk"
+                className="inline-flex items-center gap-1 text-xs text-chalk-dim hover:text-chalk max-sm:-my-3 max-sm:py-3"
               >
                 {t("overview.openCalendar")}
                 <ArrowUpRight size={12} />
@@ -230,13 +230,13 @@ export default function OverviewPage() {
                   <li key={fixture.id}>
                     <Link
                       href="/calendar"
-                      className="flex flex-col gap-2.5 rounded-lg border border-line bg-ink-1 p-3 lift sm:flex-row sm:items-center sm:justify-between"
+                      className="flex flex-col gap-2.5 rounded-xl border border-line bg-ink-1 p-3 lift sm:flex-row sm:items-center sm:justify-between"
                     >
                       <div className="min-w-0">
-                        <p className="truncate text-[13.5px] font-medium text-chalk">
+                        <p className="truncate text-sm font-medium text-chalk">
                           {fixture.home} <span className="text-chalk-faint">—</span> {fixture.away}
                         </p>
-                        <p className="mt-0.5 truncate text-[11.5px] text-chalk-faint">
+                        <p className="mt-0.5 truncate text-xs text-chalk-faint">
                           {countryFlag(fixture.countryCode)} {comp?.name} · {fmt.longDate(fixture.date)} · {fixture.kickoff}
                         </p>
                       </div>
@@ -265,7 +265,7 @@ export default function OverviewPage() {
                 <li key={alert.id}>
                   <Link
                     href={alert.href}
-                    className="flex items-center gap-2.5 rounded-lg border border-line bg-ink-1 px-3 py-2.5 lift"
+                    className="flex items-center gap-2.5 rounded-xl border border-line bg-ink-1 px-3 py-2.5 lift"
                   >
                     <alert.icon
                       size={15}
@@ -273,8 +273,8 @@ export default function OverviewPage() {
                         alert.tone === "red" ? "text-card-red" : alert.tone === "amber" ? "text-amber" : "text-var"
                       }
                     />
-                    <span className="min-w-0 flex-1 text-[12.5px] text-chalk-dim">{alert.label}</span>
-                    <span className="board text-[15px] font-semibold text-chalk">{alert.value}</span>
+                    <span className="min-w-0 flex-1 text-xs text-chalk-dim">{alert.label}</span>
+                    <span className="board text-base font-semibold text-chalk">{alert.value}</span>
                   </Link>
                 </li>
               ))}
@@ -295,16 +295,16 @@ export default function OverviewPage() {
                 {t("overview.workloadHeavy")}
               </p>
               {data.heavy.length === 0 ? (
-                <p className="text-[12.5px] text-chalk-faint">{t("overview.workloadEven")}</p>
+                <p className="text-xs text-chalk-faint">{t("overview.workloadEven")}</p>
               ) : (
                 <ul className="space-y-1.5">
                   {data.heavy.map((row) => (
-                    <li key={row.officialId} className="rounded-lg border border-line bg-ink-1 px-3 py-2">
+                    <li key={row.officialId} className="rounded-xl border border-line bg-ink-1 px-3 py-2">
                       <div className="flex items-center justify-between gap-2">
-                        <span className="min-w-0 truncate text-[12.5px] text-chalk">
+                        <span className="min-w-0 truncate text-xs text-chalk">
                           {countryFlag(row.countryCode)} {row.name}
                         </span>
-                        <span className="board shrink-0 text-[13px] text-amber">{row.appointments}</span>
+                        <span className="board shrink-0 text-sm text-amber">{row.appointments}</span>
                       </div>
                       <Meter
                         className="mt-1.5"
@@ -329,15 +329,15 @@ export default function OverviewPage() {
                 {t("overview.workloadIdle")}
               </p>
               {data.idle.length === 0 ? (
-                <p className="text-[12.5px] text-chalk-faint">{t("overview.workloadEven")}</p>
+                <p className="text-xs text-chalk-faint">{t("overview.workloadEven")}</p>
               ) : (
                 <ul className="space-y-1.5">
                   {data.idle.map((row) => (
                     <li
                       key={row.officialId}
-                      className="flex items-center justify-between gap-2 rounded-lg border border-line bg-ink-1 px-3 py-2.5"
+                      className="flex items-center justify-between gap-2 rounded-xl border border-line bg-ink-1 px-3 py-2.5"
                     >
-                      <span className="min-w-0 truncate text-[12.5px] text-chalk">
+                      <span className="min-w-0 truncate text-xs text-chalk">
                         {countryFlag(row.countryCode)} {row.name}
                       </span>
                       <span className="shrink-0 text-[11px] text-chalk-faint">
@@ -396,7 +396,7 @@ export default function OverviewPage() {
           </div>
           <ul className="mt-3 space-y-1.5">
             {decisionsBreakdown.map((d) => (
-              <li key={d.id} className="flex items-center justify-between text-[12px]">
+              <li key={d.id} className="flex items-center justify-between text-xs">
                 <span className="flex items-center gap-2 text-chalk-faint">
                   <span className="h-2 w-2 rounded-[2px]" style={{ background: decisionColors[d.id] }} />
                   {decisionLabels[d.id][locale]}
@@ -417,7 +417,7 @@ export default function OverviewPage() {
                 <CartesianGrid stroke={chartColors.grid} vertical={false} />
                 <XAxis dataKey="zone" {...axisProps} interval={0} angle={-12} textAnchor="end" height={44} />
                 <YAxis {...axisProps} />
-                <Tooltip contentStyle={tooltipStyle} cursor={{ fill: "rgba(255,255,255,0.04)" }} />
+                <Tooltip contentStyle={tooltipStyle} cursor={barCursor} />
                 <Bar dataKey="avgArps" name={t("federations.avgArps")} fill={chartColors.chalkDim} radius={[3, 3, 0, 0]} />
                 <Bar dataKey="referees" name={t("common.referees")} fill={chartColors.pitch} radius={[3, 3, 0, 0]} />
               </BarChart>
@@ -432,7 +432,7 @@ export default function OverviewPage() {
             title={t("overview.topReferees")}
             subtitle={t("overview.topRefereesSub")}
             action={
-              <Link href="/rankings" className="inline-flex items-center gap-1 text-[12px] text-chalk-dim hover:text-chalk">
+              <Link href="/rankings" className="inline-flex items-center gap-1 text-xs text-chalk-dim hover:text-chalk max-sm:-my-3 max-sm:py-3">
                 {t("overview.fullRanking")}
                 <ArrowUpRight size={12} />
               </Link>
@@ -446,11 +446,11 @@ export default function OverviewPage() {
                 <li key={referee.id}>
                   <Link
                     href={`/referees/${referee.id}`}
-                    className="flex items-center gap-3 rounded-lg border border-line bg-ink-1 px-3 py-2 lift"
+                    className="flex items-center gap-3 rounded-xl border border-line bg-ink-1 px-3 py-2 lift"
                   >
-                    <span className="board w-4 text-[12px] text-chalk-faint">{i + 1}</span>
+                    <span className="board w-4 text-xs text-chalk-faint">{i + 1}</span>
                     <span className="min-w-0 flex-1">
-                      <span className="block truncate text-[13px] text-chalk">{referee.name}</span>
+                      <span className="block truncate text-sm text-chalk">{referee.name}</span>
                       <span className="block text-[11px] text-chalk-faint">
                         {countryFlag(referee.countryCode)} {referee.level}
                       </span>
@@ -474,7 +474,7 @@ export default function OverviewPage() {
         </Card>
       </div>
 
-      <p className="flex items-center gap-2 pt-1 text-[11.5px] text-chalk-faint">
+      <p className="flex items-center gap-2 pt-1 text-xs text-chalk-faint">
         <CalendarDays size={13} />
         {locale === "fr"
           ? `Semaine de démonstration — ${fmt.longDate(weekStarts[1])} au ${fmt.longDate(weekStarts[2])}`

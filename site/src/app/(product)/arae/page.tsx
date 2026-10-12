@@ -89,14 +89,14 @@ export default function AraePage() {
                     }}
                     className={cn(
                       "flex w-full flex-col gap-1 border-b border-line px-4 py-2.5 text-left last:border-0 transition-colors",
-                      item.id === fixture.id ? "bg-white/[0.06]" : "hover:bg-white/[0.03]",
+                      item.id === fixture.id ? "bg-wash/[0.06]" : "hover:bg-wash/[0.03]",
                     )}
                   >
                     <span className="flex items-center justify-between gap-2">
-                      <span className="truncate text-[12.5px] text-chalk">
+                      <span className="truncate text-xs text-chalk">
                         {countryFlag(item.countryCode)} {item.home} — {item.away}
                       </span>
-                      <span className={cn("board shrink-0 text-[12px]", open ? "text-card-red" : "text-pitch")}>
+                      <span className={cn("board shrink-0 text-xs", open ? "text-card-red" : "text-pitch")}>
                         {open || "✓"}
                       </span>
                     </span>
@@ -118,7 +118,7 @@ export default function AraePage() {
                 <h2 className="mt-2 font-display text-[19px] font-semibold text-chalk">
                   {fixture.home} <span className="text-chalk-faint">—</span> {fixture.away}
                 </h2>
-                <p className="mt-1 text-[12px] text-chalk-faint">
+                <p className="mt-1 text-xs text-chalk-faint">
                   {fixture.venue}, {fixture.city} · {fmt.longDate(fixture.date)} · {fixture.kickoff}
                 </p>
               </div>
@@ -149,13 +149,13 @@ export default function AraePage() {
             </div>
           </Card>
 
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-            <Card className="lg:col-span-2">
+          <div className="grid grid-cols-1 gap-4 2xl:grid-cols-3">
+            <Card className="2xl:col-span-2">
               <CardHeader
                 title={`${t("arae.candidates")} — ${activeRole ? t(roleKey[activeRole]) : ""}`}
                 subtitle={t("arae.candidatesSub")}
                 action={
-                  <span className="inline-flex items-center gap-1.5 text-[11.5px] text-chalk-faint">
+                  <span className="inline-flex items-center gap-1.5 text-xs text-chalk-faint">
                     <Sparkles size={12} className="text-var" />
                     {t("arae.evaluated", { n: candidates.length, ms: "0.4s" })}
                   </span>
@@ -188,7 +188,7 @@ export default function AraePage() {
                   <div className="flex items-center gap-2.5">
                     <Avatar initials={top.initials} size={34} />
                     <div className="min-w-0">
-                      <p className="truncate text-[13px] text-chalk">{top.name}</p>
+                      <p className="truncate text-sm text-chalk">{top.name}</p>
                       <p className="text-[11px] text-chalk-faint">{countryFlag(top.countryCode)}</p>
                     </div>
                     <span className="board ml-auto text-[18px] font-semibold text-chalk">{top.score.toFixed(0)}</span>
@@ -318,15 +318,15 @@ function CandidateRow({
   return (
     <li
       className={cn(
-        "flex flex-col gap-3 rounded-lg border px-3 py-2.5 sm:flex-row sm:items-center",
+        "flex flex-col gap-3 rounded-xl border px-3 py-2.5 sm:flex-row sm:items-center",
         blocked ? "border-line opacity-50" : "border-line bg-ink-1 lift",
-        recommended && "border-line-strong bg-white/[0.04]",
+        recommended && "border-line-strong bg-wash/[0.04]",
       )}
     >
       <div className="flex min-w-0 flex-1 items-center gap-2.5">
         <Avatar initials={candidate.initials} size={32} />
         <div className="min-w-0">
-          <p className="truncate text-[13px] text-chalk">
+          <p className="truncate text-sm text-chalk">
             {countryFlag(candidate.countryCode)} {candidate.name}
           </p>
           <p className="text-[11px] text-chalk-faint">
@@ -355,7 +355,7 @@ function CandidateRow({
       </div>
 
       <div className="flex shrink-0 items-center gap-2 sm:w-[110px] sm:justify-end">
-        <span className="board text-[15px] font-semibold text-chalk">{blocked ? "—" : candidate.score.toFixed(0)}</span>
+        <span className="board text-base font-semibold text-chalk">{blocked ? "—" : candidate.score.toFixed(0)}</span>
         {selected ? (
           <Badge tone="pitch">
             <Check size={11} />
@@ -373,9 +373,9 @@ function CandidateRow({
 
 function Cell({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-md border border-line bg-ink-2 px-2 py-1">
-      <p className="truncate text-[9.5px] uppercase tracking-wide text-chalk-faint">{label}</p>
-      <p className="board text-[12px] text-chalk">{value}</p>
+    <div className="rounded-lg border border-line bg-ink-2 px-2 py-1">
+      <p className="truncate text-[10px] uppercase tracking-wide text-chalk-faint">{label}</p>
+      <p className="board text-xs text-chalk">{value}</p>
     </div>
   );
 }
@@ -395,7 +395,7 @@ function Factor({
 }) {
   return (
     <div>
-      <div className="mb-1 flex items-center justify-between gap-2 text-[11.5px]">
+      <div className="mb-1 flex items-center justify-between gap-2 text-xs">
         <span className="flex min-w-0 items-center gap-1.5 text-chalk-faint">
           <span className="text-chalk-faint">{icon}</span>
           <span className="truncate">{label}</span>
@@ -409,7 +409,7 @@ function Factor({
 
 function TraceLine({ at, text, tone = "chalk" }: { at: string; text: string; tone?: "chalk" | "var" | "pitch" }) {
   return (
-    <li className="flex gap-3 text-[12.5px]">
+    <li className="flex gap-3 text-xs">
       <span className="board w-16 shrink-0 text-chalk-faint">{at}</span>
       <span
         className={cn(

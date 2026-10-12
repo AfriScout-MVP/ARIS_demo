@@ -57,7 +57,7 @@ export function ScopeSelect() {
       <button
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
-        className="flex w-full min-w-0 items-center gap-2 rounded-md border border-line bg-ink-2 px-2.5 py-1.5 text-[12.5px] text-chalk transition-colors hover:border-line-strong sm:w-auto sm:max-w-[260px]"
+        className="flex h-10 w-full min-w-0 items-center gap-2 rounded-xl border border-field bg-ink-2 px-3 text-sm text-chalk transition-colors hover:border-red-500/50 sm:w-auto sm:max-w-[280px]"
       >
         <Globe2 size={14} className="shrink-0 text-chalk-faint" />
         <span className="truncate">{label}</span>
@@ -65,7 +65,7 @@ export function ScopeSelect() {
       </button>
 
       {open && (
-        <div className="absolute left-0 z-50 mt-2 w-[min(300px,calc(100vw-24px))] overflow-hidden rounded-lg border border-line bg-ink-2 shadow-2xl shadow-black/60">
+        <div className="absolute left-0 z-50 mt-2 w-[min(300px,calc(100vw-32px))] overflow-hidden rounded-2xl border border-line bg-ink-2 shadow-xl shadow-black/20">
           <div className="flex items-center gap-2 border-b border-line px-3 py-2">
             <Search size={13} className="text-chalk-faint" />
             <input
@@ -73,7 +73,7 @@ export function ScopeSelect() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder={t("common.country")}
-              className="w-full bg-transparent text-[13px] text-chalk outline-none placeholder:text-chalk-faint"
+              className="w-full bg-transparent text-sm text-chalk outline-none placeholder:text-chalk-faint"
             />
           </div>
 
@@ -118,7 +118,7 @@ export function ScopeSelect() {
               />
             ))}
             {filtered.length === 0 && (
-              <p className="px-3 py-3 text-[12.5px] text-chalk-faint">{t("common.noResults")}</p>
+              <p className="px-3 py-3 text-xs text-chalk-faint">{t("common.noResults")}</p>
             )}
           </div>
 
@@ -144,8 +144,8 @@ function Option({
     <button
       onClick={onSelect}
       className={cn(
-        "flex w-full items-center justify-between gap-2 px-3 py-1.5 text-left text-[13px] transition-colors",
-        selected ? "text-chalk" : "text-chalk-dim hover:bg-white/[0.04] hover:text-chalk",
+        "flex w-full items-center justify-between gap-2 px-3 py-1.5 text-left text-sm transition-colors",
+        selected ? "text-chalk" : "text-chalk-dim hover:bg-red-500/10 hover:text-chalk",
       )}
     >
       <span className="truncate">{label}</span>

@@ -53,16 +53,16 @@ export function SlotPicker({
     <div className="fixed inset-0 z-[60] flex items-end justify-center sm:items-center sm:p-4">
       <button aria-label={t("common.close")} onClick={onClose} className="absolute inset-0 bg-ink-0/80 backdrop-blur-sm" />
 
-      <div className="relative flex max-h-[88vh] w-full flex-col overflow-hidden rounded-t-2xl border border-line-strong bg-ink-2 sm:max-w-lg sm:rounded-xl">
+      <div className="relative flex max-h-[88vh] w-full flex-col overflow-hidden rounded-t-2xl border border-line-strong bg-ink-2 sm:max-w-lg sm:rounded-2xl">
         <div className="flex items-start justify-between gap-3 border-b border-line px-4 py-3.5">
           <div className="min-w-0">
             <p className="text-[11px] uppercase tracking-[0.1em] text-chalk-faint">{t("calendar.fillSlot")}</p>
-            <h2 className="mt-0.5 truncate font-display text-[15px] font-semibold text-chalk">{t(roleKey[role])}</h2>
-            <p className="mt-0.5 truncate text-[12px] text-chalk-faint">
+            <h2 className="mt-0.5 truncate font-display text-base font-semibold text-chalk">{t(roleKey[role])}</h2>
+            <p className="mt-0.5 truncate text-xs text-chalk-faint">
               {fixture.home} — {fixture.away} · {fixture.date}
             </p>
           </div>
-          <button onClick={onClose} aria-label={t("common.close")} className="rounded-md p-1 text-chalk-faint hover:bg-white/5 hover:text-chalk">
+          <button onClick={onClose} aria-label={t("common.close")} className="rounded-lg p-1 text-chalk-faint hover:bg-wash/5 hover:text-chalk">
             <X size={17} />
           </button>
         </div>
@@ -74,7 +74,7 @@ export function SlotPicker({
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder={t("calendar.chooseOfficial")}
-            className="w-full bg-transparent text-[13px] text-chalk outline-none placeholder:text-chalk-faint"
+            className="w-full bg-transparent text-sm text-chalk outline-none placeholder:text-chalk-faint"
           />
           <span className="shrink-0 text-[11px] text-chalk-faint">
             {eligibleCount} {t("calendar.eligible")}
@@ -91,15 +91,15 @@ export function SlotPicker({
                 onClick={() => onPick(candidate.id)}
                 className={cn(
                   "flex w-full items-center gap-3 border-b border-line px-4 py-2.5 text-left last:border-0",
-                  blocked ? "cursor-not-allowed opacity-45" : "hover:bg-white/[0.045]",
-                  current === candidate.id && "bg-white/[0.06]",
+                  blocked ? "cursor-not-allowed opacity-45" : "hover:bg-wash/[0.045]",
+                  current === candidate.id && "bg-wash/[0.06]",
                 )}
               >
-                <span className="board w-9 shrink-0 text-[13px] font-semibold text-chalk">
+                <span className="board w-9 shrink-0 text-sm font-semibold text-chalk">
                   {blocked ? "—" : candidate.score.toFixed(0)}
                 </span>
                 <span className="min-w-0 flex-1">
-                  <span className="block truncate text-[13px] text-chalk">
+                  <span className="block truncate text-sm text-chalk">
                     {countryFlag(candidate.countryCode)} {candidate.name}
                   </span>
                   <span className="mt-0.5 block text-[11px] text-chalk-faint">
@@ -128,7 +128,7 @@ export function SlotPicker({
             );
           })}
           {filtered.length === 0 && (
-            <p className="px-4 py-8 text-center text-[12.5px] text-chalk-faint">{t("common.noResults")}</p>
+            <p className="px-4 py-8 text-center text-xs text-chalk-faint">{t("common.noResults")}</p>
           )}
         </div>
 

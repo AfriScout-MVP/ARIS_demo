@@ -1,26 +1,36 @@
-/** Shared recharts styling so every chart in ARIS reads as one system. */
+/**
+ * Shared recharts styling so every chart in ARIS reads as one system.
+ *
+ * Colours are CSS variables, not hex: they resolve through the active theme
+ * (see `:root` / `html.dark` in globals.css), so a chart redraws in the right
+ * ink when the theme flips, with no re-render.
+ */
 
 export const chartColors = {
-  chalk: "#f1f5f9",
-  chalkDim: "#94a3b8",
-  faint: "#64748b",
-  grid: "rgba(148,163,184,0.16)",
-  pitch: "#22c55e",
-  pitchSoft: "#4ade80",
-  amber: "#eab308",
-  red: "#ef4444",
-  var: "#38bdf8",
-  gold: "#b88a0d",
+  chalk: "var(--chalk)",
+  chalkDim: "var(--chalk-faint)",
+  faint: "var(--chalk-faint)",
+  grid: "var(--line)",
+  pitch: "var(--pitch)",
+  pitchSoft: "var(--pitch-soft)",
+  amber: "var(--amber)",
+  red: "var(--card-red)",
+  var: "var(--var)",
+  gold: "var(--gold-soft)",
 };
 
 export const tooltipStyle = {
-  background: "#1e293b",
-  border: "1px solid rgba(148,163,184,0.36)",
-  borderRadius: 8,
+  background: "var(--ink-2)",
+  border: "1px solid var(--line-strong)",
+  borderRadius: 12,
   fontSize: 12,
-  color: "#f1f5f9",
+  color: "var(--chalk)",
   padding: "8px 10px",
+  boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.2)",
 };
+
+/** The hover wash behind a bar, tinted to suit either theme. */
+export const barCursor = { fill: "color-mix(in srgb, var(--wash) 6%, transparent)" };
 
 export const axisProps = {
   stroke: chartColors.faint,

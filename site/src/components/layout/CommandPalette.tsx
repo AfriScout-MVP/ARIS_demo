@@ -133,7 +133,7 @@ function Palette({ onClose }: { onClose: () => void }) {
         onClick={onClose}
         className="absolute inset-0 bg-ink-0/80 backdrop-blur-sm"
       />
-      <div className="relative w-full max-w-xl overflow-hidden rounded-xl border border-line-strong bg-ink-2 shadow-2xl shadow-black/70">
+      <div className="relative w-full max-w-xl overflow-hidden rounded-2xl border border-line-strong bg-ink-2 shadow-2xl shadow-black/70">
         <div className="flex items-center gap-2.5 border-b border-line px-4 py-3">
           <Search size={15} className="text-chalk-faint" />
           <input
@@ -144,7 +144,7 @@ function Palette({ onClose }: { onClose: () => void }) {
               setCursor(0);
             }}
             placeholder={t("common.searchHint")}
-            className="w-full bg-transparent text-[14px] text-chalk outline-none placeholder:text-chalk-faint"
+            className="w-full bg-transparent text-sm text-chalk outline-none placeholder:text-chalk-faint"
           />
           <kbd className="rounded border border-line px-1.5 py-0.5 text-[10px] text-chalk-faint">ESC</kbd>
         </div>
@@ -152,8 +152,8 @@ function Palette({ onClose }: { onClose: () => void }) {
         <div ref={listRef} className="max-h-[52vh] overflow-y-auto py-1.5">
           {rows.length === 0 && (
             <div className="px-4 py-8 text-center">
-              <p className="text-[13px] text-chalk-dim">{t("common.noResults")}</p>
-              <p className="mt-1 text-[12px] text-chalk-faint">{t("common.noResultsHint")}</p>
+              <p className="text-sm text-chalk-dim">{t("common.noResults")}</p>
+              <p className="mt-1 text-xs text-chalk-faint">{t("common.noResultsHint")}</p>
             </div>
           )}
 
@@ -174,12 +174,12 @@ function Palette({ onClose }: { onClose: () => void }) {
                   onClick={row.run}
                   className={cn(
                     "flex w-full items-center gap-2.5 px-4 py-2 text-left",
-                    cursor === i ? "bg-white/[0.07]" : "hover:bg-white/[0.04]",
+                    cursor === i ? "bg-wash/[0.07]" : "hover:bg-wash/[0.04]",
                   )}
                 >
                   <Icon size={14} className="shrink-0 text-chalk-faint" />
-                  <span className="min-w-0 flex-1 truncate text-[13px] text-chalk">{row.label}</span>
-                  <span className="hidden shrink-0 truncate text-[11.5px] text-chalk-faint sm:block">{row.meta}</span>
+                  <span className="min-w-0 flex-1 truncate text-sm text-chalk">{row.label}</span>
+                  <span className="hidden shrink-0 truncate text-xs text-chalk-faint sm:block">{row.meta}</span>
                   {cursor === i && <CornerDownLeft size={13} className="shrink-0 text-chalk-faint" />}
                 </button>
               </div>

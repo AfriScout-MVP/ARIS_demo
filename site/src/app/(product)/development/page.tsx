@@ -216,11 +216,11 @@ export default function DevelopmentPage() {
                   return (
                     <li
                       key={test.refereeId}
-                      className="flex items-center gap-2.5 rounded-lg border border-card-red/25 bg-card-red/[0.06] px-3 py-2.5"
+                      className="flex items-center gap-2.5 rounded-xl border border-card-red/25 bg-card-red/[0.06] px-3 py-2.5"
                     >
                       <Timer size={14} className="shrink-0 text-card-red" />
                       <div className="min-w-0 flex-1">
-                        <p className="truncate text-[12.5px] text-chalk">{referee.name}</p>
+                        <p className="truncate text-xs text-chalk">{referee.name}</p>
                         <p className="text-[11px] text-chalk-faint">
                           {t("development.retest")} {test.retestDate ? fmt.date(test.retestDate) : "—"}
                         </p>
@@ -233,11 +233,11 @@ export default function DevelopmentPage() {
                   return (
                     <li
                       key={licence.id}
-                      className="flex items-center gap-2.5 rounded-lg border border-amber/25 bg-amber/[0.06] px-3 py-2.5"
+                      className="flex items-center gap-2.5 rounded-xl border border-amber/25 bg-amber/[0.06] px-3 py-2.5"
                     >
                       <ShieldAlert size={14} className="shrink-0 text-amber" />
                       <div className="min-w-0 flex-1">
-                        <p className="truncate text-[12.5px] text-chalk">{referee.name}</p>
+                        <p className="truncate text-xs text-chalk">{referee.name}</p>
                         <p className="truncate text-[11px] text-chalk-faint">
                           {licence.kind} ·{" "}
                           {status.state === "expired"
@@ -264,12 +264,12 @@ export default function DevelopmentPage() {
             scopedCourses.map((course) => (
               <Card key={course.id} interactive>
                 <div className="flex items-start gap-2.5">
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-line bg-ink-3 text-chalk-dim">
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-line bg-ink-3 text-chalk-dim">
                     <GraduationCap size={15} />
                   </span>
                   <div className="min-w-0">
-                    <h3 className="text-[13.5px] font-medium text-chalk">{course.name[locale]}</h3>
-                    <p className="text-[11.5px] text-chalk-faint">
+                    <h3 className="text-sm font-medium text-chalk">{course.name[locale]}</h3>
+                    <p className="text-xs text-chalk-faint">
                       {course.provider} · {course.hours}
                       {t("common.hours")}
                     </p>
@@ -290,7 +290,7 @@ export default function DevelopmentPage() {
                 </Badge>
 
                 <div className="mt-3">
-                  <div className="mb-1 flex items-center justify-between text-[11.5px] text-chalk-faint">
+                  <div className="mb-1 flex items-center justify-between text-xs text-chalk-faint">
                     <span>{t("referees.title")}</span>
                     <span className="board text-chalk">{course.refereeIds.length}</span>
                   </div>

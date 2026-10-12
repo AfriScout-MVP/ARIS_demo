@@ -8,7 +8,7 @@ import { useLocale, useT } from "@/lib/i18n/LocaleProvider";
 import { useScope } from "@/lib/scope/ScopeProvider";
 import { PageHeading } from "@/components/layout/PageHeading";
 import { Badge, Board, Button, Card, CardHeader, EmptyState, Segmented, Td, Th } from "@/components/ui";
-import { axisProps, chartColors, tooltipStyle } from "@/components/charts/theme";
+import { axisProps, barCursor, chartColors, tooltipStyle } from "@/components/charts/theme";
 import {
   competitions,
   countryByCode,
@@ -101,10 +101,10 @@ export default function FederationsPage() {
                   <Card interactive>
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
-                        <p className="truncate text-[13.5px] font-medium text-chalk">
+                        <p className="truncate text-sm font-medium text-chalk">
                           {country.flag} {countryName(row.countryCode, locale)}
                         </p>
-                        <p className="text-[11.5px] text-chalk-faint">
+                        <p className="text-xs text-chalk-faint">
                           {row.code} · {row.zone}
                         </p>
                       </div>
@@ -220,7 +220,7 @@ export default function FederationsPage() {
                 <CartesianGrid stroke={chartColors.grid} vertical={false} />
                 <XAxis dataKey="zone" {...axisProps} interval={0} angle={-12} textAnchor="end" height={44} />
                 <YAxis {...axisProps} />
-                <Tooltip contentStyle={tooltipStyle} cursor={{ fill: "rgba(255,255,255,0.04)" }} />
+                <Tooltip contentStyle={tooltipStyle} cursor={barCursor} />
                 <Bar dataKey="referees" name={t("common.referees")} fill={chartColors.chalkDim} radius={[3, 3, 0, 0]} />
                 <Bar dataKey="countries" name={t("common.countries")} fill={chartColors.pitch} radius={[3, 3, 0, 0]} />
               </BarChart>
@@ -247,10 +247,10 @@ export default function FederationsPage() {
               .map((comp) => (
                 <li
                   key={comp.id}
-                  className="flex items-center justify-between gap-2 rounded-lg border border-line bg-ink-1 px-3 py-2"
+                  className="flex items-center justify-between gap-2 rounded-xl border border-line bg-ink-1 px-3 py-2"
                 >
                   <div className="min-w-0">
-                    <p className="truncate text-[12.5px] text-chalk">{comp.name}</p>
+                    <p className="truncate text-xs text-chalk">{comp.name}</p>
                     <p className="text-[11px] text-chalk-faint">
                       {comp.countryCode === "CAF" ? "CAF" : countryName(comp.countryCode, locale)} ·{" "}
                       {t("common.matchday")} {comp.currentMatchday}/{comp.matchdays}
@@ -263,7 +263,7 @@ export default function FederationsPage() {
         </Card>
       </div>
 
-      <p className="text-[11.5px] text-chalk-faint">
+      <p className="text-xs text-chalk-faint">
         {locale === "fr"
           ? `Zones CAF : ${zones.map((z) => `${z} (${zoneLabel[z]})`).join(" · ")}`
           : `CAF zones: ${zones.map((z) => `${z} (${zoneLabel[z]})`).join(" · ")}`}
@@ -274,9 +274,9 @@ export default function FederationsPage() {
 
 function Mini({ label, value }: { label: string; value: string | number }) {
   return (
-    <div className="rounded-md border border-line bg-ink-1 px-1.5 py-1.5">
-      <p className="truncate text-[9.5px] uppercase tracking-wide text-chalk-faint">{label}</p>
-      <p className="board text-[13px] text-chalk">{value}</p>
+    <div className="rounded-lg border border-line bg-ink-1 px-1.5 py-1.5">
+      <p className="truncate text-[10px] uppercase tracking-wide text-chalk-faint">{label}</p>
+      <p className="board text-sm text-chalk">{value}</p>
     </div>
   );
 }

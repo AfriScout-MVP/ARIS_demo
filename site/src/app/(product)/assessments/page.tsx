@@ -133,11 +133,11 @@ export default function AssessmentsPage() {
                       onClick={() => setSelectedId(report.id)}
                       className={cn(
                         "flex w-full flex-col gap-1 border-b border-line px-4 py-3 text-left last:border-0 transition-colors",
-                        selected?.id === report.id ? "bg-white/[0.06]" : "hover:bg-white/[0.03]",
+                        selected?.id === report.id ? "bg-wash/[0.06]" : "hover:bg-wash/[0.03]",
                       )}
                     >
                       <span className="flex items-center justify-between gap-2">
-                        <span className="truncate text-[12.5px] text-chalk">
+                        <span className="truncate text-xs text-chalk">
                           {countryFlag(match.countryCode)} {match.home} — {match.away}
                         </span>
                         <Badge tone={stateTone[report.state]}>{t(stateKey[report.state])}</Badge>
@@ -147,7 +147,7 @@ export default function AssessmentsPage() {
                           {referee.name} · {fmt.date(match.date)}
                         </span>
                         {report.state === "filed" && (
-                          <span className="board text-[12px] text-chalk">{report.overall.toFixed(1)}</span>
+                          <span className="board text-xs text-chalk">{report.overall.toFixed(1)}</span>
                         )}
                       </span>
                     </button>
@@ -180,7 +180,7 @@ export default function AssessmentsPage() {
             <ul className="space-y-3">
               {criterionAverages.map((row) => (
                 <li key={row.key}>
-                  <div className="mb-1 flex items-center justify-between text-[12px]">
+                  <div className="mb-1 flex items-center justify-between text-xs">
                     <span className="text-chalk-dim">{t(row.labelKey)}</span>
                     <span className="board text-chalk">{row.value.toFixed(1)}</span>
                   </div>
@@ -203,10 +203,10 @@ export default function AssessmentsPage() {
                   <li key={report.id}>
                     <Link
                       href={`/referees/${referee.id}`}
-                      className="flex items-center gap-3 rounded-lg border border-line bg-ink-1 px-3 py-2 lift"
+                      className="flex items-center gap-3 rounded-xl border border-line bg-ink-1 px-3 py-2.5 lift"
                     >
                       <span className="min-w-0 flex-1">
-                        <span className="block truncate text-[12.5px] text-chalk">
+                        <span className="block truncate text-xs text-chalk">
                           {countryFlag(referee.countryCode)} {referee.name}
                         </span>
                         <span className="block truncate text-[10.5px] text-chalk-faint">
@@ -219,7 +219,7 @@ export default function AssessmentsPage() {
                           tone={report.overall >= 8.5 ? "pitch" : report.overall >= 7.5 ? "chalk" : "amber"}
                         />
                       </span>
-                      <span className="board w-8 shrink-0 text-right text-[12.5px] text-chalk">
+                      <span className="board w-8 shrink-0 text-right text-xs text-chalk">
                         {report.overall.toFixed(1)}
                       </span>
                     </Link>
@@ -272,10 +272,10 @@ function ReportDetail({ report }: { report: Assessment }) {
             <h2 className="mt-2 font-display text-[18px] font-semibold text-chalk">
               {match.home} <span className="board text-chalk-dim">{match.score}</span> {match.away}
             </h2>
-            <p className="mt-1 text-[12px] text-chalk-faint">
+            <p className="mt-1 text-xs text-chalk-faint">
               {competitionById.get(match.competitionId)?.name} · {fmt.longDate(match.date)}
             </p>
-            <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[12px]">
+            <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs">
               <Link href={`/referees/${referee.id}`} className="inline-flex items-center gap-1 text-chalk-dim hover:text-chalk">
                 {t("common.referee")}: {referee.name}
                 <ArrowUpRight size={11} />
@@ -306,7 +306,7 @@ function ReportDetail({ report }: { report: Assessment }) {
             const value = report.marks[key];
             return (
               <div key={key}>
-                <div className="mb-1 flex items-center justify-between text-[12px]">
+                <div className="mb-1 flex items-center justify-between text-xs">
                   <span className="text-chalk-dim">{t(labelKey)}</span>
                   <span className="board text-chalk">{value.toFixed(1)}</span>
                 </div>
@@ -322,7 +322,7 @@ function ReportDetail({ report }: { report: Assessment }) {
 
       <Card>
         <CardHeader icon={Quote} tint="gold" title={t("assessments.notes")} />
-        <p className="text-[13px] leading-relaxed text-chalk-dim">{report.notes[locale]}</p>
+        <p className="text-sm leading-relaxed text-chalk-dim">{report.notes[locale]}</p>
 
         {report.clips.length > 0 && (
           <>
@@ -333,12 +333,12 @@ function ReportDetail({ report }: { report: Assessment }) {
               {report.clips.map((clip) => (
                 <li
                   key={clip.minute}
-                  className="flex items-center gap-2.5 rounded-lg border border-line bg-ink-1 px-3 py-2"
+                  className="flex items-center gap-2.5 rounded-xl border border-line bg-ink-1 px-3 py-2"
                 >
                   <Film size={13} className="shrink-0 text-var" />
-                  <span className="board w-9 shrink-0 text-[12px] text-chalk-faint">{clip.minute}&apos;</span>
-                  <span className="min-w-0 flex-1 truncate text-[12.5px] text-chalk-dim">{clip.label[locale]}</span>
-                  <Link href="/decision-engine" className="shrink-0 text-[11.5px] text-chalk-faint hover:text-chalk">
+                  <span className="board w-9 shrink-0 text-xs text-chalk-faint">{clip.minute}&apos;</span>
+                  <span className="min-w-0 flex-1 truncate text-xs text-chalk-dim">{clip.label[locale]}</span>
+                  <Link href="/decision-engine" className="shrink-0 text-xs text-chalk-faint hover:text-chalk">
                     {t("common.open")}
                   </Link>
                 </li>

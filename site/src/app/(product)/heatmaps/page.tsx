@@ -9,7 +9,7 @@ import { useScope } from "@/lib/scope/ScopeProvider";
 import { PageHeading } from "@/components/layout/PageHeading";
 import { Badge, Board, Card, CardHeader, EmptyState, Meter } from "@/components/ui";
 import { DiagonalCorridor, HeatField, Pitch, corridorY, heatLegend } from "@/components/pitch/Pitch";
-import { axisProps, chartColors, tooltipStyle } from "@/components/charts/theme";
+import { axisProps, barCursor, chartColors, tooltipStyle } from "@/components/charts/theme";
 import { competitionById, countryFlag, heatPointsFor, matches, refereeById } from "@/lib/mock-data";
 
 export default function PositioningPage() {
@@ -75,9 +75,9 @@ export default function PositioningPage() {
                 key={m.id}
                 onClick={() => setMatchId(m.id)}
                 className={cn(
-                  "shrink-0 rounded-md border px-3 py-1.5 text-[12.5px] transition-colors",
+                  "shrink-0 rounded-lg border px-3 py-1.5 text-xs transition-colors max-sm:min-h-10",
                   m.id === match.id
-                    ? "border-pitch bg-pitch text-[#04140c]"
+                    ? "border-red-600 bg-red-600 text-white"
                     : "border-line bg-ink-1 text-chalk-dim hover:border-line-strong hover:text-chalk",
                 )}
               >
@@ -127,12 +127,12 @@ export default function PositioningPage() {
             title={t("positioning.heatmap")}
             subtitle={t("positioning.heatmapSub")}
             action={
-              <span className="text-[11.5px] text-chalk-faint">
+              <span className="text-xs text-chalk-faint">
                 {competitionById.get(match.competitionId)?.name} · {fmt.date(match.date)}
               </span>
             }
           />
-          <div className="aspect-[111/74] w-full overflow-hidden rounded-lg border border-line bg-[#0b1524]">
+          <div className="aspect-[111/74] w-full overflow-hidden rounded-xl border border-line bg-[#0b1524]">
             <Pitch>
               <HeatField points={points} />
               <DiagonalCorridor />
@@ -190,7 +190,7 @@ export default function PositioningPage() {
               {t("matchReview.varReview")}
             </span>
           </div>
-          <p className="mt-2 text-[11.5px] leading-snug text-chalk-faint">
+          <p className="mt-2 text-xs leading-snug text-chalk-faint">
             {locale === "fr"
               ? `Le trait pointillé relie la position de l'arbitre à la décision : sa longueur est la distance mesurée. ${farCalls} décisions ont été prises à plus de 20 m.`
               : `The dashed line runs from the referee's position to the decision — its length is the measured distance. ${farCalls} calls were made from beyond 20 m.`}
@@ -201,7 +201,7 @@ export default function PositioningPage() {
           <CardHeader icon={Compass} tint="gold" title={t("positioning.diagonal")} subtitle={t("positioning.diagonalSub")} />
           <div className="space-y-3">
             <div>
-              <div className="mb-1 flex items-center justify-between text-[12px]">
+              <div className="mb-1 flex items-center justify-between text-xs">
                 <span className="text-chalk-dim">{t("positioning.inChannel")}</span>
                 <span className="board text-chalk">{match.physical.diagonalAdherence}%</span>
               </div>
@@ -211,7 +211,7 @@ export default function PositioningPage() {
               />
             </div>
             <div>
-              <div className="mb-1 flex items-center justify-between text-[12px]">
+              <div className="mb-1 flex items-center justify-between text-xs">
                 <span className="text-chalk-dim">{t("positioning.outOfChannel")}</span>
                 <span className="board text-chalk">{100 - match.physical.diagonalAdherence}%</span>
               </div>
@@ -219,7 +219,7 @@ export default function PositioningPage() {
             </div>
           </div>
 
-          <p className="mt-4 text-[12.5px] leading-relaxed text-chalk-faint">
+          <p className="mt-4 text-xs leading-relaxed text-chalk-faint">
             {locale === "fr"
               ? "La diagonale est le couloir que l'arbitre est censé tenir. Chaque décision prise en dehors coûte de l'angle de vue — c'est le lien direct entre placement et justesse."
               : "The diagonal is the channel the referee is meant to hold. Every call made outside it costs viewing angle — that is the direct link between positioning and accuracy."}
@@ -231,9 +231,9 @@ export default function PositioningPage() {
               .sort((a, b) => b.distance - a.distance)
               .slice(0, 3)
               .map((d) => (
-                <div key={d.id} className="flex items-center justify-between gap-2 rounded-md border border-line bg-ink-1 px-2.5 py-1.5">
-                  <span className="board w-8 text-[11.5px] text-chalk-faint">{d.minute}&apos;</span>
-                  <span className="min-w-0 flex-1 truncate text-[12px] text-chalk-dim">{d.type}</span>
+                <div key={d.id} className="flex items-center justify-between gap-2 rounded-lg border border-line bg-ink-1 px-2.5 py-1.5">
+                  <span className="board w-8 text-xs text-chalk-faint">{d.minute}&apos;</span>
+                  <span className="min-w-0 flex-1 truncate text-xs text-chalk-dim">{d.type}</span>
                   <Badge tone={d.distance > 25 ? "red" : d.distance > 18 ? "amber" : "neutral"}>{d.distance} m</Badge>
                 </div>
               ))}
@@ -249,7 +249,7 @@ export default function PositioningPage() {
               <CartesianGrid stroke={chartColors.grid} vertical={false} />
               <XAxis dataKey="minute" {...axisProps} />
               <YAxis {...axisProps} unit=" m" />
-              <Tooltip contentStyle={tooltipStyle} cursor={{ fill: "rgba(255,255,255,0.04)" }} />
+              <Tooltip contentStyle={tooltipStyle} cursor={barCursor} />
               <Bar dataKey="distance" name={t("positioning.decisionPoints")} radius={[3, 3, 0, 0]}>
                 {distances.map((d, i) => (
                   <Cell key={i} fill={d.overturned ? chartColors.amber : chartColors.chalkDim} />
@@ -258,7 +258,7 @@ export default function PositioningPage() {
             </BarChart>
           </ResponsiveContainer>
         </div>
-        <p className="mt-2 text-[11.5px] text-chalk-faint">
+        <p className="mt-2 text-xs text-chalk-faint">
           {locale === "fr"
             ? "Les barres ambre sont les décisions annulées après revue."
             : "Amber bars are the calls overturned on review."}

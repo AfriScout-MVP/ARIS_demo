@@ -121,8 +121,11 @@ export const en = {
     development: "Training & licences",
     federations: "Federations",
     reports: "Dossiers",
-    collapse: "Collapse sidebar",
-    expand: "Expand sidebar",
+    closeSidebar: "Close sidebar",
+    openSidebar: "Open sidebar",
+    lightMode: "Light mode",
+    darkMode: "Dark mode",
+    role: "CAF referees department",
   },
 
   subtitles: {
@@ -657,8 +660,11 @@ export const fr: Dict = {
     development: "Formation et licences",
     federations: "Fédérations",
     reports: "Dossiers",
-    collapse: "Réduire le menu",
-    expand: "Déployer le menu",
+    closeSidebar: "Fermer le menu",
+    openSidebar: "Ouvrir le menu",
+    lightMode: "Mode clair",
+    darkMode: "Mode sombre",
+    role: "Département des arbitres CAF",
   },
 
   subtitles: {

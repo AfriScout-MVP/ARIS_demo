@@ -100,13 +100,13 @@ export default function RefereesPage() {
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
-        <div className="flex min-w-[210px] flex-1 items-center gap-2 rounded-md border border-line bg-ink-1 px-3 py-2 sm:max-w-xs">
+        <div className="flex min-w-[210px] flex-1 items-center gap-2 rounded-lg border border-line bg-ink-1 px-3 py-2 sm:max-w-xs">
           <Search size={14} className="text-chalk-faint" />
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder={t("referees.searchPlaceholder")}
-            className="w-full bg-transparent text-[13px] text-chalk outline-none placeholder:text-chalk-faint"
+            className="w-full bg-transparent text-sm text-chalk outline-none placeholder:text-chalk-faint"
           />
         </div>
 
@@ -142,12 +142,12 @@ export default function RefereesPage() {
               <li key={referee.id}>
                 <Link
                   href={`/referees/${referee.id}`}
-                  className="flex items-center gap-3 rounded-xl border border-line bg-ink-2 p-3 lift"
+                  className="flex items-center gap-3 rounded-2xl border border-line bg-ink-2 p-3 lift"
                 >
                   <Avatar initials={referee.initials} size={38} />
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-[13.5px] font-medium text-chalk">{referee.name}</p>
-                    <p className="truncate text-[11.5px] text-chalk-faint">
+                    <p className="truncate text-sm font-medium text-chalk">{referee.name}</p>
+                    <p className="truncate text-xs text-chalk-faint">
                       {countryFlag(referee.countryCode)} {countryName(referee.countryCode, locale)} · {referee.level}
                     </p>
                     <p className="mt-1 truncate text-[11px] text-chalk-faint">
@@ -220,7 +220,7 @@ export default function RefereesPage() {
         </>
       )}
 
-      <p className="text-[11.5px] text-chalk-faint">
+      <p className="text-xs text-chalk-faint">
         {locale === "fr"
           ? `Assistants et quatrièmes arbitres sont pourvus depuis la liste nationale de chaque fédération — ouvrez une rencontre dans le calendrier pour la consulter.`
           : `Assistants and fourth officials are drawn from each federation's own national list — open a fixture in the calendar to see it.`}

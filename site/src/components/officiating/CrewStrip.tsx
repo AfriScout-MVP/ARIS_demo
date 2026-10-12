@@ -56,7 +56,7 @@ export function CrewStrip({
                 }
               : { title: `${t(roleKey[slot.role])} — ${official?.name ?? t("common.unassigned")}` })}
             className={cn(
-              "relative flex flex-col justify-between rounded-md border text-left transition-colors",
+              "relative flex flex-col justify-between rounded-lg border text-left transition-colors",
               size === "sm" ? "h-[46px] w-[58px] px-1.5 py-1" : "h-[62px] w-[92px] px-2 py-1.5",
               stateRing[slot.state],
               interactive && "hover:border-pitch/60",
@@ -64,7 +64,7 @@ export function CrewStrip({
             )}
           >
             <span className="flex items-center justify-between">
-              <span className="board text-[9px] font-semibold uppercase tracking-wider text-chalk-faint">
+              <span className="board text-[10px] font-semibold uppercase tracking-wider text-chalk-faint">
                 {slot.role === "FOURTH" ? "4TH" : slot.role}
               </span>
               {slot.state !== "empty" && (
@@ -77,7 +77,7 @@ export function CrewStrip({
                 <span
                   className={cn(
                     "block truncate font-medium text-chalk",
-                    size === "sm" ? "text-[11px]" : "text-[12px]",
+                    size === "sm" ? "text-[11px]" : "text-xs",
                   )}
                 >
                   {size === "sm" ? official.initials : official.name.split(" ").slice(-1)[0]}
@@ -89,7 +89,7 @@ export function CrewStrip({
                 )}
               </span>
             ) : (
-              <span className={cn("text-chalk-faint", size === "sm" ? "text-[11px]" : "text-[12px]")}>—</span>
+              <span className={cn("text-chalk-faint", size === "sm" ? "text-[11px]" : "text-xs")}>—</span>
             )}
           </Tag>
         );
@@ -104,14 +104,14 @@ export function CrewSummary({ crew }: { crew: CrewSlot[] }) {
   const open = crew.filter((s) => s.state === "empty" || s.state === "declined").length;
   if (open === 0) {
     return (
-      <span className="inline-flex items-center gap-1.5 text-[12px] text-pitch">
+      <span className="inline-flex items-center gap-1.5 text-xs text-pitch">
         <span className="h-1.5 w-1.5 rounded-full bg-pitch" />
         {t("common.confirmed")}
       </span>
     );
   }
   return (
-    <span className="inline-flex items-center gap-1.5 text-[12px] text-card-red">
+    <span className="inline-flex items-center gap-1.5 text-xs text-card-red">
       <span className="h-1.5 w-1.5 rounded-full bg-card-red" />
       {open} {t("calendar.slotsOpen")}
     </span>

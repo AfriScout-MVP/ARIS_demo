@@ -32,7 +32,7 @@ import {
 const availabilityTone: Record<AvailabilityState, string> = {
   available: "bg-pitch/20",
   assigned: "bg-pitch",
-  resting: "bg-white/[0.08]",
+  resting: "bg-wash/[0.08]",
   travelling: "bg-var/25",
   unavailable: "bg-card-red/25",
 };
@@ -87,7 +87,7 @@ export function RefereeProfile({ id }: { id: string }) {
     <div className="space-y-4 sm:space-y-5">
       <Link
         href="/referees"
-        className="inline-flex items-center gap-1.5 text-[12.5px] text-chalk-faint hover:text-chalk"
+        className="inline-flex items-center gap-1.5 text-xs text-chalk-faint hover:text-chalk max-sm:-my-3 max-sm:py-3"
       >
         <ArrowLeft size={14} />
         {t("referees.backToDirectory")}
@@ -95,7 +95,7 @@ export function RefereeProfile({ id }: { id: string }) {
 
       <Card>
         <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
-          <Avatar initials={referee.initials} size={64} tone="chalk" className="rounded-xl" />
+          <Avatar initials={referee.initials} size={64} tone="chalk" className="rounded-2xl" />
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
               <h1 className="font-display text-[22px] font-semibold text-chalk">{referee.name}</h1>
@@ -103,17 +103,17 @@ export function RefereeProfile({ id }: { id: string }) {
               {referee.status === "suspended" && <Badge tone="red">{t("common.suspended")}</Badge>}
               {referee.varQualified && <Badge tone="var">VAR</Badge>}
             </div>
-            <p className="mt-1.5 flex items-center gap-1.5 text-[12.5px] text-chalk-faint">
+            <p className="mt-1.5 flex items-center gap-1.5 text-xs text-chalk-faint">
               <MapPin size={12} />
               {countryFlag(referee.countryCode)} {countryName(referee.countryCode, locale)} · {referee.city} ·{" "}
               {referee.age} {locale === "fr" ? "ans" : "yrs"} · {referee.yearsActive}{" "}
               {t("referees.yearsActive").toLowerCase()}
             </p>
-            <p className="mt-3 max-w-2xl text-[13px] leading-relaxed text-chalk-dim">{referee.bio[locale]}</p>
+            <p className="mt-3 max-w-2xl text-sm leading-relaxed text-chalk-dim">{referee.bio[locale]}</p>
           </div>
           <div className="flex shrink-0 flex-col items-center gap-1.5">
             <ScoreRing value={referee.arps} size={82} label="ARPS" />
-            <span className={cn("flex items-center gap-1 text-[12px]", up ? "text-pitch" : "text-card-red")}>
+            <span className={cn("flex items-center gap-1 text-xs", up ? "text-pitch" : "text-card-red")}>
               {up ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
               {up ? "+" : "−"}
               {Math.abs(referee.trend).toFixed(1)} {t("common.points")}
@@ -151,8 +151,8 @@ export function RefereeProfile({ id }: { id: string }) {
           <div className="mt-2 grid grid-cols-5 gap-1 text-center">
             {radar.map((d) => (
               <div key={d.metric}>
-                <p className="board text-[12px] text-chalk">{d.value}</p>
-                <p className="truncate text-[9px] uppercase text-chalk-faint">{d.metric}</p>
+                <p className="board text-xs text-chalk">{d.value}</p>
+                <p className="truncate text-[10px] uppercase text-chalk-faint">{d.metric}</p>
               </div>
             ))}
           </div>
@@ -161,19 +161,19 @@ export function RefereeProfile({ id }: { id: string }) {
         <Card>
           <CardHeader icon={Scale} tint="gold" title={t("referees.discipline")} subtitle={t("referees.disciplineSub")} />
           <ul className="space-y-2">
-            <li className="flex items-center justify-between rounded-lg border border-amber/25 bg-amber/[0.07] px-3 py-2.5">
-              <span className="text-[13px] text-chalk-dim">{t("referees.yellowCards")}</span>
-              <span className="board text-[15px] text-amber">{referee.cards.yellow}</span>
+            <li className="flex items-center justify-between rounded-xl border border-amber/25 bg-amber/[0.07] px-3 py-2.5">
+              <span className="text-sm text-chalk-dim">{t("referees.yellowCards")}</span>
+              <span className="board text-base text-amber">{referee.cards.yellow}</span>
             </li>
-            <li className="flex items-center justify-between rounded-lg border border-card-red/25 bg-card-red/[0.07] px-3 py-2.5">
-              <span className="text-[13px] text-chalk-dim">{t("referees.redCards")}</span>
-              <span className="board text-[15px] text-card-red">{referee.cards.red}</span>
+            <li className="flex items-center justify-between rounded-xl border border-card-red/25 bg-card-red/[0.07] px-3 py-2.5">
+              <span className="text-sm text-chalk-dim">{t("referees.redCards")}</span>
+              <span className="board text-base text-card-red">{referee.cards.red}</span>
             </li>
-            <li className="flex items-center justify-between rounded-lg border border-line bg-ink-1 px-3 py-2.5">
-              <span className="text-[13px] text-chalk-dim">
+            <li className="flex items-center justify-between rounded-xl border border-line bg-ink-1 px-3 py-2.5">
+              <span className="text-sm text-chalk-dim">
                 {locale === "fr" ? "Cartons par rencontre" : "Cards per match"}
               </span>
-              <span className="board text-[15px] text-chalk">
+              <span className="board text-base text-chalk">
                 {((referee.cards.yellow + referee.cards.red) / referee.matches).toFixed(2)}
               </span>
             </li>
@@ -211,7 +211,7 @@ export function RefereeProfile({ id }: { id: string }) {
           )}
           <ul className="space-y-2">
             {data.progression.requirements.map((req) => (
-              <li key={req.id} className="flex items-center justify-between gap-2 text-[12.5px]">
+              <li key={req.id} className="flex items-center justify-between gap-2 text-xs">
                 <span className="flex min-w-0 items-center gap-2">
                   <span
                     className={cn(
@@ -248,10 +248,10 @@ export function RefereeProfile({ id }: { id: string }) {
                 return (
                   <li
                     key={fixture.id}
-                    className="flex items-center justify-between gap-3 rounded-lg border border-line bg-ink-1 px-3 py-2.5"
+                    className="flex items-center justify-between gap-3 rounded-xl border border-line bg-ink-1 px-3 py-2.5"
                   >
                     <div className="min-w-0">
-                      <p className="truncate text-[13px] text-chalk">
+                      <p className="truncate text-sm text-chalk">
                         {fixture.home} — {fixture.away}
                       </p>
                       <p className="truncate text-[11px] text-chalk-faint">
@@ -280,8 +280,8 @@ export function RefereeProfile({ id }: { id: string }) {
                 return (
                   <li key={licence.id} className="relative">
                     <span className="absolute -left-[21px] top-1 h-2 w-2 rounded-full bg-pitch" />
-                    <p className="text-[12.5px] font-medium text-chalk">{licence.kind}</p>
-                    <p className="text-[11.5px] text-chalk-faint">
+                    <p className="text-xs font-medium text-chalk">{licence.kind}</p>
+                    <p className="text-xs text-chalk-faint">
                       {t("development.issued")} {fmt.date(licence.issued)} · {t("development.expires")}{" "}
                       {fmt.date(licence.expires)}
                     </p>
@@ -301,8 +301,8 @@ export function RefereeProfile({ id }: { id: string }) {
 
             <li className="relative">
               <span className="absolute -left-[21px] top-1 h-2 w-2 rounded-full bg-pitch" />
-              <p className="text-[12.5px] font-medium text-chalk">{t("development.fitnessTitle")}</p>
-              <p className="text-[11.5px] text-chalk-faint">
+              <p className="text-xs font-medium text-chalk">{t("development.fitnessTitle")}</p>
+              <p className="text-xs text-chalk-faint">
                 {fmt.date(data.fitness.date)} · {t("development.test1")}{" "}
                 {data.fitness.test1.bestSprint}s · {t("development.test2")} {data.fitness.test2.laps}
               </p>
@@ -323,10 +323,10 @@ export function RefereeProfile({ id }: { id: string }) {
               return (
                 <li key={report.id} className="relative">
                   <span className="absolute -left-[21px] top-1 h-2 w-2 rounded-full bg-pitch" />
-                  <p className="text-[12.5px] font-medium text-chalk">
+                  <p className="text-xs font-medium text-chalk">
                     {t("assessments.observer")} — {report.overall.toFixed(1)}
                   </p>
-                  <p className="text-[11.5px] text-chalk-faint">
+                  <p className="text-xs text-chalk-faint">
                     {match ? `${match.home} — ${match.away}` : ""} · {refereeById.get(report.observerId)?.name}
                   </p>
                 </li>
@@ -336,8 +336,8 @@ export function RefereeProfile({ id }: { id: string }) {
             {data.enrolled.map((course) => (
               <li key={course.id} className="relative">
                 <span className="absolute -left-[21px] top-1 h-2 w-2 rounded-full bg-pitch" />
-                <p className="text-[12.5px] font-medium text-chalk">{course.name[locale]}</p>
-                <p className="text-[11.5px] text-chalk-faint">
+                <p className="text-xs font-medium text-chalk">{course.name[locale]}</p>
+                <p className="text-xs text-chalk-faint">
                   {course.provider} · {course.hours}
                   {t("common.hours")} ·{" "}
                   {t(
@@ -354,7 +354,7 @@ export function RefereeProfile({ id }: { id: string }) {
         </Card>
       </div>
 
-      <p className="text-[11.5px] text-chalk-faint">
+      <p className="text-xs text-chalk-faint">
         {locale === "fr" ? "Passeport arrêté au" : "Passport as of"} {fmt.longDate(DEMO_TODAY)} ·{" "}
         {daysBetween(DEMO_TODAY, data.days[13])} {t("common.days")}
       </p>

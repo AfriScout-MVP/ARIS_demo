@@ -178,7 +178,7 @@ export default function ReportsPage() {
             }))}
           />
 
-          <div className="mt-2 flex flex-wrap items-center gap-2 rounded-lg border border-line bg-ink-1 px-3 py-2 text-[12px] text-chalk-faint">
+          <div className="mt-2 flex flex-wrap items-center gap-2 rounded-xl border border-line bg-ink-1 px-3 py-2 text-xs text-chalk-faint">
             <span>{countryFlag(match.countryCode)}</span>
             <span className="text-chalk-dim">{competition?.name}</span>
             <span>·</span>
@@ -206,7 +206,7 @@ export default function ReportsPage() {
                   onClick={() => toggle(sections, setSections, section.id)}
                   aria-pressed={on}
                   className={cn(
-                    "flex w-full items-start gap-3 rounded-lg border px-3 py-2.5 text-left transition-colors",
+                    "flex w-full items-start gap-3 rounded-xl border px-3 py-2.5 text-left transition-colors",
                     on
                       ? "border-pitch/35 bg-pitch/[0.07]"
                       : "border-line bg-ink-1 hover:border-line-strong",
@@ -214,17 +214,17 @@ export default function ReportsPage() {
                 >
                   <span
                     className={cn(
-                      "mt-0.5 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md",
-                      on ? "bg-pitch/15 text-pitch" : "bg-white/[0.05] text-chalk-faint",
+                      "mt-0.5 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-lg",
+                      on ? "bg-pitch/15 text-pitch" : "bg-wash/[0.05] text-chalk-faint",
                     )}
                   >
                     <Icon size={14} />
                   </span>
                   <span className="min-w-0 flex-1">
-                    <span className={cn("block text-[13px]", on ? "text-chalk" : "text-chalk-dim")}>
+                    <span className={cn("block text-sm", on ? "text-chalk" : "text-chalk-dim")}>
                       {t(section.labelKey)}
                     </span>
-                    <span className="block text-[11.5px] leading-snug text-chalk-faint">
+                    <span className="block text-xs leading-snug text-chalk-faint">
                       {t(section.hintKey)}
                     </span>
                   </span>
@@ -235,7 +235,7 @@ export default function ReportsPage() {
                     <span
                       className={cn(
                         "flex h-4 w-4 items-center justify-center rounded-[4px] border",
-                        on ? "border-pitch bg-pitch text-[#04140c]" : "border-line",
+                        on ? "border-pitch bg-pitch text-on-pitch" : "border-line",
                       )}
                     >
                       {on && <Check size={11} />}
@@ -261,9 +261,9 @@ export default function ReportsPage() {
                       onClick={() => toggle(recipients, setRecipients, entry.id)}
                       aria-pressed={on}
                       className={cn(
-                        "inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-[12px] transition-colors",
+                        "inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs transition-colors max-sm:min-h-10",
                         on
-                          ? "border-pitch bg-pitch text-[#04140c]"
+                          ? "border-red-600 bg-red-600 text-white"
                           : "border-line bg-ink-1 text-chalk-dim hover:border-line-strong hover:text-chalk",
                       )}
                     >
@@ -295,11 +295,11 @@ export default function ReportsPage() {
               {format === "pdf" ? <Send size={13} /> : <Link2 size={13} />}
               {state === "building" ? t("reports.generating") : t("reports.generatePdf")}
             </Button>
-            <span className="board text-[12px] text-chalk-faint">
+            <span className="board text-xs text-chalk-faint">
               {totalPages} {t("reports.pages")}
             </span>
             {sections.length === 0 && (
-              <span className="text-[12px] text-amber">{t("reports.noSections")}</span>
+              <span className="text-xs text-amber">{t("reports.noSections")}</span>
             )}
             {state === "ready" && (
               <Badge tone="pitch">
@@ -317,32 +317,32 @@ export default function ReportsPage() {
           <p className="px-1 text-[11px] uppercase tracking-[0.1em] text-chalk-faint">
             {t("reports.preview")}
           </p>
-          <article className="overflow-hidden rounded-xl border border-line-strong bg-gradient-to-b from-ink-3 to-ink-2 shadow-[0_18px_40px_-24px_rgba(0,0,0,0.9)]">
+          <article className="overflow-hidden rounded-2xl border border-line-strong bg-linear-to-b from-ink-3 to-ink-2 shadow-[0_18px_40px_-24px_rgba(0,0,0,0.35)]">
             <div className="h-1 bg-pitch" />
             <div className="p-4 sm:p-5">
               <header className="flex items-start justify-between gap-3">
                 <span className="inline-flex items-center gap-1.5 text-pitch">
                   <Mark size={18} />
-                  <span className="font-display text-[13px] font-bold tracking-tight text-chalk">ARIS</span>
+                  <span className="font-display text-sm font-bold tracking-tight text-chalk">ARIS</span>
                 </span>
-                <span className="board text-right text-[9.5px] leading-tight text-chalk-faint">
+                <span className="board text-right text-[10px] leading-tight text-chalk-faint">
                   {t("reports.reference")}
                   <br />
                   {reference(match.id, match.countryCode)}
                 </span>
               </header>
 
-              <p className="mt-4 text-[9.5px] uppercase tracking-[0.16em] text-chalk-faint">
+              <p className="mt-4 text-[10px] uppercase tracking-[0.16em] text-chalk-faint">
                 {t("reports.dossierTitle")}
               </p>
               <h3 className="mt-1 font-display text-[17px] leading-tight font-semibold text-chalk">
                 {match.home} <span className="board text-pitch">{match.score}</span> {match.away}
               </h3>
-              <p className="mt-1 text-[11.5px] text-chalk-faint">
+              <p className="mt-1 text-xs text-chalk-faint">
                 {countryFlag(match.countryCode)} {competition?.name} · {fmt.longDate(match.date)}
               </p>
               {referee && (
-                <p className="mt-0.5 text-[11.5px] text-chalk-dim">
+                <p className="mt-0.5 text-xs text-chalk-dim">
                   {t("common.referee")}: {referee.name} · {referee.level}
                 </p>
               )}
@@ -359,17 +359,17 @@ export default function ReportsPage() {
                 />
               </div>
 
-              <p className="mb-2 mt-4 text-[9.5px] uppercase tracking-[0.16em] text-chalk-faint">
+              <p className="mb-2 mt-4 text-[10px] uppercase tracking-[0.16em] text-chalk-faint">
                 {t("reports.contents")}
               </p>
               {contents.length === 0 ? (
-                <p className="rounded-md border border-dashed border-line px-3 py-4 text-center text-[12px] text-chalk-faint">
+                <p className="rounded-lg border border-dashed border-line px-3 py-4 text-center text-xs text-chalk-faint">
                   {t("reports.noSections")}
                 </p>
               ) : (
                 <ul className="space-y-1">
                   {contents.map(({ section, startsAt }, i) => (
-                    <li key={section.id} className="flex items-baseline gap-2 text-[12px]">
+                    <li key={section.id} className="flex items-baseline gap-2 text-xs">
                       <span className="board w-5 shrink-0 text-chalk-faint">
                         {String(i + 1).padStart(2, "0")}
                       </span>
@@ -383,7 +383,7 @@ export default function ReportsPage() {
 
               {sections.includes("crew") && fixture && (
                 <>
-                  <p className="mb-1.5 mt-4 text-[9.5px] uppercase tracking-[0.16em] text-chalk-faint">
+                  <p className="mb-1.5 mt-4 text-[10px] uppercase tracking-[0.16em] text-chalk-faint">
                     {t("common.crew")}
                   </p>
                   <CrewStrip crew={fixture.crew} />
@@ -397,7 +397,7 @@ export default function ReportsPage() {
             </div>
           </article>
 
-          <p className="px-1 text-[11.5px] leading-relaxed text-chalk-faint">
+          <p className="px-1 text-xs leading-relaxed text-chalk-faint">
             {locale === "fr"
               ? "Le dossier réunit l'analyse tactique AfriScout et la qualité d'arbitrage ARIS dans un seul document — ce que ni un outil de désignation ni un fournisseur VAR ne produit aujourd'hui."
               : "The dossier puts AfriScout's tactical analysis and ARIS refereeing quality in one document — something neither an assignment tool nor a VAR vendor produces today."}
@@ -441,7 +441,7 @@ export default function ReportsPage() {
                   if (!dossierMatch) return null;
                   return (
                     <tr key={dossier.id} className="row-hover border-b border-line last:border-0">
-                      <Td className="board whitespace-nowrap text-[11.5px] text-chalk-faint">
+                      <Td className="board whitespace-nowrap text-xs text-chalk-faint">
                         {reference(dossierMatch.id, dossierMatch.countryCode)}
                       </Td>
                       <Td className="text-chalk">

@@ -2,10 +2,7 @@
 
 import { useT, type TKey } from "@/lib/i18n/LocaleProvider";
 
-/**
- * The topbar carries the page title from `md` up. Below that it is taken by the
- * scope control, so the title reappears here — never in both places at once.
- */
+/** The admin's page header: a bold title with a fern subtitle, action on the right. */
 export function PageHeading({
   titleKey,
   subtitleKey,
@@ -17,10 +14,10 @@ export function PageHeading({
 }) {
   const t = useT();
   return (
-    <div className="mb-4 flex items-start justify-between gap-3 md:hidden">
+    <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
       <div className="min-w-0">
-        <h1 className="font-display text-[19px] font-semibold text-chalk">{t(titleKey)}</h1>
-        {subtitleKey && <p className="mt-0.5 text-[12.5px] leading-snug text-chalk-faint">{t(subtitleKey)}</p>}
+        <h1 className="text-2xl font-bold text-chalk lg:text-3xl">{t(titleKey)}</h1>
+        {subtitleKey && <p className="mt-1 text-chalk-dim">{t(subtitleKey)}</p>}
       </div>
       {action && <div className="shrink-0">{action}</div>}
     </div>
