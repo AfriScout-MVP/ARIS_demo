@@ -1,5 +1,6 @@
 "use client";
 
+import { useSyncNow } from "@/lib/dataset/useSyncNow";
 import { useMemo, useState } from "react";
 import { CalendarCheck, CalendarDays, CheckCircle2, ChevronLeft, ChevronRight, LayoutGrid, RefreshCcw, Trophy, UserPlus, Wand2 } from "@/components/icons/glyphs";
 import { cn } from "@/lib/utils";
@@ -10,14 +11,16 @@ import { PageHeading } from "@/components/layout/PageHeading";
 import { Badge, Board, Button, Card, CardHeader, EmptyState, Segmented, Th } from "@/components/ui";
 import { CrewStrip } from "@/components/officiating/CrewStrip";
 import { SlotPicker } from "@/components/officiating/SlotPicker";
+import { CountryFlag } from "@/components/ui/CountryFlag";
+import { useDataset } from "@/lib/dataset/DatasetProvider";
+import { canDesignate } from "@/lib/roles";
 import {
-  SEASON,
   assistants,
   availabilityFor,
   competitionById,
   countries,
-  countryFlag,
   countryName,
+  currentSeason,
   crewRoles,
   fixtures,
   officialById,
@@ -29,7 +32,7 @@ import {
   type CrewRole,
   type CrewSlot,
   type Fixture,
-} from "@/lib/mock-data";
+} from "@/lib/store";
 
 type View = "list" | "board" | "availability";
 
@@ -55,19 +58,24 @@ export default function CalendarPage() {
   const fmt = useFormatters();
   const { matches: inScope, codes } = useScope();
   const { crewFor, assign, clear, autoFill, undoAutoFill } = useAppointments();
+  const { user } = useDataset();
+  const { syncing, syncNow } = useSyncNow();
+  // a federation seat designates only on its own country's fixtures; an admin on every fixture
+  const mayEdit = (fixture: Fixture) => canDesignate(user, fixture.countryCode);
 
   const [weekIndex, setWeekIndex] = useState(1);
   const [view, setView] = useState<View>("list");
   const [picking, setPicking] = useState<{ fixture: Fixture; role: CrewRole } | null>(null);
   const [autoFilled, setAutoFilled] = useState<number | null>(null);
 
-  const weekStart = weekStarts[weekIndex];
-  const dates = weekDates(weekStart);
+  const starts = weekStarts();
+  const weekStart = starts[weekIndex] ?? starts[0];
+  const dates = useMemo(() => (weekStart ? weekDates(weekStart) : []), [weekStart]);
 
   const weekFixtures = useMemo(
     () =>
       fixtures
-        .filter((f) => inScope(f.countryCode) && f.date >= dates[0] && f.date <= dates[6])
+        .filter((f) => dates.length > 0 && inScope(f.countryCode) && f.date >= dates[0] && f.date <= dates[6])
         .sort((a, b) => (a.date === b.date ? b.importance - a.importance : a.date.localeCompare(b.date))),
     [inScope, dates],
   );
@@ -93,7 +101,7 @@ export default function CalendarPage() {
   const scopedCountries = countries.filter((c) => codes.includes(c.code));
 
   async function runAutoFill() {
-    setAutoFilled(await autoFill(weekFixtures));
+    setAutoFilled(await autoFill(weekFixtures.filter(mayEdit)));
   }
 
   return (
@@ -112,11 +120,11 @@ export default function CalendarPage() {
           </button>
           <span className="flex items-center gap-1.5 px-2 text-xs text-chalk">
             <CalendarDays size={13} className="text-chalk-faint" />
-            {fmt.date(dates[0])} — {fmt.date(dates[6])}
+            {dates.length > 0 && `${fmt.date(dates[0])} — ${fmt.date(dates[6])}`}
           </span>
           <button
-            onClick={() => setWeekIndex((i) => Math.min(weekStarts.length - 1, i + 1))}
-            disabled={weekIndex === weekStarts.length - 1}
+            onClick={() => setWeekIndex((i) => Math.min(starts.length - 1, i + 1))}
+            disabled={weekIndex === starts.length - 1}
             aria-label={t("calendar.nextWeek")}
             className="rounded-lg p-3 text-chalk-faint hover:text-chalk disabled:opacity-30 sm:p-2"
           >
@@ -154,7 +162,7 @@ export default function CalendarPage() {
               )}
             </>
           )}
-          <Button size="sm" variant="primary" onClick={runAutoFill} disabled={totals.open === 0}>
+          <Button size="sm" variant="primary" onClick={runAutoFill} disabled={!weekFixtures.some((f) => mayEdit(f) && openFor(f) > 0)}>
             <Wand2 size={13} />
             {t("calendar.autoFill")}
           </Button>
@@ -168,7 +176,7 @@ export default function CalendarPage() {
           icon={CalendarDays}
           label={t("calendar.fixtures")}
           value={weekFixtures.length}
-          hint={`${t("common.season")} ${SEASON}`}
+          hint={`${t("common.season")} ${currentSeason()}`}
         />
         <Board
           tone="pitch"
@@ -217,7 +225,9 @@ export default function CalendarPage() {
                     >
                       <div className="min-w-0 xl:w-[38%]">
                         <div className="flex items-center gap-2">
-                          <span className="text-sm">{countryFlag(fixture.countryCode)}</span>
+                          <span className="text-sm">
+                            <CountryFlag code={fixture.countryCode} />
+                          </span>
                           <p className="truncate text-sm font-medium text-chalk">
                             {fixture.home} <span className="text-chalk-faint">—</span> {fixture.away}
                           </p>
@@ -225,6 +235,11 @@ export default function CalendarPage() {
                         <p className="mt-0.5 truncate text-xs text-chalk-faint">
                           {comp?.name} · {t("common.matchday")} {fixture.matchday} · {fixture.venue}
                         </p>
+                        {(fixture.status === "postponed" || fixture.status === "cancelled") && (
+                          <Badge tone={fixture.status === "cancelled" ? "red" : "amber"} className="mt-1">
+                            {t(fixture.status === "cancelled" ? "calendar.statusCancelled" : "calendar.statusPostponed")}
+                          </Badge>
+                        )}
                       </div>
 
                       <div className="flex items-center gap-2 xl:w-[16%]">
@@ -237,7 +252,7 @@ export default function CalendarPage() {
                       <div className="flex min-w-0 flex-1 items-center justify-between gap-3">
                         <CrewStrip
                           crew={crew}
-                          onSlotClick={(slot) => setPicking({ fixture, role: slot.role })}
+                          onSlotClick={mayEdit(fixture) ? (slot) => setPicking({ fixture, role: slot.role }) : undefined}
                         />
                         <span
                           className={cn(
@@ -280,7 +295,7 @@ export default function CalendarPage() {
                     <tr key={fixture.id} className="border-b border-line last:border-0 row-hover">
                       <td className="sticky left-0 z-10 bg-ink-2 px-3 py-2.5">
                         <p className="truncate text-xs text-chalk">
-                          {countryFlag(fixture.countryCode)} {fixture.home} — {fixture.away}
+                          <CountryFlag code={fixture.countryCode} /> {fixture.home} — {fixture.away}
                         </p>
                         <p className="text-[10.5px] text-chalk-faint">
                           {fmt.date(fixture.date)} · {fixture.kickoff}
@@ -299,7 +314,7 @@ export default function CalendarPage() {
                           <td key={role} className="px-2 py-2">
                             <BoardCell
                               slot={slot}
-                              onClick={() => setPicking({ fixture, role })}
+                              onClick={mayEdit(fixture) ? () => setPicking({ fixture, role }) : undefined}
                             />
                           </td>
                         );
@@ -348,7 +363,7 @@ export default function CalendarPage() {
                     <tr key={official.id} className="border-b border-line last:border-0 row-hover">
                       <td className="sticky left-0 z-10 bg-ink-2 px-3 py-2">
                         <p className="truncate text-xs text-chalk">
-                          {countryFlag(official.countryCode)} {official.name}
+                          <CountryFlag code={official.countryCode} /> {official.name}
                         </p>
                         <p className="text-[10.5px] text-chalk-faint">{official.level}</p>
                       </td>
@@ -383,8 +398,8 @@ export default function CalendarPage() {
           title={t("calendar.syncStatus")}
           subtitle={t("calendar.syncStatusSub")}
           action={
-            <Button size="sm" variant="secondary">
-              <RefreshCcw size={12} />
+            <Button size="sm" variant="secondary" disabled={syncing} onClick={() => void syncNow()}>
+              <RefreshCcw size={12} className={syncing ? "animate-spin" : undefined} />
               {t("common.syncNow")}
             </Button>
           }
@@ -394,7 +409,7 @@ export default function CalendarPage() {
             <div key={country.code} className="flex items-center justify-between gap-2 rounded-[10px] border border-line bg-ink-1 px-3 py-2.5">
               <div className="min-w-0">
                 <p className="truncate text-xs text-chalk">
-                  {country.flag} {countryName(country.code, locale)}
+                  <CountryFlag code={country.code} /> {countryName(country.code, locale)}
                 </p>
                 <p className="text-[11px] text-chalk-faint">
                   {country.syncSource} · {t("common.lastSync")} {country.lastSyncHours}
@@ -437,7 +452,7 @@ export default function CalendarPage() {
   );
 }
 
-function BoardCell({ slot, onClick }: { slot: CrewSlot; onClick: () => void }) {
+function BoardCell({ slot, onClick }: { slot: CrewSlot; onClick?: () => void }) {
   const t = useT();
   const official = slot.officialId ? officialById(slot.officialId) : undefined;
   const tone =
@@ -452,9 +467,11 @@ function BoardCell({ slot, onClick }: { slot: CrewSlot; onClick: () => void }) {
   return (
     <button
       onClick={onClick}
+      disabled={!onClick}
       title={`${t(roleKey[slot.role])} — ${official?.name ?? t("common.unassigned")}`}
       className={cn(
-        "w-full rounded-[5px] border px-1.5 py-1.5 text-center text-[11px] transition-colors hover:border-pitch/60",
+        "w-full rounded-[5px] border px-1.5 py-1.5 text-center text-[11px] transition-colors",
+        onClick ? "hover:border-pitch/60" : "cursor-default",
         tone,
       )}
     >

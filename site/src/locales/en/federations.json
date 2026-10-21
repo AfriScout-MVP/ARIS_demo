@@ -1,0 +1,19 @@
+{
+  "title": "Federations",
+  "tableSub": "One row per member federation",
+  "corps": "Corps",
+  "eliteCount": "CAF Elite",
+  "avgArps": "Avg. ARPS",
+  "calendarSync": "Calendar sync",
+  "syncHealthy": "Healthy",
+  "syncStale": "Stale",
+  "syncManual": "Manual entry",
+  "competitionsTracked": "Competitions tracked",
+  "fixturesSeason": "Fixtures this season",
+  "openSlots": "Open slots",
+  "zoneSummary": "By CAF zone",
+  "zoneSummarySub": "Six zones, aggregated",
+  "detail": "Federation detail",
+  "switchScope": "Set as scope",
+  "zonesList": "CAF zones: {list}"
+}

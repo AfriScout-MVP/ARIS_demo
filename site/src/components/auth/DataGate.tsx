@@ -6,6 +6,7 @@ import { Mark } from "@/components/icons/Mark";
 import { Button } from "@/components/ui";
 import { useT } from "@/lib/i18n/LocaleProvider";
 import { useDataset } from "@/lib/dataset/DatasetProvider";
+import { isReferee, isStaff } from "@/lib/roles";
 import { LoginScreen } from "./LoginScreen";
 
 function Centered({ children }: { children: React.ReactNode }) {
@@ -17,27 +18,24 @@ function Centered({ children }: { children: React.ReactNode }) {
 }
 
 /**
- * Holds the app back until the Worker has said who is signed in and the data
- * is in memory. On the GitHub Pages demo there is nothing to wait for.
+ * Holds the app back until the API has said who is signed in and the data is in memory.
  *
- * `area="staff"` is the commission/observer workspace; `area="personal"` is the
- * referee's own space (`/me`).
+ * `area="staff"` is the product shell (admin and federation seats); `area="personal"` is the
+ * referee's own space (`/me`). Each role is sent to its own area.
  */
 export function DataGate({ area, children }: { area: "staff" | "personal"; children: React.ReactNode }) {
   const t = useT();
   const router = useRouter();
   const pathname = usePathname();
-  const { live, status, user, version, reload } = useDataset();
+  const { status, user, version, reload } = useDataset();
 
-  const sendToPersonal = live && status === "ready" && area === "staff" && user?.role === "referee";
-  const sendToStaff = live && status === "ready" && area === "personal" && user && user.role !== "referee" && !user.officialId;
+  const sendToPersonal = status === "ready" && area === "staff" && isReferee(user);
+  const sendToStaff = status === "ready" && area === "personal" && isStaff(user);
 
   useEffect(() => {
     if (sendToPersonal && pathname !== "/me") router.replace("/me");
     if (sendToStaff) router.replace("/");
   }, [sendToPersonal, sendToStaff, pathname, router]);
-
-  if (!live) return <>{children}</>;
 
   if (status === "loading") {
     return (

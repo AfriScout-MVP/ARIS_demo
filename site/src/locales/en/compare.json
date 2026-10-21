@@ -1,0 +1,14 @@
+{
+  "title": "Comparison",
+  "pickTwo": "Pick two officials",
+  "refereeA": "Referee A",
+  "refereeB": "Referee B",
+  "profile": "Profile shape",
+  "profileSub": "Sub-indices, both officials overlaid",
+  "headToHead": "Head to head",
+  "verdict": "Where they differ",
+  "verdictSub": "Largest gaps first",
+  "aheadOn": "ahead on",
+  "by": "by",
+  "wins": "wins"
+}

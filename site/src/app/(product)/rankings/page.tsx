@@ -8,14 +8,16 @@ import { useLocale, useT } from "@/lib/i18n/LocaleProvider";
 import { useScope } from "@/lib/scope/ScopeProvider";
 import { PageHeading } from "@/components/layout/PageHeading";
 import { Avatar, Badge, Board, Card, CardHeader, EmptyState, Meter, ScoreRing, Segmented, Td, Th } from "@/components/ui";
+import { CountryFlag } from "@/components/ui/CountryFlag";
 import {
   countryByCode,
-  countryFlag,
   countryName,
   rankingsFor,
+  refereeById,
+  refereeHref,
   zones,
   type RefereeLevel,
-} from "@/lib/mock-data";
+} from "@/lib/store";
 
 const PROMOTION_LINE = 8;
 const levels: Array<RefereeLevel | "all"> = ["all", "CAF Elite", "FIFA Listed", "National D1", "Regional"];
@@ -108,7 +110,7 @@ export default function RankingsPage() {
             {rows.map((row) => (
               <li key={row.refereeId}>
                 <Link
-                  href={`/referees/${row.refereeId}`}
+                  href={refereeHref(row.refereeId)}
                   className={cn(
                     "flex items-center gap-3 rounded-[14px] border bg-ink-2 p-3 lift",
                     row.rank <= PROMOTION_LINE ? "border-line-strong" : "border-line",
@@ -118,7 +120,7 @@ export default function RankingsPage() {
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm text-chalk">{row.name}</p>
                     <p className="truncate text-xs text-chalk-faint">
-                      {countryFlag(row.countryCode)} {countryName(row.countryCode, locale)} · {row.zone}
+                      <CountryFlag code={row.countryCode} /> {countryName(row.countryCode, locale)} · {row.zone}
                     </p>
                   </div>
                   <Movement delta={row.delta} />
@@ -149,15 +151,15 @@ export default function RankingsPage() {
                       <tr className="border-b border-line last:border-0 row-hover">
                         <Td className="board text-chalk-faint">{row.rank}</Td>
                         <Td>
-                          <Link href={`/referees/${row.refereeId}`} className="flex items-center gap-2.5">
-                            <Avatar initials={row.name.split(" ").map((p) => p[0]).join("")} size={26} />
+                          <Link href={refereeHref(row.refereeId)} className="flex items-center gap-2.5">
+                            <Avatar initials={refereeById.get(row.refereeId)?.initials ?? row.name.charAt(0)} photoUrl={refereeById.get(row.refereeId)?.photoUrl} name={row.name} size={26} />
                             <span className="text-chalk hover:underline">{row.name}</span>
                           </Link>
                         </Td>
                         <Td>
-                          {countryFlag(row.countryCode)} {countryName(row.countryCode, locale)}
+                          <CountryFlag code={row.countryCode} /> {countryName(row.countryCode, locale)}
                         </Td>
-                        <Td>{row.zone}</Td>
+                        <Td>{row.zone ?? "—"}</Td>
                         <Td>
                           <Badge tone={row.level === "CAF Elite" ? "pitch" : "neutral"}>{row.level}</Badge>
                         </Td>
@@ -213,12 +215,12 @@ export default function RankingsPage() {
             {zoneLeaders.map((z) => (
               <li key={z.zone}>
                 <Link
-                  href={`/referees/${z.leader!.refereeId}`}
+                  href={refereeHref(z.leader!.refereeId)}
                   className="flex items-center gap-3 rounded-[10px] border border-line bg-ink-1 px-3 py-2.5 lift"
                 >
                   <span className="board w-16 shrink-0 text-[11px] text-chalk-faint">{z.zone}</span>
                   <span className="min-w-0 flex-1 truncate text-xs text-chalk">
-                    {countryFlag(z.leader!.countryCode)} {z.leader!.name}
+                    <CountryFlag code={z.leader!.countryCode} /> {z.leader!.name}
                   </span>
                   <span className="board shrink-0 text-xs text-pitch">{z.leader!.arps.toFixed(1)}</span>
                 </Link>
@@ -233,11 +235,11 @@ export default function RankingsPage() {
             {movers.map((row) => (
               <li key={row.refereeId}>
                 <Link
-                  href={`/referees/${row.refereeId}`}
+                  href={refereeHref(row.refereeId)}
                   className="flex items-center gap-3 rounded-[10px] border border-line bg-ink-1 px-3 py-2.5 lift"
                 >
                   <span className="min-w-0 flex-1 truncate text-xs text-chalk">
-                    {countryFlag(row.countryCode)} {row.name}
+                    <CountryFlag code={row.countryCode} /> {row.name}
                   </span>
                   <Movement delta={row.delta} />
                 </Link>

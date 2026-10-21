@@ -5,7 +5,8 @@ import { Check, ChevronDown, Globe2, Search } from "@/components/icons/glyphs";
 import { cn } from "@/lib/utils";
 import { useLocale, useT } from "@/lib/i18n/LocaleProvider";
 import { useScope } from "@/lib/scope/ScopeProvider";
-import { countries, zoneNames, zoneNamesFr, zones } from "@/lib/mock-data";
+import { CountryFlag } from "@/components/ui/CountryFlag";
+import { countries, countryByCode, countryName, zoneKey, zones } from "@/lib/store";
 
 /**
  * Scope is the first control on the page because it is the first decision the
@@ -15,7 +16,7 @@ import { countries, zoneNames, zoneNamesFr, zones } from "@/lib/mock-data";
 export function ScopeSelect() {
   const t = useT();
   const { locale } = useLocale();
-  const { scope, setScope } = useScope();
+  const { scope, setScope, lockedTo } = useScope();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const ref = useRef<HTMLDivElement>(null);
@@ -35,22 +36,41 @@ export function ScopeSelect() {
     };
   }, []);
 
-  const zoneLabel = locale === "fr" ? zoneNamesFr : zoneNames;
+  const zoneLabel = (zone: (typeof zones)[number]) => `${zone} · ${t(zoneKey[zone])}`;
+  const presentZones = useMemo(() => zones.filter((z) => countries.some((c) => c.zone === z)), []);
 
   const label = useMemo(() => {
-    if (scope.kind === "all") return t("common.allAfrica");
-    if (scope.kind === "zone") return `${scope.zone} · ${zoneLabel[scope.zone]}`;
-    const country = countries.find((c) => c.code === scope.code)!;
-    return `${country.flag} ${locale === "fr" ? country.nameFr : country.name}`;
-  }, [scope, t, zoneLabel, locale]);
+    if (scope.kind === "all") return <>{t("common.allAfrica")}</>;
+    if (scope.kind === "zone") return <>{`${scope.zone} · ${t(zoneKey[scope.zone])}`}</>;
+    return (
+      <>
+        <CountryFlag code={scope.code} /> {countryName(scope.code, locale)}
+      </>
+    );
+  }, [scope, t, locale]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return countries;
     return countries.filter((c) =>
-      `${c.name} ${c.nameFr} ${c.federation} ${c.code}`.toLowerCase().includes(q),
+      `${c.name} ${c.nameFr} ${c.nameEs} ${c.nameDe} ${c.federation} ${c.code}`.toLowerCase().includes(q),
     );
   }, [query]);
+
+  // A federation seat is tied to one country: no picker, just the badge that says which.
+  if (lockedTo) {
+    const country = countryByCode.get(lockedTo);
+    return (
+      <div
+        className="flex h-10 w-full min-w-0 items-center gap-2 rounded-[10px] border border-field bg-ink-2 px-3 text-sm text-chalk sm:w-auto sm:max-w-[320px]"
+        title={t("common.scopeLocked")}
+      >
+        <CountryFlag code={lockedTo} />
+        <span className="truncate">{countryName(lockedTo, locale)}</span>
+        {country?.federation && <span className="shrink-0 text-[11px] font-semibold text-chalk-faint">{country.federation}</span>}
+      </div>
+    );
+  }
 
   return (
     <div className="relative" ref={ref}>
@@ -60,7 +80,7 @@ export function ScopeSelect() {
         className="flex h-10 w-full min-w-0 items-center gap-2 rounded-[10px] border border-field bg-ink-2 px-3 text-sm text-chalk transition-colors hover:border-red-500/50 sm:w-auto sm:max-w-[280px]"
       >
         <Globe2 size={14} className="shrink-0 text-chalk-faint" />
-        <span className="truncate">{label}</span>
+        <span className="flex min-w-0 items-center gap-1.5 truncate">{label}</span>
         <ChevronDown size={13} className={cn("shrink-0 text-chalk-faint transition-transform", open && "rotate-180")} />
       </button>
 
@@ -90,10 +110,10 @@ export function ScopeSelect() {
             <p className="px-3 pb-1 pt-2.5 text-xs font-medium text-chalk-faint">
               {t("common.zone")}
             </p>
-            {zones.map((zone) => (
+            {presentZones.map((zone) => (
               <Option
                 key={zone}
-                label={`${zone} · ${zoneLabel[zone]}`}
+                label={zoneLabel(zone)}
                 selected={scope.kind === "zone" && scope.zone === zone}
                 onSelect={() => {
                   setScope({ kind: "zone", zone });
@@ -108,7 +128,11 @@ export function ScopeSelect() {
             {filtered.map((country) => (
               <Option
                 key={country.code}
-                label={`${country.flag} ${locale === "fr" ? country.nameFr : country.name}`}
+                label={
+                  <>
+                    <CountryFlag code={country.code} /> {countryName(country.code, locale)}
+                  </>
+                }
                 meta={country.federation}
                 selected={scope.kind === "country" && scope.code === country.code}
                 onSelect={() => {
@@ -135,7 +159,7 @@ function Option({
   selected,
   onSelect,
 }: {
-  label: string;
+  label: React.ReactNode;
   meta?: string;
   selected: boolean;
   onSelect: () => void;
@@ -148,7 +172,7 @@ function Option({
         selected ? "text-chalk" : "text-chalk-dim hover:bg-red-500/10 hover:text-chalk",
       )}
     >
-      <span className="truncate">{label}</span>
+      <span className="flex min-w-0 items-center gap-1.5 truncate">{label}</span>
       <span className="flex shrink-0 items-center gap-2">
         {meta && <span className="text-[11px] text-chalk-faint">{meta}</span>}
         {selected && <Check size={13} className="text-pitch" />}

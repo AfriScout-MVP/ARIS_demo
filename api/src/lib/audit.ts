@@ -15,12 +15,14 @@ export function auditStmt(
     before?: unknown;
     after?: unknown;
     reason?: string | null;
+    /** The country the change concerns, so a federation can read the trail of its own country. */
+    countryCode?: string | null;
     ip?: string;
   },
 ) {
   return db
     .prepare(
-      "INSERT INTO audit_log (actor_user_id, actor_role, action, entity, entity_id, before, after, reason, ip) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "INSERT INTO audit_log (actor_user_id, actor_role, action, entity, entity_id, country_code, before, after, reason, ip) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
     )
     .bind(
       actor?.id ?? null,
@@ -28,6 +30,7 @@ export function auditStmt(
       entry.action,
       entry.entity,
       entry.entityId ?? null,
+      entry.countryCode ?? null,
       entry.before === undefined ? null : JSON.stringify(entry.before),
       entry.after === undefined ? null : JSON.stringify(entry.after),
       entry.reason ?? null,

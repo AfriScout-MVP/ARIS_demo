@@ -3,9 +3,12 @@ import { z } from "zod";
 import type { AppEnv } from "../env";
 import { ApiError, forbidden, notFound, parseQuery, readJson, uuid } from "../lib/http";
 import { auditStmt } from "../lib/audit";
-import { isStaff } from "../lib/access";
+import { assertCountry, assertReadOfficial, countryFilter, isAdmin, isStaff } from "../lib/access";
+import { localized } from "../lib/localized";
 import { notifyOfficialStmts, notifyStmts } from "../lib/notify";
 import { currentUser, staff } from "../middleware/auth";
+import { mediaUrl } from "../domain/mappers";
+import { assertFixtureLink } from "../domain/official-links";
 
 export const payments = new Hono<AppEnv>();
 export const feeScales = new Hono<AppEnv>();
@@ -13,20 +16,43 @@ export const advances = new Hono<AppEnv>();
 
 const ROLES = ["R", "AR1", "AR2", "FOURTH", "VAR", "AVAR", "OBS"] as const;
 const TIERS = ["d1", "d2", "cup", "continental"] as const;
+const countryParam = z.string().length(3).transform((v) => v.toUpperCase());
 
 /* ------------------------------------------------------------------ *
- * Fee scales — per competition tier (or competition) and role
+ * Fee scales — per federation, per competition tier (or competition) and role.
+ * Rows without a federation are the platform defaults: only an administrator changes them.
  * ------------------------------------------------------------------ */
 
+const SCALE_COLS = `fs.id, fs.tier, fs.competition_id AS competitionId, fs.federation_id AS federationId, fe.code AS federationCode, fs.role,
+  fs.amount, fs.transport, fs.lodging, fs.meals, fs.currency, fs.effective_from AS effectiveFrom`;
+
 feeScales.get("/", staff, async (c) => {
+  const user = currentUser(c);
+  const q = parseQuery(c, z.object({ federationId: z.string().max(80).optional() }));
+  const where: string[] = [];
+  const args: string[] = [];
+  if (user.role === "federation") {
+    // its own scales, plus the platform defaults it falls back on (read only)
+    where.push("(fs.federation_id IS NULL OR fs.federation_id = ?)");
+    args.push(user.federationId ?? "");
+  } else if (q.federationId === "default") {
+    where.push("fs.federation_id IS NULL");
+  } else if (q.federationId) {
+    where.push("fs.federation_id = ?");
+    args.push(q.federationId);
+  }
   const { results } = await c.env.DB.prepare(
-    `SELECT id, tier, competition_id AS competitionId, role, amount, transport, lodging, meals, currency, effective_from AS effectiveFrom
-       FROM fee_scales ORDER BY tier, competition_id, role`,
-  ).all();
-  return c.json({ scales: results });
+    `SELECT ${SCALE_COLS} FROM fee_scales fs LEFT JOIN federations fe ON fe.id = fs.federation_id
+      ${where.length ? "WHERE " + where.join(" AND ") : ""} ORDER BY fs.federation_id IS NOT NULL, fe.code, fs.tier, fs.competition_id, fs.role`,
+  )
+    .bind(...args)
+    .all<{ federationId: string | null } & Record<string, unknown>>();
+  return c.json({ scales: results.map((r) => ({ ...r, readonly: user.role === "federation" && r.federationId === null })) });
 });
 
 const scaleSchema = z.object({
+  /** Admin only: whose scale. Absent or null = the platform default. A federation can only ever write its own. */
+  federationId: z.string().max(80).nullable().optional(),
   tier: z.enum(TIERS),
   competitionId: z.string().max(60).nullable().default(null),
   role: z.enum(ROLES),
@@ -34,57 +60,99 @@ const scaleSchema = z.object({
   transport: z.number().int().min(0).default(0),
   lodging: z.number().int().min(0).default(0),
   meals: z.number().int().min(0).default(0),
-  currency: z.string().length(3).default("XOF"),
+  currency: z.string().length(3).optional(),
 });
 
 feeScales.put("/", staff, async (c) => {
   const user = currentUser(c);
   const b = await readJson(c, scaleSchema);
-  const id = uuid();
-  try {
-    await c.env.DB.batch([
-      c.env.DB
-        .prepare(
-          `INSERT INTO fee_scales (id, tier, competition_id, role, amount, transport, lodging, meals, currency)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-           ON CONFLICT (tier, role, IFNULL(competition_id, '')) DO UPDATE SET
-             amount = excluded.amount, transport = excluded.transport, lodging = excluded.lodging, meals = excluded.meals, currency = excluded.currency`,
-        )
-        .bind(id, b.tier, b.competitionId, b.role, b.amount, b.transport, b.lodging, b.meals, b.currency.toUpperCase()),
-      auditStmt(c.env.DB, user, { action: "feescale.set", entity: "fee_scale", entityId: `${b.tier}/${b.competitionId ?? "*"}/${b.role}`, after: b, ip: c.get("ip") }),
-    ]);
-  } catch (err) {
-    if (String(err).includes("FOREIGN KEY")) throw new ApiError(422, "unknown_competition", "Unknown competition");
-    throw err;
+  const db = c.env.DB;
+
+  let federationId: string | null;
+  if (user.role === "federation") {
+    if (b.federationId === null) throw forbidden("Platform default scales are managed by the administrator");
+    if (b.federationId !== undefined && b.federationId !== user.federationId) throw notFound("Federation");
+    federationId = user.federationId;
+  } else {
+    federationId = b.federationId ?? null;
   }
-  return c.json({ ok: true });
+
+  // a federation's scales are in its country's currency
+  let country: string | null = null;
+  let currency = b.currency?.toUpperCase() ?? "XOF";
+  if (federationId) {
+    const fed = await db
+      .prepare("SELECT f.country, c.currency FROM federations f JOIN countries c ON c.code = f.country WHERE f.id = ?")
+      .bind(federationId)
+      .first<{ country: string; currency: string }>();
+    if (!fed) throw notFound("Federation");
+    country = fed.country;
+    if (b.currency && b.currency.toUpperCase() !== fed.currency) {
+      throw new ApiError(422, "currency_mismatch", `This federation's scales are in ${fed.currency}`, { expected: fed.currency });
+    }
+    currency = fed.currency;
+  }
+
+  if (b.competitionId) {
+    const comp = await db.prepare("SELECT country_code AS countryCode FROM competitions WHERE id = ?").bind(b.competitionId).first<{ countryCode: string }>();
+    // a federation can only price its own country's competitions; a foreign or unknown id looks the same
+    if (!comp || (user.role === "federation" && comp.countryCode !== country)) throw notFound("Competition");
+    if (country && comp.countryCode !== country) throw new ApiError(422, "competition_mismatch", "That competition belongs to another federation");
+  }
+
+  await db.batch([
+    db
+      .prepare(
+        `INSERT INTO fee_scales (id, tier, competition_id, federation_id, role, amount, transport, lodging, meals, currency)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+         ON CONFLICT (IFNULL(federation_id, ''), tier, role, IFNULL(competition_id, '')) DO UPDATE SET
+           amount = excluded.amount, transport = excluded.transport, lodging = excluded.lodging, meals = excluded.meals, currency = excluded.currency`,
+      )
+      .bind(uuid(), b.tier, b.competitionId, federationId, b.role, b.amount, b.transport, b.lodging, b.meals, currency),
+    auditStmt(db, user, {
+      action: "feescale.set",
+      entity: "fee_scale",
+      entityId: `${federationId ?? "default"}/${b.tier}/${b.competitionId ?? "*"}/${b.role}`,
+      after: { ...b, federationId, currency },
+      countryCode: country,
+      ip: c.get("ip"),
+    }),
+  ]);
+  return c.json({ ok: true, federationId });
 });
 
 /* ------------------------------------------------------------------ *
- * Payments
+ * Payments — a payment belongs to the country of the official it pays
  * ------------------------------------------------------------------ */
 
-const COLUMNS = `p.id, p.fixture_id AS fixtureId, p.role, p.official_id AS officialId, o.name AS officialName,
+const COLUMNS = `p.id, p.fixture_id AS fixtureId, p.role, p.official_id AS officialId, o.name AS officialName, o.country_code AS countryCode,
   p.base, p.transport, p.lodging, p.meals, p.bonus, p.deduction, p.total, p.currency, p.status,
   p.presence_confirmed AS presenceConfirmed, p.match_validated AS matchValidated, p.expenses_verified AS expensesVerified,
   p.validated_at AS validatedAt, p.paid_at AS paidAt, p.payment_ref AS paymentRef, p.contest_note AS contestNote, p.created_at AS createdAt,
-  f.home, f.away, f.date, f.city, f.competition_id AS competitionId`;
-const FROM = "FROM payments p JOIN officials o ON o.id = p.official_id JOIN fixtures f ON f.id = p.fixture_id";
+  ht.name AS home, aw.name AS away, f.date, f.kickoff_at AS kickoffAt, s.city AS city, f.competition_id AS competitionId`;
+const FROM = `FROM payments p JOIN officials o ON o.id = p.official_id JOIN fixtures f ON f.id = p.fixture_id
+  JOIN teams ht ON ht.id = f.home_team_id JOIN teams aw ON aw.id = f.away_team_id LEFT JOIN stadiums s ON s.id = f.stadium_id`;
 
 interface PaymentRow {
   id: string;
   officialId: string;
+  officialName: string;
+  countryCode: string;
   status: string;
   presenceConfirmed: number;
   matchValidated: number;
   expensesVerified: number;
   fixtureId: string;
   total: number;
+  currency: string;
 }
 
-async function loadPayment(db: D1Database, id: string) {
+/** Loads a payment the caller may see: staff within their country (404 otherwise), a referee their own. */
+async function loadPayment(db: D1Database, user: ReturnType<typeof currentUser>, id: string) {
   const row = await db.prepare(`SELECT ${COLUMNS} ${FROM} WHERE p.id = ?`).bind(id).first<PaymentRow & Record<string, unknown>>();
   if (!row) throw notFound("Payment");
+  if (isStaff(user)) assertCountry(user, row.countryCode, "Payment");
+  else if (!user.officialId || user.officialId !== row.officialId) throw notFound("Payment");
   return row;
 }
 
@@ -95,12 +163,14 @@ const asBool = (r: Record<string, unknown>) => ({
   expensesVerified: r.expensesVerified === 1,
 });
 
+const dateParam = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
 const listQuery = z.object({
   status: z.enum(["due", "validated", "paid", "contested", "cancelled"]).optional(),
   officialId: z.string().optional(),
   fixtureId: z.string().optional(),
-  from: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
-  to: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+  country: countryParam.optional(),
+  from: dateParam.optional(),
+  to: dateParam.optional(),
   limit: z.coerce.number().int().min(1).max(500).default(200),
 });
 
@@ -109,16 +179,22 @@ payments.get("/", async (c) => {
   const q = parseQuery(c, listQuery);
   const where: string[] = [];
   const args: (string | number)[] = [];
-  // officials only ever see their own money
-  if (!isStaff(user)) {
+  if (isStaff(user)) {
+    const scope = countryFilter(user, "o.country_code");
+    where.push(scope.sql);
+    args.push(...scope.params);
+    if (q.country) (where.push("o.country_code = ?"), args.push(q.country));
+    if (q.officialId) (where.push("p.official_id = ?"), args.push(q.officialId));
+  } else {
+    // officials only ever see their own money
     if (!user.officialId) throw forbidden();
     (where.push("p.official_id = ?"), args.push(user.officialId));
-  } else if (q.officialId) (where.push("p.official_id = ?"), args.push(q.officialId));
+  }
   if (q.status) (where.push("p.status = ?"), args.push(q.status));
   if (q.fixtureId) (where.push("p.fixture_id = ?"), args.push(q.fixtureId));
   if (q.from) (where.push("f.date >= ?"), args.push(q.from));
   if (q.to) (where.push("f.date <= ?"), args.push(q.to));
-  const { results } = await c.env.DB.prepare(`SELECT ${COLUMNS} ${FROM} ${where.length ? "WHERE " + where.join(" AND ") : ""} ORDER BY f.date DESC, p.role LIMIT ?`)
+  const { results } = await c.env.DB.prepare(`SELECT ${COLUMNS} ${FROM} WHERE ${where.join(" AND ")} ORDER BY f.date DESC, p.role LIMIT ?`)
     .bind(...args, q.limit)
     .all<Record<string, unknown>>();
   return c.json({ payments: results.map(asBool) });
@@ -126,60 +202,92 @@ payments.get("/", async (c) => {
 
 const generateSchema = z.object({ fixtureId: z.string().min(1) });
 
-// Creates the amounts due for a match from the fee scale. Nothing is paid by this.
+interface ScaleRow {
+  role: string;
+  competitionId: string | null;
+  federationId: string | null;
+  amount: number;
+  transport: number;
+  lodging: number;
+  meals: number;
+  currency: string;
+}
+
+// Creates the amounts due for a match from the fee scales. Nothing is paid by this.
+//
+// The scale used for a line is the most specific one that exists:
+//   a scale for this competition (the federation's, else the platform's)  >  the federation's tier scale  >  the platform default.
+// The currency is the one of the country that runs the fixture; continental ties keep the scale's own currency.
 payments.post("/generate", staff, async (c) => {
   const user = currentUser(c);
   const { fixtureId } = await readJson(c, generateSchema);
   const db = c.env.DB;
   const fixture = await db
-    .prepare("SELECT f.id, f.designation_status AS status, c.tier, c.id AS competitionId FROM fixtures f JOIN competitions c ON c.id = f.competition_id WHERE f.id = ?")
+    .prepare(
+      `SELECT f.id, f.country_code AS countryCode, f.designation_status AS status, c.tier, c.id AS competitionId, fe.id AS federationId, co.currency AS countryCurrency
+         FROM fixtures f JOIN competitions c ON c.id = f.competition_id
+         LEFT JOIN federations fe ON fe.country = f.country_code LEFT JOIN countries co ON co.code = f.country_code
+        WHERE f.id = ?`,
+    )
     .bind(fixtureId)
-    .first<{ id: string; status: string; tier: string; competitionId: string }>();
+    .first<{ id: string; countryCode: string; status: string; tier: string; competitionId: string; federationId: string | null; countryCurrency: string | null }>();
   if (!fixture) throw notFound("Fixture");
+  assertCountry(user, fixture.countryCode, "Fixture");
   if (fixture.status !== "validated" && fixture.status !== "published") {
     throw new ApiError(409, "not_validated", "Amounts are generated once the crew is validated");
   }
 
-  const { results: slots } = await db
-    .prepare("SELECT role, official_id FROM designations WHERE fixture_id = ? AND state = 'confirmed' AND official_id IS NOT NULL")
-    .bind(fixtureId)
-    .all<{ role: string; official_id: string }>();
+  const [{ results: slots }, { results: scales }] = await db.batch<Record<string, unknown>>([
+    db.prepare("SELECT role, official_id FROM designations WHERE fixture_id = ? AND state = 'confirmed' AND official_id IS NOT NULL").bind(fixtureId),
+    db
+      .prepare(
+        `SELECT role, competition_id AS competitionId, federation_id AS federationId, amount, transport, lodging, meals, currency FROM fee_scales
+          WHERE (competition_id = ?1 OR (competition_id IS NULL AND tier = ?2)) AND (federation_id IS NULL OR federation_id = ?3)`,
+      )
+      .bind(fixture.competitionId, fixture.tier, fixture.federationId),
+  ]);
+  // rank 0 = competition-specific; rank 1 = tier. Within a rank the federation's own row beats the platform default.
+  const rank = (s: ScaleRow) => (s.competitionId ? 0 : 2) + (s.federationId ? 0 : 1);
 
   const stmts: D1PreparedStatement[] = [];
   const missing: string[] = [];
-  for (const slot of slots) {
-    const scale = await db
-      .prepare(
-        `SELECT amount, transport, lodging, meals, currency FROM fee_scales
-          WHERE role = ?1 AND (competition_id = ?2 OR (competition_id IS NULL AND tier = ?3))
-          ORDER BY competition_id IS NULL LIMIT 1`,
-      )
-      .bind(slot.role, fixture.competitionId, fixture.tier)
-      .first<{ amount: number; transport: number; lodging: number; meals: number; currency: string }>();
-    if (!scale) {
+  const defaultsUsed: string[] = [];
+  for (const slot of slots as Array<{ role: string; official_id: string }>) {
+    const best = (scales as unknown as ScaleRow[]).filter((s) => s.role === slot.role).sort((a, b) => rank(a) - rank(b))[0];
+    if (!best) {
       missing.push(slot.role);
       continue;
     }
+    if (fixture.federationId && !best.federationId) defaultsUsed.push(slot.role);
     stmts.push(
       db
         .prepare(
           `INSERT OR IGNORE INTO payments (id, fixture_id, role, official_id, base, transport, lodging, meals, currency)
            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         )
-        .bind(uuid(), fixtureId, slot.role, slot.official_id, scale.amount, scale.transport, scale.lodging, scale.meals, scale.currency),
+        .bind(uuid(), fixtureId, slot.role, slot.official_id, best.amount, best.transport, best.lodging, best.meals, fixture.countryCurrency ?? best.currency),
     );
   }
-  stmts.push(auditStmt(db, user, { action: "payment.generate", entity: "fixture", entityId: fixtureId, after: { lines: stmts.length, missingScale: missing }, ip: c.get("ip") }));
+  const lines = stmts.length;
+  stmts.push(auditStmt(db, user, { action: "payment.generate", entity: "fixture", entityId: fixtureId, after: { lines, missingScale: missing, defaultScaleUsed: defaultsUsed }, countryCode: fixture.countryCode, ip: c.get("ip") }));
   const res = await db.batch(stmts);
-  const created = res.slice(0, -1).reduce((n, r) => n + (r.meta.changes ?? 0), 0);
-  return c.json({ created, missingScale: missing }, created ? 201 : 200);
+  const created = res.slice(0, lines).reduce((n, r) => n + (r.meta.changes ?? 0), 0);
+  return c.json({ created, missingScale: missing, defaultScaleUsed: defaultsUsed }, created ? 201 : 200);
 });
 
 payments.get("/:id", async (c) => {
   const user = currentUser(c);
-  const row = await loadPayment(c.env.DB, c.req.param("id"));
-  if (!isStaff(user) && user.officialId !== row.officialId) throw notFound("Payment");
-  return c.json({ payment: asBool(row) });
+  const db = c.env.DB;
+  const row = await loadPayment(db, user, c.req.param("id"));
+  // receipts / justifications uploaded for this payment (the documents module owns the files)
+  const { results } = await db
+    .prepare(
+      `SELECT d.id, d.kind, d.status, d.media_id AS mediaId, m.filename, m.content_type AS contentType, d.created_at AS createdAt
+         FROM documents d JOIN media_assets m ON m.id = d.media_id WHERE d.payment_id = ? ORDER BY d.created_at`,
+    )
+    .bind(row.id)
+    .all<{ mediaId: string } & Record<string, unknown>>();
+  return c.json({ payment: { ...asBool(row), receipts: results.map((r) => ({ ...r, url: mediaUrl(r.mediaId) })) } });
 });
 
 const adjustSchema = z
@@ -203,7 +311,7 @@ payments.patch("/:id", staff, async (c) => {
   const id = c.req.param("id");
   const b = await readJson(c, adjustSchema);
   const db = c.env.DB;
-  const before = await loadPayment(db, id);
+  const before = await loadPayment(db, user, id);
   if (before.status === "paid" || before.status === "cancelled") throw new ApiError(409, "closed", `A ${before.status} payment can no longer be edited`);
 
   const { reason, ...fields } = b;
@@ -223,16 +331,16 @@ payments.patch("/:id", staff, async (c) => {
 
   await db.batch([
     db.prepare(`UPDATE payments SET ${sets.join(", ")} WHERE id = ?`).bind(...args, id),
-    auditStmt(db, user, { action: "payment.adjust", entity: "payment", entityId: id, before: { total: before.total, status: before.status }, after: fields, reason, ip: c.get("ip") }),
+    auditStmt(db, user, { action: "payment.adjust", entity: "payment", entityId: id, before: { total: before.total, status: before.status }, after: fields, reason, countryCode: before.countryCode, ip: c.get("ip") }),
   ]);
-  return c.json({ payment: asBool(await loadPayment(db, id)) });
+  return c.json({ payment: asBool(await loadPayment(db, user, id)) });
 });
 
 payments.post("/:id/validate", staff, async (c) => {
   const user = currentUser(c);
   const id = c.req.param("id");
   const db = c.env.DB;
-  const p = await loadPayment(db, id);
+  const p = await loadPayment(db, user, id);
   if (p.status === "validated") return c.json({ payment: asBool(p) });
   if (p.status !== "due") throw new ApiError(409, "bad_state", `A ${p.status} payment cannot be validated`);
   const missing = [
@@ -245,9 +353,9 @@ payments.post("/:id/validate", staff, async (c) => {
   }
   await db.batch([
     db.prepare("UPDATE payments SET status = 'validated', validated_by = ?, validated_at = strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE id = ? AND status = 'due'").bind(user.id, id),
-    auditStmt(db, user, { action: "payment.validate", entity: "payment", entityId: id, after: { total: p.total }, ip: c.get("ip") }),
+    auditStmt(db, user, { action: "payment.validate", entity: "payment", entityId: id, after: { total: p.total }, countryCode: p.countryCode, ip: c.get("ip") }),
   ]);
-  return c.json({ payment: asBool(await loadPayment(db, id)) });
+  return c.json({ payment: asBool(await loadPayment(db, user, id)) });
 });
 
 const paySchema = z.object({ reference: z.string().min(3).max(80) });
@@ -257,21 +365,21 @@ payments.post("/:id/pay", staff, async (c) => {
   const id = c.req.param("id");
   const { reference } = await readJson(c, paySchema);
   const db = c.env.DB;
-  const p = await loadPayment(db, id);
+  const p = await loadPayment(db, user, id);
   if (p.status === "paid") return c.json({ payment: asBool(p) });
-  // Only a validated line can be paid; "validated" already implies the three checks.
+  // Only a validated line can be paid; "validated" already implies the three checks (and the database insists on them too).
   if (p.status !== "validated") throw new ApiError(409, "not_validated", "Only a validated payment can be marked as paid");
   await db.batch([
     db.prepare("UPDATE payments SET status = 'paid', paid_at = strftime('%Y-%m-%dT%H:%M:%fZ','now'), payment_ref = ? WHERE id = ? AND status = 'validated'").bind(reference, id),
-    auditStmt(db, user, { action: "payment.pay", entity: "payment", entityId: id, after: { reference, total: p.total }, ip: c.get("ip") }),
+    auditStmt(db, user, { action: "payment.pay", entity: "payment", entityId: id, after: { reference, total: p.total }, countryCode: p.countryCode, ip: c.get("ip") }),
     ...(await notifyOfficialStmts(db, p.officialId, {
-      title: { en: "Payment sent", fr: "Paiement effectué" },
-      detail: { en: `${p.total} ${p.currency} — ref. ${reference}`, fr: `${p.total} ${p.currency} — réf. ${reference}` },
+      title: localized("Paiement effectué", "Payment sent"),
+      detail: localized(`${p.total} ${p.currency} — réf. ${reference}`, `${p.total} ${p.currency} — ref. ${reference}`),
       tone: "pitch",
       href: "/me",
     })),
   ]);
-  return c.json({ payment: asBool(await loadPayment(db, id)) });
+  return c.json({ payment: asBool(await loadPayment(db, user, id)) });
 });
 
 const contestSchema = z.object({ note: z.string().min(5).max(500) });
@@ -282,22 +390,22 @@ payments.post("/:id/contest", async (c) => {
   const id = c.req.param("id");
   const { note } = await readJson(c, contestSchema);
   const db = c.env.DB;
-  const p = await loadPayment(db, id);
-  if (!isStaff(user) && user.officialId !== p.officialId) throw notFound("Payment");
+  const p = await loadPayment(db, user, id);
   if (p.status !== "due" && p.status !== "validated") throw new ApiError(409, "bad_state", "Only an unpaid amount can be contested");
   await db.batch([
     db.prepare("UPDATE payments SET status = 'contested', contest_note = ? WHERE id = ? AND status IN ('due','validated')").bind(note, id),
-    auditStmt(db, user, { action: "payment.contest", entity: "payment", entityId: id, reason: note, ip: c.get("ip") }),
+    auditStmt(db, user, { action: "payment.contest", entity: "payment", entityId: id, reason: note, countryCode: p.countryCode, ip: c.get("ip") }),
     ...notifyStmts(db, {
-      audienceRole: "commission",
+      audienceRole: "federation",
+      countryCode: p.countryCode,
       dedupeKey: `contest:${id}`,
-      title: { en: "Payment contested", fr: "Indemnité contestée" },
-      detail: { en: `${p.officialName}: ${note}`, fr: `${p.officialName} : ${note}` },
+      title: localized("Indemnité contestée", "Payment contested"),
+      detail: localized(`${p.officialName} : ${note}`, `${p.officialName}: ${note}`),
       tone: "amber",
       href: "/reports",
     }),
   ]);
-  return c.json({ payment: asBool(await loadPayment(db, id)) });
+  return c.json({ payment: asBool(await loadPayment(db, user, id)) });
 });
 
 const resolveSchema = z.object({ outcome: z.enum(["due", "cancelled"]), note: z.string().min(3).max(500) });
@@ -307,13 +415,13 @@ payments.post("/:id/resolve", staff, async (c) => {
   const id = c.req.param("id");
   const b = await readJson(c, resolveSchema);
   const db = c.env.DB;
-  const p = await loadPayment(db, id);
+  const p = await loadPayment(db, user, id);
   if (p.status !== "contested") throw new ApiError(409, "bad_state", "Only a contested payment can be resolved");
   await db.batch([
     db.prepare("UPDATE payments SET status = ?, contest_note = NULL, validated_by = NULL, validated_at = NULL WHERE id = ?").bind(b.outcome, id),
-    auditStmt(db, user, { action: "payment.resolve", entity: "payment", entityId: id, after: { outcome: b.outcome }, reason: b.note, ip: c.get("ip") }),
+    auditStmt(db, user, { action: "payment.resolve", entity: "payment", entityId: id, after: { outcome: b.outcome }, reason: b.note, countryCode: p.countryCode, ip: c.get("ip") }),
   ]);
-  return c.json({ payment: asBool(await loadPayment(db, id)) });
+  return c.json({ payment: asBool(await loadPayment(db, user, id)) });
 });
 
 payments.post("/:id/cancel", staff, async (c) => {
@@ -321,27 +429,43 @@ payments.post("/:id/cancel", staff, async (c) => {
   const id = c.req.param("id");
   const { note } = await readJson(c, z.object({ note: z.string().min(3).max(300) }));
   const db = c.env.DB;
-  const p = await loadPayment(db, id);
+  const p = await loadPayment(db, user, id);
   if (p.status === "paid") throw new ApiError(409, "bad_state", "A paid line cannot be cancelled; record a correction instead");
   await db.batch([
     db.prepare("UPDATE payments SET status = 'cancelled' WHERE id = ? AND status <> 'paid'").bind(id),
-    auditStmt(db, user, { action: "payment.cancel", entity: "payment", entityId: id, reason: note, ip: c.get("ip") }),
+    auditStmt(db, user, { action: "payment.cancel", entity: "payment", entityId: id, reason: note, countryCode: p.countryCode, ip: c.get("ip") }),
   ]);
-  return c.json({ payment: asBool(await loadPayment(db, id)) });
+  return c.json({ payment: asBool(await loadPayment(db, user, id)) });
 });
 
 /* ------------------------------------------------------------------ *
  * Advances
  * ------------------------------------------------------------------ */
 
+const ADVANCE_FROM = "FROM advances a JOIN officials o ON o.id = a.official_id";
+
 advances.get("/", async (c) => {
   const user = currentUser(c);
-  const where = isStaff(user) ? "" : "WHERE a.official_id = ?";
-  const stmt = c.env.DB.prepare(
-    `SELECT a.id, a.official_id AS officialId, o.name AS officialName, a.fixture_id AS fixtureId, a.amount, a.currency, a.justification, a.status, a.requested_at AS requestedAt, a.decided_at AS decidedAt
-       FROM advances a JOIN officials o ON o.id = a.official_id ${where} ORDER BY a.requested_at DESC LIMIT 200`,
-  );
-  const { results } = await (isStaff(user) ? stmt : stmt.bind(user.officialId ?? "")).all();
+  const q = parseQuery(c, z.object({ country: countryParam.optional(), status: z.enum(["requested", "approved", "paid", "settled", "rejected"]).optional() }));
+  const where: string[] = [];
+  const args: string[] = [];
+  if (isStaff(user)) {
+    const scope = countryFilter(user, "o.country_code");
+    where.push(scope.sql);
+    args.push(...scope.params);
+    if (q.country) (where.push("o.country_code = ?"), args.push(q.country));
+  } else {
+    if (!user.officialId) throw forbidden();
+    (where.push("a.official_id = ?"), args.push(user.officialId));
+  }
+  if (q.status) (where.push("a.status = ?"), args.push(q.status));
+  const { results } = await c.env.DB.prepare(
+    `SELECT a.id, a.official_id AS officialId, o.name AS officialName, o.country_code AS countryCode, a.fixture_id AS fixtureId, a.amount, a.currency, a.justification, a.status,
+            a.requested_at AS requestedAt, a.decided_at AS decidedAt
+       ${ADVANCE_FROM} WHERE ${where.join(" AND ")} ORDER BY a.requested_at DESC LIMIT 200`,
+  )
+    .bind(...args)
+    .all();
   return c.json({ advances: results });
 });
 
@@ -355,36 +479,67 @@ const advanceSchema = z.object({
 advances.post("/", async (c) => {
   const user = currentUser(c);
   const b = await readJson(c, advanceSchema);
+  const db = c.env.DB;
+  // an official asks for themselves; staff ask on behalf of an official of their country
   const officialId = isStaff(user) ? b.officialId : user.officialId;
   if (!officialId) throw new ApiError(422, "official_required", "Say which official the advance is for");
+  const access = await assertReadOfficial(db, user, officialId);
+  if (b.fixtureId) await assertFixtureLink(db, b.fixtureId, officialId, access.countryCode);
   const id = uuid();
-  try {
-    await c.env.DB.batch([
-      c.env.DB.prepare("INSERT INTO advances (id, official_id, fixture_id, amount, justification) VALUES (?, ?, ?, ?, ?)").bind(id, officialId, b.fixtureId ?? null, b.amount, b.justification),
-      auditStmt(c.env.DB, user, { action: "advance.request", entity: "advance", entityId: id, after: { officialId, amount: b.amount }, ip: c.get("ip") }),
-    ]);
-  } catch (err) {
-    if (String(err).includes("FOREIGN KEY")) throw new ApiError(422, "unknown_reference", "Unknown official or fixture");
-    throw err;
-  }
+  await db.batch([
+    // advances are in the currency of the official's country
+    db
+      .prepare(
+        `INSERT INTO advances (id, official_id, fixture_id, amount, currency, justification)
+         VALUES (?, ?, ?, ?, COALESCE((SELECT currency FROM countries WHERE code = ?), 'XOF'), ?)`,
+      )
+      .bind(id, officialId, b.fixtureId ?? null, b.amount, access.countryCode, b.justification),
+    auditStmt(db, user, { action: "advance.request", entity: "advance", entityId: id, after: { officialId, amount: b.amount }, countryCode: access.countryCode, ip: c.get("ip") }),
+    ...notifyStmts(db, {
+      audienceRole: "federation",
+      countryCode: access.countryCode,
+      dedupeKey: `advance:${id}`,
+      title: localized("Avance demandée", "Advance requested"),
+      detail: localized(`${b.amount} — ${b.justification.slice(0, 120)}`, `${b.amount} — ${b.justification.slice(0, 120)}`),
+      tone: "amber",
+      href: "/reports",
+    }),
+  ]);
   return c.json({ advance: { id, officialId, amount: b.amount, status: "requested" } }, 201);
 });
 
 const decideSchema = z.object({ status: z.enum(["approved", "paid", "settled", "rejected"]) });
 
-// Allowed moves: requested → approved | rejected, approved → paid, paid → settled.
+// Allowed moves: requested → approved | rejected, approved → paid | rejected, paid → settled.
 const NEXT: Record<string, string[]> = { requested: ["approved", "rejected"], approved: ["paid", "rejected"], paid: ["settled"] };
 
 advances.post("/:id/decide", staff, async (c) => {
   const user = currentUser(c);
   const id = c.req.param("id");
   const { status } = await readJson(c, decideSchema);
-  const row = await c.env.DB.prepare("SELECT status FROM advances WHERE id = ?").bind(id).first<{ status: string }>();
+  const db = c.env.DB;
+  const row = await db
+    .prepare("SELECT a.status, a.official_id AS officialId, o.country_code AS countryCode FROM advances a JOIN officials o ON o.id = a.official_id WHERE a.id = ?")
+    .bind(id)
+    .first<{ status: string; officialId: string; countryCode: string }>();
   if (!row) throw notFound("Advance");
+  assertCountry(user, row.countryCode, "Advance");
   if (!NEXT[row.status]?.includes(status)) throw new ApiError(409, "bad_state", `An advance that is ${row.status} cannot become ${status}`);
-  await c.env.DB.batch([
-    c.env.DB.prepare("UPDATE advances SET status = ?, decided_by = ?, decided_at = strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE id = ?").bind(status, user.id, id),
-    auditStmt(c.env.DB, user, { action: `advance.${status}`, entity: "advance", entityId: id, ip: c.get("ip") }),
+  const labels: Record<string, [string, string]> = {
+    approved: ["approuvée", "approved"],
+    paid: ["versée", "paid"],
+    settled: ["régularisée", "settled"],
+    rejected: ["refusée", "rejected"],
+  };
+  await db.batch([
+    db.prepare("UPDATE advances SET status = ?, decided_by = ?, decided_at = strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE id = ? AND status = ?").bind(status, user.id, id, row.status),
+    auditStmt(db, user, { action: `advance.${status}`, entity: "advance", entityId: id, countryCode: row.countryCode, ip: c.get("ip") }),
+    ...(await notifyOfficialStmts(db, row.officialId, {
+      title: localized(`Avance ${labels[status][0]}`, `Advance ${labels[status][1]}`),
+      detail: localized("Consultez votre espace pour le détail.", "See your space for the details."),
+      tone: status === "rejected" ? "amber" : "pitch",
+      href: "/me",
+    })),
   ]);
   return c.json({ ok: true, status });
 });

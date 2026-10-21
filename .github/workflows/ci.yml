@@ -1,7 +1,7 @@
 name: CI
 
 # Everything that must be green before ARIS can ship: the Worker's typecheck and
-# tests, and the app's typecheck, lint and both production builds.
+# tests, and the app's typecheck, lint, tests and production build.
 on:
   pull_request:
   push:
@@ -40,7 +40,7 @@ jobs:
         run: npm audit --omit=dev --audit-level=high
 
   site:
-    name: App — typecheck, lint & builds
+    name: App — typecheck, lint, tests & build
     runs-on: ubuntu-latest
     timeout-minutes: 15
     defaults:
@@ -56,7 +56,7 @@ jobs:
       - run: npm ci
       - run: npm run typecheck
       - run: npm run lint
-      - name: Build — GitHub Pages demo (mock data)
-        run: npm run build:pages
-      - name: Build — Cloudflare (live API)
+      - name: Translations & store tests
+        run: npm test
+      - name: Build — Cloudflare (static export, live API)
         run: npm run build:cloudflare

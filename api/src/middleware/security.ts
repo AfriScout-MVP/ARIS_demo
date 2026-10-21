@@ -7,7 +7,8 @@ export const securityHeaders: MiddlewareHandler<AppEnv> = async (c, next) => {
   await next();
   c.header("X-Content-Type-Options", "nosniff");
   c.header("Referrer-Policy", "no-referrer");
-  c.header("Cache-Control", "no-store");
+  // a route that serves a cacheable public file (flags, crests) sets its own policy
+  if (!c.res.headers.has("Cache-Control")) c.header("Cache-Control", "no-store");
   c.header("Cross-Origin-Resource-Policy", "same-origin");
 };
 

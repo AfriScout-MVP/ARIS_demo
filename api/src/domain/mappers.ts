@@ -1,5 +1,8 @@
-// Database rows → the shapes the ARIS app already speaks (site/src/lib/mock-data.ts),
-// so the front end can switch between its demo data and this API without changing a screen.
+// Database rows → the shapes the ARIS app speaks (the store types in site/src/lib/store).
+import type { Localized } from "../lib/localized";
+
+/** Where a stored image is served from. Public assets (flags, crests) need no session. */
+export const mediaUrl = (id: string | null | undefined) => (id ? `/api/v1/media/${id}` : null);
 
 export interface OfficialRow {
   id: string;
@@ -18,7 +21,7 @@ export interface OfficialRow {
   disciplines: string;
   email: string | null;
   phone: string | null;
-  photo_key: string | null;
+  photo_media_id: string | null;
   level: string;
   status: string;
   var_qualified: number;
@@ -31,8 +34,7 @@ export interface OfficialRow {
   red_cards: number;
   var_accuracy: number;
   trend: number;
-  bio_en: string;
-  bio_fr: string;
+  bio: string;
   updated_at: string;
 }
 
@@ -74,7 +76,8 @@ export function toReferee(r: OfficialRow) {
     varAccuracy: r.var_accuracy,
     varQualified: r.var_qualified === 1,
     trend: r.trend,
-    bio: { en: r.bio_en, fr: r.bio_fr },
+    bio: json<Localized>(r.bio, { fr: "", en: "" }),
+    photoUrl: mediaUrl(r.photo_media_id),
   };
 }
 
@@ -87,6 +90,7 @@ export function toAssistant(r: OfficialRow) {
     countryCode: r.country_code,
     level: r.level,
     rating: r.rmcs_avg,
+    photoUrl: mediaUrl(r.photo_media_id),
   };
 }
 
@@ -103,7 +107,7 @@ export function toOfficialFile(r: OfficialRow, full: boolean) {
     nationality: r.nationality,
     disciplines: json<string[]>(r.disciplines, ["football"]),
     interventionZones: json<string[]>(r.intervention_zones, []),
-    hasPhoto: Boolean(r.photo_key),
+    hasPhoto: Boolean(r.photo_media_id),
   };
   if (!full) return base;
   return { ...base, matricule: r.matricule, licenceNo: r.licence_no, birthDate: r.birth_date, email: r.email, phone: r.phone, updatedAt: r.updated_at };

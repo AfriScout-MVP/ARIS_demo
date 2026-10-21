@@ -1,0 +1,19 @@
+{
+  "title": "Verbände",
+  "tableSub": "Eine Zeile pro Mitgliedsverband",
+  "corps": "Korpsstärke",
+  "eliteCount": "CAF Elite",
+  "avgArps": "Ø ARPS",
+  "calendarSync": "Kalendersynchronisierung",
+  "syncHealthy": "Aktuell",
+  "syncStale": "Veraltet",
+  "syncManual": "Manuelle Eingabe",
+  "competitionsTracked": "Verfolgte Wettbewerbe",
+  "fixturesSeason": "Spiele in dieser Saison",
+  "openSlots": "Freie Positionen",
+  "zoneSummary": "Nach CAF-Zone",
+  "zoneSummarySub": "Sechs Zonen, zusammengefasst",
+  "detail": "Verbandsdetails",
+  "switchScope": "Als Bereich festlegen",
+  "zonesList": "CAF-Zonen: {list}"
+}

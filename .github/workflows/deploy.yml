@@ -18,6 +18,11 @@ on:
       - ".github/workflows/ci.yml"
       - ".github/workflows/deploy.yml"
   workflow_dispatch:
+    inputs:
+      seed_demo:
+        description: "Load the demo dataset (countries, officials, fixtures, images) into the REMOTE database"
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -77,6 +82,12 @@ jobs:
       - name: Apply SQL migrations
         working-directory: api
         run: npx --no-install wrangler d1 migrations apply ARIS_DB --remote
+
+      # Opt-in, manual runs only: loads the synthetic demo dataset + R2 images. Never runs on push.
+      - name: Seed demo data (D1 + R2)
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.seed_demo }}
+        working-directory: api
+        run: npm run db:seed:remote
 
       - name: Publish the Worker
         id: publish

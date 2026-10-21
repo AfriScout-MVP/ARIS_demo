@@ -3,6 +3,8 @@ import { blockersFor } from "@core/engine";
 import type { AuthUser } from "../env";
 import { ApiError } from "../lib/http";
 import { auditStmt } from "../lib/audit";
+import { CONTINENTAL } from "../lib/access";
+import { notifyStmts, type NotificationInput } from "../lib/notify";
 import type { DbEngineContext, LoadedFixture } from "./engine-ctx";
 
 /** Rules a human may waive with a written reason, versus rules nobody may waive. */
@@ -120,6 +122,7 @@ export function slotChangeStmts(db: D1Database, change: SlotChange, current: Cre
       before: { role, officialId: current.officialId, state: current.state },
       after: { role, officialId: change.toOfficialId, state: change.toState },
       reason: change.reason,
+      countryCode: fixture.countryCode,
       ip: change.ip,
     }),
   ];
@@ -132,5 +135,25 @@ export function slotOf(fixture: LoadedFixture, role: CrewRole) {
   return slot;
 }
 
+/** The slots a competition's crew needs: always R + 2 assistants + fourth, VAR/AVAR where the competition has VAR, an observer on big ties. */
+export function slotsFor(opts: { varEnabled: boolean; tier: string; importance: number }): CrewRole[] {
+  const roles: CrewRole[] = ["R", "AR1", "AR2", "FOURTH"];
+  if (opts.varEnabled) roles.push("VAR", "AVAR");
+  if (opts.tier === "continental" || opts.tier === "cup" || opts.importance >= 70) roles.push("OBS");
+  return roles;
+}
+
 /** Roles that must be filled before a fixture counts as covered. */
 export const requiredSlots = (fixture: LoadedFixture) => fixture.crew.filter((s) => s.role !== "OBS");
+
+/**
+ * A notice for the people who run a fixture: the federation of its country (never role-wide across countries),
+ * or the platform administrators for a continental tie, which belongs to no federation.
+ */
+export function staffNoticeStmts(
+  db: D1Database,
+  fixture: Pick<LoadedFixture, "countryCode">,
+  n: Omit<NotificationInput, "userId" | "audienceRole" | "countryCode" | "channels">,
+) {
+  return notifyStmts(db, fixture.countryCode === CONTINENTAL ? { ...n, audienceRole: "admin" } : { ...n, audienceRole: "federation", countryCode: fixture.countryCode });
+}

@@ -8,6 +8,7 @@ import { useLocale, useT } from "@/lib/i18n/LocaleProvider";
 import { useScope } from "@/lib/scope/ScopeProvider";
 import { PageHeading } from "@/components/layout/PageHeading";
 import { Button, Card, EmptyState } from "@/components/ui";
+import { CountryFlag } from "@/components/ui/CountryFlag";
 import { ask, suggestions, type Answer } from "@/lib/copilot";
 
 interface Turn {
@@ -73,7 +74,7 @@ export default function CopilotPage() {
                   {t("copilot.suggestions")}
                 </p>
                 <div className="flex flex-wrap gap-2">
-                  {suggestions(locale).map((s) => (
+                  {suggestions(locale, codes).map((s) => (
                     <button
                       key={s}
                       onClick={() => submit(s)}
@@ -120,12 +121,18 @@ export default function CopilotPage() {
                                     href={row.href}
                                     className="flex items-center justify-between gap-3 border-b border-line px-3 py-2 last:border-0 row-hover"
                                   >
-                                    <span className="min-w-0 truncate text-xs text-chalk">{row.label}</span>
+                                    <span className="min-w-0 truncate text-xs text-chalk">
+                                      {row.flag && <CountryFlag code={row.flag} className="mr-1.5" />}
+                                      {row.label}
+                                    </span>
                                     <span className="shrink-0 text-xs text-chalk-faint">{row.meta}</span>
                                   </Link>
                                 ) : (
                                   <div className="flex items-center justify-between gap-3 border-b border-line px-3 py-2 last:border-0">
-                                    <span className="min-w-0 truncate text-xs text-chalk">{row.label}</span>
+                                    <span className="min-w-0 truncate text-xs text-chalk">
+                                      {row.flag && <CountryFlag code={row.flag} className="mr-1.5" />}
+                                      {row.label}
+                                    </span>
                                     <span className="shrink-0 text-xs text-chalk-faint">{row.meta}</span>
                                   </div>
                                 )}

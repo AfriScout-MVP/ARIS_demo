@@ -71,7 +71,7 @@ export default function MySpacePage() {
   const t = useT();
   const fmt = useFormatters();
   const toast = useToast();
-  const { live, user, noteFailure } = useDataset();
+  const { user, noteFailure } = useDataset();
   const officialId = user?.officialId ?? null;
 
   const [designations, setDesignations] = useState<Designation[]>([]);
@@ -108,11 +108,11 @@ export default function MySpacePage() {
   }, [noteFailure]);
 
   useEffect(() => {
-    if (!live || !officialId) return;
+    if (!officialId) return;
     // load once the session is known
     // eslint-disable-next-line react-hooks/set-state-in-effect
     void refresh();
-  }, [live, officialId, refresh]);
+  }, [officialId, refresh]);
 
   /* ---- answering a designation ---- */
   const [declining, setDeclining] = useState<string | null>(null);
@@ -171,11 +171,11 @@ export default function MySpacePage() {
     }
   }
 
-  if (!live || !officialId) {
+  if (!officialId) {
     return (
       <>
         <PageHeading titleKey="me.title" subtitleKey="me.subtitle" />
-        <EmptyState title={t("me.demoOnly")} />
+        <EmptyState title={t("me.noOfficial")} />
       </>
     );
   }

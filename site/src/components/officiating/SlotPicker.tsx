@@ -6,7 +6,8 @@ import { cn } from "@/lib/utils";
 import { useT } from "@/lib/i18n/LocaleProvider";
 import { Badge, Button } from "@/components/ui";
 import { blockerKey, candidatesForSlot } from "@/lib/assignment";
-import { countryFlag, roleKey, type CrewRole, type CrewSlot, type Fixture } from "@/lib/mock-data";
+import { CountryFlag } from "@/components/ui/CountryFlag";
+import { roleKey, type CrewRole, type CrewSlot, type Fixture } from "@/lib/store";
 
 export function SlotPicker({
   fixture,
@@ -100,7 +101,7 @@ export function SlotPicker({
                 </span>
                 <span className="min-w-0 flex-1">
                   <span className="block truncate text-sm text-chalk">
-                    {countryFlag(candidate.countryCode)} {candidate.name}
+                    <CountryFlag code={candidate.countryCode} /> {candidate.name}
                   </span>
                   <span className="mt-0.5 block text-[11px] text-chalk-faint">
                     {blocked ? (

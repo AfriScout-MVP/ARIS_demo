@@ -6,19 +6,25 @@ import { CalendarDays, CornerDownLeft, Globe2, Search, Users } from "@/component
 import { cn } from "@/lib/utils";
 import { useLocale, useT } from "@/lib/i18n/LocaleProvider";
 import { useScope } from "@/lib/scope/ScopeProvider";
+import { CountryFlag } from "@/components/ui/CountryFlag";
+import { useDataset } from "@/lib/dataset/DatasetProvider";
+import { isAdmin } from "@/lib/roles";
 import {
   competitionById,
   countries,
-  countryFlag,
+  countryName,
   fixtures,
   referees,
-} from "@/lib/mock-data";
-import { navItems } from "./nav-items";
+  refereeHref,
+} from "@/lib/store";
+import { navItemsFor } from "./nav-items";
 
 interface Row {
   id: string;
   label: string;
   meta: string;
+  /** Country whose flag is drawn in front of the row. */
+  flag?: string;
   group: "page" | "referee" | "fixture" | "country";
   run: () => void;
 }
@@ -34,6 +40,7 @@ function Palette({ onClose }: { onClose: () => void }) {
   const { locale } = useLocale();
   const router = useRouter();
   const { setScope } = useScope();
+  const { user } = useDataset();
   const [query, setQuery] = useState("");
   const [cursor, setCursor] = useState(0);
   const listRef = useRef<HTMLDivElement>(null);
@@ -45,7 +52,7 @@ function Palette({ onClose }: { onClose: () => void }) {
       onClose();
     };
 
-    const pages: Row[] = navItems.map((item) => ({
+    const pages: Row[] = navItemsFor(user?.role).map((item) => ({
       id: `page-${item.href}`,
       label: t(item.labelKey),
       meta: t("common.open"),
@@ -56,9 +63,10 @@ function Palette({ onClose }: { onClose: () => void }) {
     const people: Row[] = referees.map((r) => ({
       id: `ref-${r.id}`,
       label: r.name,
-      meta: `${countryFlag(r.countryCode)} ${r.level}`,
+      meta: r.level,
+      flag: r.countryCode,
       group: "referee",
-      run: go(`/referees/${r.id}`),
+      run: go(refereeHref(r.id)),
     }));
 
     const games: Row[] = fixtures.slice(0, 80).map((f) => ({
@@ -69,9 +77,11 @@ function Palette({ onClose }: { onClose: () => void }) {
       run: go("/calendar"),
     }));
 
-    const places: Row[] = countries.map((c) => ({
+    // only a super-admin chooses a country to look at; a federation seat is fixed on its own
+    const places: Row[] = (isAdmin(user) ? countries : []).map((c) => ({
       id: `co-${c.code}`,
-      label: `${c.flag} ${locale === "fr" ? c.nameFr : c.name}`,
+      label: countryName(c.code, locale),
+      flag: c.code,
       meta: `${c.federation} · ${t("federations.switchScope")}`,
       group: "country",
       run: () => {
@@ -84,7 +94,7 @@ function Palette({ onClose }: { onClose: () => void }) {
     const all = [...pages, ...people, ...games, ...places];
     if (!q) return [...pages, ...people.slice(0, 5)];
     return all.filter((row) => `${row.label} ${row.meta}`.toLowerCase().includes(q)).slice(0, 24);
-  }, [query, t, locale, router, onClose, setScope]);
+  }, [query, t, locale, router, onClose, setScope, user]);
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -178,8 +188,14 @@ function Palette({ onClose }: { onClose: () => void }) {
                   )}
                 >
                   <Icon size={14} className="shrink-0 text-chalk-faint" />
-                  <span className="min-w-0 flex-1 truncate text-sm text-chalk">{row.label}</span>
-                  <span className="hidden shrink-0 truncate text-xs text-chalk-faint sm:block">{row.meta}</span>
+                  <span className="min-w-0 flex-1 truncate text-sm text-chalk">
+                    {row.group === "country" && row.flag && <CountryFlag code={row.flag} className="mr-1.5" />}
+                    {row.label}
+                  </span>
+                  <span className="hidden shrink-0 items-center gap-1.5 truncate text-xs text-chalk-faint sm:flex">
+                    {row.group !== "country" && row.flag && <CountryFlag code={row.flag} />}
+                    {row.meta}
+                  </span>
                   {cursor === i && <CornerDownLeft size={13} className="shrink-0 text-chalk-faint" />}
                 </button>
               </div>

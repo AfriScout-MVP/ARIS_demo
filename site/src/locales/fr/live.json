@@ -1,0 +1,12 @@
+{
+  "stale": "Quelqu'un d'autre a modifié ce poste. Le calendrier a été actualisé.",
+  "ineligible": "Cet officiel ne peut pas tenir ce rôle : {why}.",
+  "reasonRequired": "Un motif écrit est obligatoire pour ce changement.",
+  "forbidden": "Votre compte n'est pas autorisé à effectuer ce changement.",
+  "notSaved": "Le changement n'a pas été enregistré. Réessayez.",
+  "offline": "Pas de connexion — le changement n'a pas été enregistré.",
+  "played": "Ce match a déjà été joué.",
+  "autoFillFailed": "L'attribution automatique n'a pas abouti. Réessayez.",
+  "reasonPrompt": "Motif de ce changement (obligatoire) :",
+  "overridePrompt": "{why}. Pour continuer malgré tout, indiquez un motif écrit :"
+}

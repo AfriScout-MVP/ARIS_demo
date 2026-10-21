@@ -1,5 +1,6 @@
 "use client";
 
+import { useSyncNow } from "@/lib/dataset/useSyncNow";
 import { useMemo, useState } from "react";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { CalendarDays, Globe2, RefreshCcw, Trophy, Users } from "@/components/icons/glyphs";
@@ -9,29 +10,29 @@ import { useScope } from "@/lib/scope/ScopeProvider";
 import { PageHeading } from "@/components/layout/PageHeading";
 import { Badge, Board, Button, Card, CardHeader, EmptyState, Segmented, Td, Th } from "@/components/ui";
 import { axisProps, barCursor, chartColors, tooltipStyle } from "@/components/charts/theme";
+import { CountryFlag } from "@/components/ui/CountryFlag";
 import {
   competitions,
   countryByCode,
   countryName,
   federationRows,
   zoneDistribution,
-  zoneNames,
-  zoneNamesFr,
-  zones,
+  zoneKey,
   type Zone,
-} from "@/lib/mock-data";
+} from "@/lib/store";
 
 export default function FederationsPage() {
   const t = useT();
   const { locale } = useLocale();
-  const { setScope, codes } = useScope();
+  const { setScope, codes, lockedTo } = useScope();
   const [zoneFilter, setZoneFilter] = useState<Zone | "all">("all");
+  const { syncing, syncNow } = useSyncNow();
 
-  const zoneLabel = locale === "fr" ? zoneNamesFr : zoneNames;
+  const presentZones = useMemo(() => zoneDistribution(), []);
 
   const rows = useMemo(
     () =>
-      federationRows
+      federationRows()
         .filter((row) => zoneFilter === "all" || row.zone === zoneFilter)
         .sort((a, b) => b.avgArps - a.avgArps),
     [zoneFilter],
@@ -82,7 +83,7 @@ export default function FederationsPage() {
           onChange={setZoneFilter}
           options={[
             { value: "all" as const, label: t("common.all") },
-            ...zones.map((z) => ({ value: z, label: z })),
+            ...presentZones.map((z) => ({ value: z.zone, label: z.zone })),
           ]}
         />
       </div>
@@ -95,14 +96,13 @@ export default function FederationsPage() {
         <>
           <ul className="space-y-2 lg:hidden">
             {rows.map((row) => {
-              const country = countryByCode.get(row.countryCode)!;
-              return (
+                            return (
                 <li key={row.code}>
                   <Card interactive>
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
                         <p className="truncate text-sm font-medium text-chalk">
-                          {country.flag} {countryName(row.countryCode, locale)}
+                          <CountryFlag code={row.countryCode} /> {countryName(row.countryCode, locale)}
                         </p>
                         <p className="text-xs text-chalk-faint">
                           {row.code} · {row.zone}
@@ -126,6 +126,7 @@ export default function FederationsPage() {
                       <Mini label={t("calendar.fixtures")} value={row.fixtures} />
                       <Mini label={t("federations.openSlots")} value={row.openSlots} />
                     </div>
+                    {!lockedTo && (
                     <Button
                       className="mt-3 w-full"
                       size="sm"
@@ -134,6 +135,7 @@ export default function FederationsPage() {
                     >
                       {t("federations.switchScope")}
                     </Button>
+                    )}
                   </Card>
                 </li>
               );
@@ -159,12 +161,11 @@ export default function FederationsPage() {
                 </thead>
                 <tbody>
                   {rows.map((row) => {
-                    const country = countryByCode.get(row.countryCode)!;
-                    return (
+                                        return (
                       <tr key={row.code} className="border-b border-line last:border-0 row-hover">
                         <Td>
                           <span className="text-chalk">
-                            {country.flag} {countryName(row.countryCode, locale)}
+                            <CountryFlag code={row.countryCode} /> {countryName(row.countryCode, locale)}
                           </span>
                           <span className="ml-1.5 text-chalk-faint">{row.code}</span>
                         </Td>
@@ -197,9 +198,11 @@ export default function FederationsPage() {
                           </span>
                         </Td>
                         <Td className="text-right">
-                          <Button size="sm" variant="ghost" onClick={() => setScope({ kind: "country", code: row.countryCode })}>
-                            {t("federations.switchScope")}
-                          </Button>
+                          {!lockedTo && (
+                            <Button size="sm" variant="ghost" onClick={() => setScope({ kind: "country", code: row.countryCode })}>
+                              {t("federations.switchScope")}
+                            </Button>
+                          )}
                         </Td>
                       </tr>
                     );
@@ -216,7 +219,7 @@ export default function FederationsPage() {
           <CardHeader icon={Globe2} tint="var" title={t("federations.zoneSummary")} subtitle={t("federations.zoneSummarySub")} />
           <div className="h-56">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={zoneDistribution} margin={{ top: 4, right: 6, bottom: 0, left: -24 }}>
+              <BarChart data={presentZones} margin={{ top: 4, right: 6, bottom: 0, left: -24 }}>
                 <CartesianGrid stroke={chartColors.grid} vertical={false} />
                 <XAxis dataKey="zone" {...axisProps} interval={0} angle={-12} textAnchor="end" height={44} />
                 <YAxis {...axisProps} />
@@ -235,8 +238,8 @@ export default function FederationsPage() {
             title={t("common.competitions")}
             subtitle={t("federations.competitionsTracked")}
             action={
-              <Button size="sm" variant="secondary">
-                <RefreshCcw size={12} />
+              <Button size="sm" variant="secondary" disabled={syncing} onClick={() => void syncNow()}>
+                <RefreshCcw size={12} className={syncing ? "animate-spin" : undefined} />
                 {t("common.syncNow")}
               </Button>
             }
@@ -264,9 +267,7 @@ export default function FederationsPage() {
       </div>
 
       <p className="text-xs text-chalk-faint">
-        {locale === "fr"
-          ? `Zones CAF : ${zones.map((z) => `${z} (${zoneLabel[z]})`).join(" · ")}`
-          : `CAF zones: ${zones.map((z) => `${z} (${zoneLabel[z]})`).join(" · ")}`}
+        {t("federations.zonesList", { list: presentZones.map((z) => `${z.zone} (${t(zoneKey[z.zone])})`).join(" · ") })}
       </p>
     </div>
   );

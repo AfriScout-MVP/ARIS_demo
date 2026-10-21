@@ -369,3 +369,29 @@ export const Sun = glyph(
   </>,
 );
 export const Moon = glyph("Moon", <path d="M20 14.500A8.500 8.500 0 1 1 9.500 4a6.500 6.500 0 0 0 10.500 10.500z" />);
+
+/* ------------------------------------------------------------ administration */
+
+/** Row actions: three dots. */
+export const Ellipsis = glyph(
+  "Ellipsis",
+  <>
+    <Dot cx={5} cy={12} r={1.4} />
+    <Dot cx={12} cy={12} r={1.4} />
+    <Dot cx={19} cy={12} r={1.4} />
+  </>,
+);
+export const Eye = glyph(
+  "Eye",
+  <>
+    <path d="M2 12s3.800-6.500 10-6.500S22 12 22 12s-3.800 6.500-10 6.500S2 12 2 12z" />
+    <circle cx={12} cy={12} r={2.800} />
+  </>,
+);
+export const EyeOff = glyph(
+  "EyeOff",
+  <path d="M4 4l16 16M9.800 6a9.600 9.600 0 0 1 2.200-.5c6.200 0 10 6.500 10 6.500a16 16 0 0 1-3 3.700M6.400 7.700A16 16 0 0 0 2 12s3.800 6.500 10 6.500a9.300 9.300 0 0 0 3.800-.8M10 10a2.800 2.800 0 0 0 4 4" />,
+);
+export const Upload = glyph("Upload", <path d="M12 15V3M7 8l5-5 5 5M4 20.500h16" />);
+export const Copy = glyph("Copy", <path d="M9 9h12v12H9zM15 9V3H3v12h6" />);
+export const Pencil = glyph("Pencil", <path d="M4 20l1-4L16.500 4.500l3 3L8 19zM14 7l3 3" />);

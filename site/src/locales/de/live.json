@@ -1,0 +1,12 @@
+{
+  "stale": "Jemand anderes hat diese Position geändert. Der Kalender wurde aktualisiert.",
+  "ineligible": "Dieser Offizielle kann diese Rolle nicht übernehmen: {why}.",
+  "reasonRequired": "Für diese Änderung ist eine schriftliche Begründung erforderlich.",
+  "forbidden": "Ihr Konto ist für diese Änderung nicht berechtigt.",
+  "notSaved": "Die Änderung wurde nicht gespeichert. Versuchen Sie es erneut.",
+  "offline": "Keine Verbindung — die Änderung wurde nicht gespeichert.",
+  "played": "Dieses Spiel wurde bereits ausgetragen.",
+  "autoFillFailed": "Die automatische Besetzung ist fehlgeschlagen. Versuchen Sie es erneut.",
+  "reasonPrompt": "Begründung für diese Änderung (erforderlich):",
+  "overridePrompt": "{why}. Um dennoch fortzufahren, geben Sie eine schriftliche Begründung an:"
+}

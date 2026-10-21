@@ -6,17 +6,25 @@ import { BadgeCheck, GraduationCap, HeartPulse, ShieldAlert, Timer, Users } from
 import { cn } from "@/lib/utils";
 import { useFormatters, useLocale, useT } from "@/lib/i18n/LocaleProvider";
 import { useScope } from "@/lib/scope/ScopeProvider";
+import { api } from "@/lib/api/client";
+import { describeError } from "@/lib/admin/errors";
+import { useDataset } from "@/lib/dataset/DatasetProvider";
+import { useToast } from "@/lib/toast/ToastProvider";
 import { PageHeading } from "@/components/layout/PageHeading";
 import { Badge, Board, Button, Card, CardHeader, EmptyState, Meter, Segmented, Td, Th } from "@/components/ui";
+import { CountryFlag } from "@/components/ui/CountryFlag";
+import { pickLocalized } from "@/lib/i18n/localized";
 import {
-  countryFlag,
+  addDays,
   courses,
   fitnessTests,
   licenceStatus,
   licences,
   refereeById,
+  refereeHref,
   referees,
-} from "@/lib/mock-data";
+  today,
+} from "@/lib/store";
 
 type Tab = "licences" | "fitness" | "courses";
 
@@ -26,6 +34,25 @@ export default function DevelopmentPage() {
   const fmt = useFormatters();
   const { codes } = useScope();
   const [tab, setTab] = useState<Tab>("licences");
+  const { refresh, noteFailure } = useDataset();
+  const toast = useToast();
+  const [renewing, setRenewing] = useState<string | null>(null);
+
+  /** A renewal runs for a year from today; the API audits it and enforces the country scope. */
+  async function renew(licenceId: string) {
+    setRenewing(licenceId);
+    try {
+      const issued = today();
+      await api(`/licences/${encodeURIComponent(licenceId)}`, { method: "PATCH", body: { issued, expires: addDays(issued, 365) } });
+      await refresh();
+      toast.push("success", t("development.renewed"));
+    } catch (err) {
+      noteFailure(err);
+      toast.push("error", t(describeError(err).key));
+    } finally {
+      setRenewing(null);
+    }
+  }
 
   const corps = useMemo(() => referees.filter((r) => codes.includes(r.countryCode)), [codes]);
   const corpsIds = useMemo(() => new Set(corps.map((r) => r.id)), [corps]);
@@ -120,8 +147,8 @@ export default function DevelopmentPage() {
                     return (
                       <tr key={licence.id} className="border-b border-line last:border-0 row-hover">
                         <Td>
-                          <Link href={`/referees/${referee.id}`} className="text-chalk hover:underline">
-                            {countryFlag(referee.countryCode)} {referee.name}
+                          <Link href={refereeHref(referee.id)} className="text-chalk hover:underline">
+                            <CountryFlag code={referee.countryCode} /> {referee.name}
                           </Link>
                         </Td>
                         <Td>{licence.kind}</Td>
@@ -140,7 +167,7 @@ export default function DevelopmentPage() {
                         </Td>
                         <Td className="text-right">
                           {status.state !== "valid" && (
-                            <Button size="sm" variant="secondary">
+                            <Button size="sm" variant="secondary" disabled={renewing === licence.id} onClick={() => void renew(licence.id)}>
                               {t("development.renew")}
                             </Button>
                           )}
@@ -179,8 +206,8 @@ export default function DevelopmentPage() {
                     return (
                       <tr key={test.refereeId} className="border-b border-line last:border-0 row-hover">
                         <Td>
-                          <Link href={`/referees/${referee.id}`} className="text-chalk hover:underline">
-                            {countryFlag(referee.countryCode)} {referee.name}
+                          <Link href={refereeHref(referee.id)} className="text-chalk hover:underline">
+                            <CountryFlag code={referee.countryCode} /> {referee.name}
                           </Link>
                         </Td>
                         <Td className="tnum">{fmt.date(test.date)}</Td>
@@ -268,7 +295,7 @@ export default function DevelopmentPage() {
                     <GraduationCap size={15} />
                   </span>
                   <div className="min-w-0">
-                    <h3 className="text-sm font-medium text-chalk">{course.name[locale]}</h3>
+                    <h3 className="text-sm font-medium text-chalk">{pickLocalized(course.name, locale)}</h3>
                     <p className="text-xs text-chalk-faint">
                       {course.provider} · {course.hours}
                       {t("common.hours")}
@@ -306,7 +333,7 @@ export default function DevelopmentPage() {
                     return (
                       <Link
                         key={id}
-                        href={`/referees/${id}`}
+                        href={refereeHref(id)}
                         className="rounded border border-line px-1.5 py-0.5 text-[10.5px] text-chalk-faint hover:text-chalk"
                       >
                         {referee.initials}

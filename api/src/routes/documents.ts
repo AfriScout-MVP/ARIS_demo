@@ -3,62 +3,68 @@ import { z } from "zod";
 import type { AppEnv } from "../env";
 import { ApiError, notFound, readJson } from "../lib/http";
 import { auditStmt } from "../lib/audit";
-import { canActFor, isStaff } from "../lib/access";
+import { isStaff, officialAccess } from "../lib/access";
+import { deleteMedia, serveAsset, type AssetRow } from "../lib/media";
+import { notifyOfficialStmts } from "../lib/notify";
 import { currentUser, staff } from "../middleware/auth";
 
+/** Documents of an official's file. The bytes are in R2 (registry: media_assets); this row says what the file is for. */
 export const documents = new Hono<AppEnv>();
 
-interface DocRow {
-  id: string;
+interface DocRow extends AssetRow {
+  doc_id: string;
   official_id: string;
-  kind: string;
-  r2_key: string;
-  filename: string;
-  content_type: string;
+  doc_kind: string;
   status: string;
 }
 
+const DOC_SQL = `SELECT d.id AS doc_id, d.official_id, d.kind AS doc_kind, d.status, m.id, m.kind, m.visibility, m.r2_key, m.filename,
+       m.content_type, m.size, m.sha256, m.owner_type, m.owner_id
+  FROM documents d JOIN media_assets m ON m.id = d.media_id WHERE d.id = ?`;
+
+/** Same answer whether the document does not exist or is not the caller's — ids are not confirmed. */
+async function loadVisible(c: { env: AppEnv["Bindings"] }, user: ReturnType<typeof currentUser>, id: string) {
+  const doc = await c.env.DB.prepare(DOC_SQL).bind(id).first<DocRow>();
+  if (!doc) throw notFound("Document");
+  const access = await officialAccess(c.env.DB, user, doc.official_id);
+  if (!access.canRead) throw notFound("Document");
+  return { doc, access };
+}
+
 documents.get("/:id", async (c) => {
-  const user = currentUser(c);
-  const doc = await c.env.DB.prepare("SELECT id, official_id, kind, r2_key, filename, content_type, status FROM documents WHERE id = ?").bind(c.req.param("id")).first<DocRow>();
-  // Same answer whether it does not exist or is not yours — do not confirm which ids are real.
-  if (!doc || !canActFor(user, doc.official_id)) throw notFound("Document");
-  const obj = await c.env.MEDIA.get(doc.r2_key);
-  if (!obj) throw notFound("Document");
-  return new Response(obj.body, {
-    headers: {
-      "content-type": doc.content_type,
-      "content-disposition": `attachment; filename="${doc.filename.replace(/"/g, "")}"`,
-      "x-content-type-options": "nosniff",
-      "cache-control": "private, no-store",
-    },
-  });
+  const { doc } = await loadVisible(c, currentUser(c), c.req.param("id"));
+  return serveAsset(c.env, c.req.raw, doc, { disposition: "attachment" });
 });
 
 documents.patch("/:id/status", staff, async (c) => {
   const user = currentUser(c);
   const { status } = await readJson(c, z.object({ status: z.enum(["verified", "rejected", "pending"]) }));
-  const id = c.req.param("id");
-  const res = await c.env.DB.batch([
-    c.env.DB.prepare("UPDATE documents SET status = ? WHERE id = ?").bind(status, id),
-    auditStmt(c.env.DB, user, { action: `document.${status}`, entity: "document", entityId: id, ip: c.get("ip") }),
+  const { doc, access } = await loadVisible(c, user, c.req.param("id"));
+  const db = c.env.DB;
+  const notice =
+    status === "pending"
+      ? []
+      : await notifyOfficialStmts(db, doc.official_id, {
+          title: status === "verified" ? { fr: "Document validé", en: "Document verified" } : { fr: "Document refusé", en: "Document rejected" },
+          detail: { fr: `Votre document « ${doc.filename} » a été ${status === "verified" ? "validé" : "refusé"}.`, en: `Your document "${doc.filename}" was ${status}.` },
+          tone: status === "verified" ? "pitch" : "amber",
+          href: "/me",
+        });
+  await db.batch([
+    db.prepare("UPDATE documents SET status = ? WHERE id = ?").bind(status, doc.doc_id),
+    auditStmt(db, user, { action: `document.${status}`, entity: "official", entityId: doc.official_id, after: { documentId: doc.doc_id }, countryCode: access.countryCode, ip: c.get("ip") }),
+    ...notice,
   ]);
-  if (res[0].meta.changes === 0) throw notFound("Document");
   return c.json({ ok: true, status });
 });
 
 documents.delete("/:id", async (c) => {
   const user = currentUser(c);
-  const id = c.req.param("id");
-  const doc = await c.env.DB.prepare("SELECT id, official_id, kind, r2_key, filename, content_type, status FROM documents WHERE id = ?").bind(id).first<DocRow>();
-  if (!doc || !canActFor(user, doc.official_id)) throw notFound("Document");
-  // An official may withdraw a file they uploaded only until the commission has looked at it.
-  if (!isStaff(user) && doc.status !== "pending") throw new ApiError(403, "forbidden", "A reviewed document can only be removed by the commission");
-  await c.env.DB.batch([
-    c.env.DB.prepare("DELETE FROM documents WHERE id = ?").bind(id),
-    c.env.DB.prepare("UPDATE officials SET photo_key = NULL WHERE id = ? AND photo_key = ?").bind(doc.official_id, doc.r2_key),
-    auditStmt(c.env.DB, user, { action: "document.delete", entity: "official", entityId: doc.official_id, before: { documentId: id, filename: doc.filename }, ip: c.get("ip") }),
+  const { doc, access } = await loadVisible(c, user, c.req.param("id"));
+  // An official may withdraw a file they uploaded only until the federation has looked at it.
+  if (!isStaff(user) && doc.status !== "pending") throw new ApiError(403, "forbidden", "A reviewed document can only be removed by the federation");
+  await deleteMedia(c.env, [doc.id], [
+    auditStmt(c.env.DB, user, { action: "document.delete", entity: "official", entityId: doc.official_id, before: { documentId: doc.doc_id, filename: doc.filename }, countryCode: access.countryCode, ip: c.get("ip") }),
   ]);
-  await c.env.MEDIA.delete(doc.r2_key);
   return c.json({ ok: true });
 });

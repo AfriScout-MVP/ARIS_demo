@@ -13,7 +13,7 @@ import {
   type CrewRole,
   type CrewSlot,
   type Fixture,
-} from "./mock-data";
+} from "./store";
 import {
   bestCandidate as coreBestCandidate,
   candidatesForSlot as coreCandidatesForSlot,
@@ -69,7 +69,7 @@ export const appContext: EngineContext = {
         f.date === fixture.date &&
         f.crew.some((s) => s.officialId === officialId && s.state !== "empty"),
     ),
-  // The demo carries no declared conflicts of interest.
+  // Declared conflicts of interest are checked by the API when a designation is saved.
   hasConflict: () => false,
 };
 

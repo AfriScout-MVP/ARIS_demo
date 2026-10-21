@@ -17,21 +17,19 @@ import {
   CartesianGrid,
 } from "recharts";
 import { Activity, ArrowUpRight, CalendarDays, ClipboardList, Gauge, Globe2, RefreshCcw, Scale, ShieldAlert, Timer, TrendingUp, Trophy, UserPlus, Users } from "@/components/icons/glyphs";
-import { useLocale, useT } from "@/lib/i18n/LocaleProvider";
-import { useFormatters } from "@/lib/i18n/LocaleProvider";
+import { useFormatters, useT } from "@/lib/i18n/LocaleProvider";
 import { useScope } from "@/lib/scope/ScopeProvider";
-import { LIVE } from "@/lib/api/config";
 import { PageHeading } from "@/components/layout/PageHeading";
 import { Badge, Board, Card, CardHeader, Dot, EmptyState, Meter, ScoreRing } from "@/components/ui";
 import { CrewStrip } from "@/components/officiating/CrewStrip";
 import { axisProps, barCursor, chartColors, decisionColors, tooltipStyle } from "@/components/charts/theme";
+import { CountryFlag } from "@/components/ui/CountryFlag";
 import {
-  DEMO_TODAY,
+  arpsDelta,
   arpsTrend,
   assessments,
   competitionById,
   countries,
-  countryFlag,
   crewIsComplete,
   daysBetween,
   decisionsBreakdown,
@@ -41,29 +39,29 @@ import {
   matchById,
   openSlots,
   referees,
+  refereeHref,
+  today,
   weekStarts,
   workloadFor,
   WORKLOAD_HEAVY,
   zoneDistribution,
-} from "@/lib/mock-data";
+} from "@/lib/store";
 
-const decisionLabels: Record<string, { en: string; fr: string }> = {
-  correct: { en: "Correct on the field", fr: "Correcte sur le terrain" },
-  "correct-var": { en: "Correct after VAR", fr: "Correcte après VAR" },
-  overturned: { en: "Overturned", fr: "Annulée" },
-  missed: { en: "Missed", fr: "Non vue" },
-};
+const decisionLabelKey = {
+  correct: "overview.decisionCorrect",
+  "correct-var": "overview.decisionCorrectVar",
+  overturned: "overview.decisionOverturned",
+} as const;
 
 export default function OverviewPage() {
   const t = useT();
-  const { locale } = useLocale();
   const fmt = useFormatters();
   const { matches: inScope, codes } = useScope();
 
   const data = useMemo(() => {
     const scoped = fixtures.filter((f) => inScope(f.countryCode));
     const thisWeek = scoped.filter(
-      (f) => f.date >= weekStarts[1] && f.date <= weekStarts[2] && !f.played,
+      (f) => f.date >= weekStarts()[1] && f.date <= weekStarts()[2] && !f.played,
     );
     const complete = thisWeek.filter(crewIsComplete).length;
     const corps = referees.filter((r) => codes.includes(r.countryCode));
@@ -113,6 +111,9 @@ export default function OverviewPage() {
     };
   }, [inScope, codes]);
 
+  const trend = useMemo(() => arpsTrend.map((p) => ({ ...p, label: fmt.month(p.month) })), [fmt]);
+  const zones = useMemo(() => zoneDistribution(), []);
+
   const coveragePct = data.thisWeek.length
     ? Math.round((data.complete / data.thisWeek.length) * 100)
     : 100;
@@ -123,7 +124,7 @@ export default function OverviewPage() {
       tone: "red" as const,
       icon: Timer,
       href: "/calendar",
-      label: locale === "fr" ? "Postes vides cette semaine" : "Empty slots this week",
+      label: t("overview.alertSlots"),
       value: data.openSlotTotal,
     },
     data.overdueReports.length > 0 && {
@@ -131,7 +132,7 @@ export default function OverviewPage() {
       tone: "amber" as const,
       icon: ClipboardList,
       href: "/assessments",
-      label: locale === "fr" ? "Rapports d'observateur en attente" : "Observer reports outstanding",
+      label: t("overview.alertReports"),
       value: data.overdueReports.length,
     },
     data.expiring.length > 0 && {
@@ -139,7 +140,7 @@ export default function OverviewPage() {
       tone: "amber" as const,
       icon: ShieldAlert,
       href: "/development",
-      label: locale === "fr" ? "Licences à renouveler" : "Licences to renew",
+      label: t("overview.alertLicences"),
       value: data.expiring.length,
     },
     data.staleFeeds.length > 0 && {
@@ -147,7 +148,7 @@ export default function OverviewPage() {
       tone: "var" as const,
       icon: RefreshCcw,
       href: "/federations",
-      label: locale === "fr" ? "Calendriers non synchronisés" : "Calendar feeds out of date",
+      label: t("overview.alertSync"),
       value: data.staleFeeds.length,
     },
     data.suspended.length > 0 && {
@@ -155,7 +156,7 @@ export default function OverviewPage() {
       tone: "red" as const,
       icon: ShieldAlert,
       href: "/referees",
-      label: locale === "fr" ? "Officiels suspendus" : "Officials suspended",
+      label: t("overview.alertSuspended"),
       value: data.suspended.length,
     },
   ].filter(Boolean) as Array<{
@@ -199,7 +200,7 @@ export default function OverviewPage() {
           icon={Gauge}
           label={t("overview.kpiArps")}
           value={data.avgArps.toFixed(1)}
-          delta={1.8}
+          delta={arpsDelta() ?? undefined}
         />
       </div>
 
@@ -226,7 +227,7 @@ export default function OverviewPage() {
             <ul className="space-y-2">
               {data.needsCrew.map((fixture) => {
                 const comp = competitionById.get(fixture.competitionId);
-                const days = daysBetween(DEMO_TODAY, fixture.date);
+                const days = daysBetween(today(), fixture.date);
                 return (
                   <li key={fixture.id}>
                     <Link
@@ -238,14 +239,13 @@ export default function OverviewPage() {
                           {fixture.home} <span className="text-chalk-faint">—</span> {fixture.away}
                         </p>
                         <p className="mt-0.5 truncate text-xs text-chalk-faint">
-                          {countryFlag(fixture.countryCode)} {comp?.name} · {fmt.longDate(fixture.date)} · {fixture.kickoff}
+                          <CountryFlag code={fixture.countryCode} /> {comp?.name} · {fmt.longDate(fixture.date)} · {fixture.kickoff}
                         </p>
                       </div>
                       <div className="flex min-w-0 items-center gap-3">
                         <CrewStrip crew={fixture.crew} />
                         <Badge tone={days <= 3 ? "red" : "amber"} className="shrink-0">
-                          {days}
-                          {locale === "fr" ? "j" : "d"}
+                          {t("overview.daysShort", { n: days })}
                         </Badge>
                       </div>
                     </Link>
@@ -303,7 +303,7 @@ export default function OverviewPage() {
                     <li key={row.officialId} className="rounded-[10px] border border-line bg-ink-1 px-3 py-2">
                       <div className="flex items-center justify-between gap-2">
                         <span className="min-w-0 truncate text-xs text-chalk">
-                          {countryFlag(row.countryCode)} {row.name}
+                          <CountryFlag code={row.countryCode} /> {row.name}
                         </span>
                         <span className="board shrink-0 text-sm text-amber">{row.appointments}</span>
                       </div>
@@ -339,7 +339,7 @@ export default function OverviewPage() {
                       className="flex items-center justify-between gap-2 rounded-[10px] border border-line bg-ink-1 px-3 py-2.5"
                     >
                       <span className="min-w-0 truncate text-xs text-chalk">
-                        {countryFlag(row.countryCode)} {row.name}
+                        <CountryFlag code={row.countryCode} /> {row.name}
                       </span>
                       <span className="shrink-0 text-[11px] text-chalk-faint">
                         0 {t("overview.appointments")}
@@ -356,34 +356,42 @@ export default function OverviewPage() {
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <Card className="lg:col-span-2">
           <CardHeader icon={TrendingUp} tint="pitch" title={t("overview.arpsTrend")} subtitle={t("overview.arpsTrendSub")} />
-          <div className="h-56">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={arpsTrend} margin={{ top: 4, right: 6, bottom: 0, left: -22 }}>
-                <defs>
-                  <linearGradient id="arps" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor={chartColors.pitch} stopOpacity={0.3} />
-                    <stop offset="100%" stopColor={chartColors.pitch} stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid stroke={chartColors.grid} vertical={false} />
-                <XAxis dataKey="month" {...axisProps} />
-                <YAxis domain={[76, 88]} {...axisProps} />
-                <Tooltip contentStyle={tooltipStyle} cursor={{ stroke: chartColors.grid }} />
-                <Area
-                  type="monotone"
-                  dataKey="score"
-                  name="ARPS"
-                  stroke={chartColors.pitch}
-                  strokeWidth={2}
-                  fill="url(#arps)"
-                />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
+          {trend.length === 0 ? (
+            <EmptyState title={t("overview.noTrend")} hint={t("overview.noTrendHint")} />
+          ) : (
+            <div className="h-56">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={trend} margin={{ top: 4, right: 6, bottom: 0, left: -22 }}>
+                  <defs>
+                    <linearGradient id="arps" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor={chartColors.pitch} stopOpacity={0.3} />
+                      <stop offset="100%" stopColor={chartColors.pitch} stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid stroke={chartColors.grid} vertical={false} />
+                  <XAxis dataKey="label" {...axisProps} />
+                  <YAxis domain={["dataMin - 2", "dataMax + 2"]} tickFormatter={(v: number) => String(Math.round(v))} {...axisProps} />
+                  <Tooltip contentStyle={tooltipStyle} cursor={{ stroke: chartColors.grid }} />
+                  <Area
+                    type="monotone"
+                    dataKey="score"
+                    name="ARPS"
+                    stroke={chartColors.pitch}
+                    strokeWidth={2}
+                    fill="url(#arps)"
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          )}
         </Card>
 
         <Card>
           <CardHeader icon={Scale} tint="var" title={t("overview.decisions")} subtitle={t("overview.decisionsSub")} />
+          {decisionsBreakdown.length === 0 ? (
+            <EmptyState title={t("overview.noDecisions")} hint={t("overview.noDecisionsHint")} />
+          ) : (
+            <>
           <div className="h-36">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -400,12 +408,14 @@ export default function OverviewPage() {
               <li key={d.id} className="flex items-center justify-between text-xs">
                 <span className="flex items-center gap-2 text-chalk-faint">
                   <span className="h-2 w-2 rounded-[2px]" style={{ background: decisionColors[d.id] }} />
-                  {decisionLabels[d.id][locale]}
+                  {t(decisionLabelKey[d.id])}
                 </span>
                 <span className="tnum text-chalk">{d.value}%</span>
               </li>
             ))}
           </ul>
+            </>
+          )}
         </Card>
       </div>
 
@@ -414,7 +424,7 @@ export default function OverviewPage() {
           <CardHeader icon={Globe2} tint="gold" title={t("overview.zoneSpread")} subtitle={t("overview.zoneSpreadSub")} />
           <div className="h-56">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={zoneDistribution} margin={{ top: 4, right: 6, bottom: 0, left: -22 }}>
+              <BarChart data={zones} margin={{ top: 4, right: 6, bottom: 0, left: -22 }}>
                 <CartesianGrid stroke={chartColors.grid} vertical={false} />
                 <XAxis dataKey="zone" {...axisProps} interval={0} angle={-12} textAnchor="end" height={44} />
                 <YAxis {...axisProps} />
@@ -446,14 +456,14 @@ export default function OverviewPage() {
               {data.top.map((referee, i) => (
                 <li key={referee.id}>
                   <Link
-                    href={`/referees/${referee.id}`}
+                    href={refereeHref(referee.id)}
                     className="flex items-center gap-3 rounded-[10px] border border-line bg-ink-1 px-3 py-2 lift"
                   >
                     <span className="board w-4 text-xs text-chalk-faint">{i + 1}</span>
                     <span className="min-w-0 flex-1">
                       <span className="block truncate text-sm text-chalk">{referee.name}</span>
                       <span className="block text-[11px] text-chalk-faint">
-                        {countryFlag(referee.countryCode)} {referee.level}
+                        <CountryFlag code={referee.countryCode} /> {referee.level}
                       </span>
                     </span>
                     <ScoreRing value={referee.arps} size={34} />
@@ -477,9 +487,7 @@ export default function OverviewPage() {
 
       <p className="flex items-center gap-2 pt-1 text-xs text-chalk-faint">
         <CalendarDays size={13} />
-        {locale === "fr"
-          ? `${LIVE ? "Semaine en cours" : "Semaine de démonstration"} — ${fmt.longDate(weekStarts[1])} au ${fmt.longDate(weekStarts[2])}`
-          : `${LIVE ? "Current week" : "Demo week"} — ${fmt.longDate(weekStarts[1])} to ${fmt.longDate(weekStarts[2])}`}
+        {t("overview.currentWeek", { from: fmt.longDate(weekStarts()[1]), to: fmt.longDate(weekStarts()[2]) })}
       </p>
     </div>
   );

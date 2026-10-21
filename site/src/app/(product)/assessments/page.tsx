@@ -8,7 +8,9 @@ import { useFormatters, useLocale, useT } from "@/lib/i18n/LocaleProvider";
 import { useScope } from "@/lib/scope/ScopeProvider";
 import { PageHeading } from "@/components/layout/PageHeading";
 import { Badge, Board, Card, CardHeader, EmptyState, Meter, Segmented } from "@/components/ui";
-import { assessments, competitionById, countryFlag, matchById, refereeById, type Assessment } from "@/lib/mock-data";
+import { CountryFlag } from "@/components/ui/CountryFlag";
+import { pickLocalized } from "@/lib/i18n/localized";
+import { assessments, competitionById, matchById, refereeById, refereeHref, type Assessment } from "@/lib/store";
 
 const markKeys = [
   ["positioning", "assessments.kpiPositioning"],
@@ -41,7 +43,7 @@ export default function AssessmentsPage() {
     () =>
       assessments.filter((a) => {
         const match = matchById.get(a.matchId);
-        return match && inScope(match.countryCode);
+        return match && refereeById.has(a.refereeId) && inScope(match.countryCode);
       }),
     [inScope],
   );
@@ -138,7 +140,7 @@ export default function AssessmentsPage() {
                     >
                       <span className="flex items-center justify-between gap-2">
                         <span className="truncate text-xs text-chalk">
-                          {countryFlag(match.countryCode)} {match.home} — {match.away}
+                          <CountryFlag code={match.countryCode} /> {match.home} — {match.away}
                         </span>
                         <Badge tone={stateTone[report.state]}>{t(stateKey[report.state])}</Badge>
                       </span>
@@ -202,12 +204,12 @@ export default function AssessmentsPage() {
                 return (
                   <li key={report.id}>
                     <Link
-                      href={`/referees/${referee.id}`}
+                      href={refereeHref(referee.id)}
                       className="flex items-center gap-3 rounded-[10px] border border-line bg-ink-1 px-3 py-2.5 lift"
                     >
                       <span className="min-w-0 flex-1">
                         <span className="block truncate text-xs text-chalk">
-                          {countryFlag(referee.countryCode)} {referee.name}
+                          <CountryFlag code={referee.countryCode} /> {referee.name}
                         </span>
                         <span className="block truncate text-[10.5px] text-chalk-faint">
                           {match.home} — {match.away}
@@ -276,7 +278,7 @@ function ReportDetail({ report }: { report: Assessment }) {
               {competitionById.get(match.competitionId)?.name} · {fmt.longDate(match.date)}
             </p>
             <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs">
-              <Link href={`/referees/${referee.id}`} className="inline-flex items-center gap-1 text-chalk-dim hover:text-chalk">
+              <Link href={refereeHref(referee.id)} className="inline-flex items-center gap-1 text-chalk-dim hover:text-chalk">
                 {t("common.referee")}: {referee.name}
                 <ArrowUpRight size={11} />
               </Link>
@@ -322,7 +324,7 @@ function ReportDetail({ report }: { report: Assessment }) {
 
       <Card>
         <CardHeader icon={Quote} tint="gold" title={t("assessments.notes")} />
-        <p className="text-sm leading-relaxed text-chalk-dim">{report.notes[locale]}</p>
+        <p className="text-sm leading-relaxed text-chalk-dim">{pickLocalized(report.notes, locale)}</p>
 
         {report.clips.length > 0 && (
           <>
@@ -337,7 +339,7 @@ function ReportDetail({ report }: { report: Assessment }) {
                 >
                   <Film size={13} className="shrink-0 text-var" />
                   <span className="board w-9 shrink-0 text-xs text-chalk-faint">{clip.minute}&apos;</span>
-                  <span className="min-w-0 flex-1 truncate text-xs text-chalk-dim">{clip.label[locale]}</span>
+                  <span className="min-w-0 flex-1 truncate text-xs text-chalk-dim">{pickLocalized(clip.label, locale)}</span>
                   <Link href="/decision-engine" className="shrink-0 text-xs text-chalk-faint hover:text-chalk">
                     {t("common.open")}
                   </Link>

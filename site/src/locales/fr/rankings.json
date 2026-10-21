@@ -1,0 +1,15 @@
+{
+  "title": "Classement",
+  "tableSub": "ARPS cumulé, toutes compétitions du périmètre",
+  "movement": "Évolution",
+  "promotionLine": "Ligne de promotion",
+  "promotionLineNote": "Les 8 premiers entrent en revue CAF Elite",
+  "filterZone": "Filtrer par zone",
+  "filterLevel": "Filtrer par niveau",
+  "levelMix": "Répartition par niveau",
+  "levelMixSub": "Comment le corps de ce périmètre est classé",
+  "zoneLeaders": "Têtes de zone",
+  "zoneLeadersSub": "Officiel le mieux noté de chaque zone CAF",
+  "biggestMovers": "Plus fortes évolutions",
+  "biggestMoversSub": "Plus grands écarts depuis la saison dernière"
+}

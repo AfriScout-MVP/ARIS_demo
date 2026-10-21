@@ -1,0 +1,15 @@
+{
+  "title": "Clasificación",
+  "tableSub": "ARPS acumulado, todas las competiciones del ámbito",
+  "movement": "Evolución",
+  "promotionLine": "Línea de ascenso",
+  "promotionLineNote": "Los 8 primeros pasan a la revisión CAF Elite",
+  "filterZone": "Filtrar por zona",
+  "filterLevel": "Filtrar por nivel",
+  "levelMix": "Distribución por nivel",
+  "levelMixSub": "Cómo se clasifica el cuerpo arbitral de este ámbito",
+  "zoneLeaders": "Líderes de zona",
+  "zoneLeadersSub": "El oficial mejor valorado de cada zona CAF",
+  "biggestMovers": "Mayores variaciones",
+  "biggestMoversSub": "Mayores cambios desde la temporada pasada"
+}

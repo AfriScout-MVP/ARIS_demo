@@ -3,36 +3,38 @@
 import { useMemo, useState } from "react";
 import { BedDouble, Check, Flame, History, ListChecks, Plane, Shield, Sparkles, TrendingUp, UserPlus, Users } from "@/components/icons/glyphs";
 import { cn } from "@/lib/utils";
-import { useFormatters, useLocale, useT } from "@/lib/i18n/LocaleProvider";
+import { useFormatters, useT } from "@/lib/i18n/LocaleProvider";
 import { useScope } from "@/lib/scope/ScopeProvider";
 import { useAppointments } from "@/lib/appointments/AppointmentsProvider";
 import { PageHeading } from "@/components/layout/PageHeading";
 import { Avatar, Badge, Board, Button, Card, CardHeader, EmptyState, Meter } from "@/components/ui";
 import { CrewStrip } from "@/components/officiating/CrewStrip";
 import { candidatesForSlot, type Candidate } from "@/lib/assignment";
+import { CountryFlag } from "@/components/ui/CountryFlag";
+import { useDataset } from "@/lib/dataset/DatasetProvider";
+import { canDesignate } from "@/lib/roles";
 import {
   competitionById,
-  countryFlag,
   fixtures,
   officialById,
   roleKey,
   type CrewRole,
-} from "@/lib/mock-data";
+} from "@/lib/store";
 
 export default function AraePage() {
   const t = useT();
-  const { locale } = useLocale();
   const fmt = useFormatters();
   const { matches: inScope } = useScope();
+  const { user } = useDataset();
   const { crewFor, assign, confirmAll, trace } = useAppointments();
 
   const queue = useMemo(
     () =>
       fixtures
-        .filter((f) => !f.played && inScope(f.countryCode))
+        .filter((f) => !f.played && inScope(f.countryCode) && canDesignate(user, f.countryCode))
         .sort((a, b) => b.importance - a.importance)
         .slice(0, 12),
-    [inScope],
+    [inScope, user],
   );
 
   const [fixtureId, setFixtureId] = useState<string | null>(queue[0]?.id ?? null);
@@ -94,7 +96,7 @@ export default function AraePage() {
                   >
                     <span className="flex items-center justify-between gap-2">
                       <span className="truncate text-xs text-chalk">
-                        {countryFlag(item.countryCode)} {item.home} — {item.away}
+                        <CountryFlag code={item.countryCode} /> {item.home} — {item.away}
                       </span>
                       <span className={cn("board shrink-0 text-xs", open ? "text-card-red" : "text-pitch")}>
                         {open || "✓"}
@@ -157,7 +159,7 @@ export default function AraePage() {
                 action={
                   <span className="inline-flex items-center gap-1.5 text-xs text-chalk-faint">
                     <Sparkles size={12} className="text-var" />
-                    {t("arae.evaluated", { n: candidates.length, ms: "0.4s" })}
+                    {t("arae.evaluatedCount", { n: candidates.length })}
                   </span>
                 }
               />
@@ -173,7 +175,7 @@ export default function AraePage() {
                       selected={crew.find((s) => s.role === activeRole)?.officialId === candidate.id}
                       onAssign={() => {
                         if (!activeRole) return;
-                        assign(fixture.id, activeRole, candidate.id, "you");
+                        assign(fixture.id, activeRole, candidate.id);
                       }}
                     />
                   ))}
@@ -186,10 +188,12 @@ export default function AraePage() {
               {top ? (
                 <div className="space-y-3">
                   <div className="flex items-center gap-2.5">
-                    <Avatar initials={top.initials} size={34} />
+                    <Avatar initials={top.initials} photoUrl={officialById(top.id)?.photoUrl} name={top.name} size={34} />
                     <div className="min-w-0">
                       <p className="truncate text-sm text-chalk">{top.name}</p>
-                      <p className="text-[11px] text-chalk-faint">{countryFlag(top.countryCode)}</p>
+                      <p className="text-[11px] text-chalk-faint">
+                        <CountryFlag code={top.countryCode} />
+                      </p>
                     </div>
                     <span className="board ml-auto text-[18px] font-semibold text-chalk">{top.score.toFixed(0)}</span>
                   </div>
@@ -227,7 +231,7 @@ export default function AraePage() {
                   <Factor
                     icon={<TrendingUp size={12} />}
                     label={t("arae.factorNeutral")}
-                    value={locale === "fr" ? "Validé" : "Passed"}
+                    value={t("arae.neutralPassed")}
                     pct={100}
                     tone="pitch"
                   />
@@ -243,7 +247,7 @@ export default function AraePage() {
             <ol className="space-y-2">
               <TraceLine
                 at="—"
-                text={`${t("arae.evaluated", { n: candidates.length, ms: "0.4s" })} · ${
+                text={`${t("arae.evaluatedCount", { n: candidates.length })} · ${
                   activeRole ? t(roleKey[activeRole]) : ""
                 }`}
               />
@@ -324,10 +328,10 @@ function CandidateRow({
       )}
     >
       <div className="flex min-w-0 flex-1 items-center gap-2.5">
-        <Avatar initials={candidate.initials} size={32} />
+        <Avatar initials={candidate.initials} photoUrl={officialById(candidate.id)?.photoUrl} name={candidate.name} size={32} />
         <div className="min-w-0">
           <p className="truncate text-sm text-chalk">
-            {countryFlag(candidate.countryCode)} {candidate.name}
+            <CountryFlag code={candidate.countryCode} /> {candidate.name}
           </p>
           <p className="text-[11px] text-chalk-faint">
             {recommended && !blocked ? (

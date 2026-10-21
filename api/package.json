@@ -10,10 +10,15 @@
     "test": "vitest run",
     "db:migrate:local": "wrangler d1 migrations apply ARIS_DB --local",
     "db:migrate:remote": "wrangler d1 migrations apply ARIS_DB --remote",
-    "db:seed": "tsx scripts/seed.ts > .seed/seed.sql && wrangler d1 execute ARIS_DB --local --file .seed/seed.sql",
-    "db:seed:remote": "tsx scripts/seed.ts > .seed/seed.sql && wrangler d1 execute ARIS_DB --remote --file .seed/seed.sql",
+    "db:seed": "npm run db:seed:generate && wrangler d1 execute ARIS_DB --local --file .seed/seed.sql && npm run db:seed:media",
+    "db:seed:remote": "npm run db:seed:generate && wrangler d1 execute ARIS_DB --remote --file .seed/seed.sql && npm run db:seed:media:remote",
     "user:create": "tsx scripts/create-user.ts",
-    "deploy": "wrangler deploy"
+    "deploy": "wrangler deploy",
+    "db:seed:generate": "tsx scripts/seed/index.ts",
+    "db:seed:media": "tsx scripts/seed-media.ts",
+    "db:seed:media:remote": "tsx scripts/seed-media.ts --remote",
+    "db:reset:local": "rm -rf .wrangler/state && npm run db:migrate:local",
+    "user:demo": "tsx scripts/demo-accounts.ts"
   },
   "dependencies": {
     "hono": "^4.13.13",
@@ -23,6 +28,7 @@
     "@cloudflare/vitest-plugin": "^1.4.0",
     "@cloudflare/workers-types": "^5.20261012.1",
     "@types/node": "^22.20.5",
+    "flag-icons": "^7.6.0",
     "tsx": "^4.23.15",
     "typescript": "^5",
     "vitest": "^4.1.0",

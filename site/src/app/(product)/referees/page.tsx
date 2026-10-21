@@ -8,14 +8,15 @@ import { useLocale, useT } from "@/lib/i18n/LocaleProvider";
 import { useScope } from "@/lib/scope/ScopeProvider";
 import { PageHeading } from "@/components/layout/PageHeading";
 import { Avatar, Badge, Board, Card, EmptyState, ScoreRing, Segmented, Td, Th } from "@/components/ui";
+import { CountryFlag } from "@/components/ui/CountryFlag";
 import {
-  countryFlag,
   countryName,
   fixtures,
   referees,
+  refereeHref,
   type RefereeLevel,
   type RefereeStatus,
-} from "@/lib/mock-data";
+} from "@/lib/store";
 
 const levels: Array<RefereeLevel | "all"> = ["all", "CAF Elite", "FIFA Listed", "National D1", "Regional"];
 
@@ -141,14 +142,14 @@ export default function RefereesPage() {
             {rows.map((referee) => (
               <li key={referee.id}>
                 <Link
-                  href={`/referees/${referee.id}`}
+                  href={refereeHref(referee.id)}
                   className="flex items-center gap-3 rounded-[14px] border border-line bg-ink-2 p-3 lift"
                 >
-                  <Avatar initials={referee.initials} size={38} />
+                  <Avatar initials={referee.initials} photoUrl={referee.photoUrl} name={referee.name} size={38} />
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium text-chalk">{referee.name}</p>
                     <p className="truncate text-xs text-chalk-faint">
-                      {countryFlag(referee.countryCode)} {countryName(referee.countryCode, locale)} · {referee.level}
+                      <CountryFlag code={referee.countryCode} /> {countryName(referee.countryCode, locale)} · {referee.level}
                     </p>
                     <p className="mt-1 truncate text-[11px] text-chalk-faint">
                       {t("referees.nextAppointment")}:{" "}
@@ -182,13 +183,13 @@ export default function RefereesPage() {
                   {rows.map((referee) => (
                     <tr key={referee.id} className="border-b border-line last:border-0 row-hover">
                       <Td>
-                        <Link href={`/referees/${referee.id}`} className="flex items-center gap-2.5">
-                          <Avatar initials={referee.initials} size={28} />
+                        <Link href={refereeHref(referee.id)} className="flex items-center gap-2.5">
+                          <Avatar initials={referee.initials} photoUrl={referee.photoUrl} name={referee.name} size={28} />
                           <span className="text-chalk hover:underline">{referee.name}</span>
                         </Link>
                       </Td>
                       <Td>
-                        {countryFlag(referee.countryCode)} {countryName(referee.countryCode, locale)}
+                        <CountryFlag code={referee.countryCode} /> {countryName(referee.countryCode, locale)}
                       </Td>
                       <Td>{referee.level}</Td>
                       <Td>
@@ -221,9 +222,7 @@ export default function RefereesPage() {
       )}
 
       <p className="text-xs text-chalk-faint">
-        {locale === "fr"
-          ? `Assistants et quatrièmes arbitres sont pourvus depuis la liste nationale de chaque fédération — ouvrez une rencontre dans le calendrier pour la consulter.`
-          : `Assistants and fourth officials are drawn from each federation's own national list — open a fixture in the calendar to see it.`}
+        {t("referees.assistantsNote")}
       </p>
     </div>
   );

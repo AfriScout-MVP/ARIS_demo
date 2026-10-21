@@ -23,12 +23,16 @@ import { CrewStrip } from "@/components/officiating/CrewStrip";
 import {
   assessmentByMatch,
   competitionById,
-  countryFlag,
+  decisionTypeKey,
   fixtures,
   matches,
+  matchesOf,
   refereeById,
+  refereeHref,
   type MatchDecision,
-} from "@/lib/mock-data";
+} from "@/lib/store";
+import { CountryFlag } from "@/components/ui/CountryFlag";
+import { pickLocalized } from "@/lib/i18n/localized";
 
 const typeTone: Record<MatchDecision["type"], Tone> = {
   Penalty: "red",
@@ -39,15 +43,6 @@ const typeTone: Record<MatchDecision["type"], Tone> = {
   Foul: "neutral",
 };
 
-const typeLabel: Record<MatchDecision["type"], { en: string; fr: string }> = {
-  Penalty: { en: "Penalty", fr: "Penalty" },
-  "Red Card": { en: "Red card", fr: "Carton rouge" },
-  "Yellow Card": { en: "Yellow card", fr: "Carton jaune" },
-  Offside: { en: "Offside", fr: "Hors-jeu" },
-  Handball: { en: "Handball", fr: "Main" },
-  Foul: { en: "Foul", fr: "Faute" },
-};
-
 export default function MatchReviewPage() {
   const t = useT();
   const { locale } = useLocale();
@@ -55,7 +50,7 @@ export default function MatchReviewPage() {
   const { matches: inScope } = useScope();
 
   const list = useMemo(() => matches.filter((m) => inScope(m.countryCode)), [inScope]);
-  const [matchId, setMatchId] = useState(list[0]?.id ?? matches[0].id);
+  const [matchId, setMatchId] = useState(list[0]?.id ?? "");
   const match = list.find((m) => m.id === matchId) ?? list[0];
   const [decisionId, setDecisionId] = useState<string | null>(null);
 
@@ -71,6 +66,16 @@ export default function MatchReviewPage() {
   }
 
   const active = match.decisions.find((d) => d.id === decisionId) ?? match.decisions[0];
+  if (!active) {
+    return (
+      <div className="space-y-4">
+        <PageHeading titleKey="matchReview.title" subtitleKey="subtitles.matchReview" />
+        <Card>
+          <EmptyState title={t("matchReview.noDecisions")} hint={t("matchReview.noDecisionsHint")} />
+        </Card>
+      </div>
+    );
+  }
   const overturned = match.decisions.filter((d) => d.finalCall === "overturned").length;
   const varReviews = match.decisions.filter((d) => d.varReview).length;
   const referee = refereeById.get(match.refereeId);
@@ -79,7 +84,7 @@ export default function MatchReviewPage() {
 
   // How this match sat against the referee's own season, which is the only
   // baseline that makes a single-match number mean anything.
-  const own = matches.filter((m) => m.refereeId === match.refereeId);
+  const own = matchesOf(match.refereeId);
   const avg = (pick: (m: (typeof matches)[number]) => number) =>
     own.reduce((sum, m) => sum + pick(m), 0) / own.length;
   const farCalls = match.decisions.filter((d) => d.distance > 20).length;
@@ -112,7 +117,7 @@ export default function MatchReviewPage() {
                     : "border-line bg-ink-1 text-chalk-dim hover:border-line-strong hover:text-chalk",
                 )}
               >
-                {countryFlag(m.countryCode)} {m.home} — {m.away}
+                <CountryFlag code={m.countryCode} /> {m.home} — {m.away}
               </button>
             ))}
           </div>
@@ -130,7 +135,7 @@ export default function MatchReviewPage() {
             </h2>
             {referee && (
               <Link
-                href={`/referees/${referee.id}`}
+                href={refereeHref(referee.id)}
                 className="mt-1 inline-flex items-center gap-1 text-xs text-chalk-faint hover:text-chalk max-sm:-my-3 max-sm:py-3"
               >
                 {t("common.referee")}: {referee.name}
@@ -174,10 +179,10 @@ export default function MatchReviewPage() {
                 >
                   <span className="board w-9 shrink-0 text-sm text-chalk-faint">{decision.minute}&apos;</span>
                   <Badge tone={typeTone[decision.type]} className="shrink-0">
-                    {typeLabel[decision.type][locale]}
+                    {t(decisionTypeKey[decision.type])}
                   </Badge>
                   <span className="min-w-0 flex-1 truncate text-xs text-chalk-dim">
-                    {decision.description[locale]}
+                    {pickLocalized(decision.description, locale)}
                   </span>
                   {decision.varReview && <Radio size={13} className="shrink-0 text-var" />}
                   {decision.finalCall === "overturned" ? (
@@ -198,8 +203,8 @@ export default function MatchReviewPage() {
             title={t("matchReview.detail")}
             subtitle={`${t("matchReview.minute")} ${active.minute}'`}
           />
-          <Badge tone={typeTone[active.type]}>{typeLabel[active.type][locale]}</Badge>
-          <p className="mt-3 text-sm leading-relaxed text-chalk">{active.description[locale]}</p>
+          <Badge tone={typeTone[active.type]}>{t(decisionTypeKey[active.type])}</Badge>
+          <p className="mt-3 text-sm leading-relaxed text-chalk">{pickLocalized(active.description, locale)}</p>
 
           <dl className="mt-4 grid grid-cols-2 gap-2">
             <Fact label={t("matchReview.initialCall")} value={t(active.initialCall === "given" ? "matchReview.given" : "matchReview.notGiven")} />
@@ -210,7 +215,7 @@ export default function MatchReviewPage() {
             />
             <Fact
               label={t("matchReview.varReview")}
-              value={active.varReview ? (locale === "fr" ? "Oui" : "Yes") : locale === "fr" ? "Non" : "No"}
+              value={t(active.varReview ? "common.yes" : "common.no")}
               tone={active.varReview ? "text-var" : "text-chalk"}
             />
             <Fact label={t("matchReview.confidence")} value={`${active.confidence}%`} />

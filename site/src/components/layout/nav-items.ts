@@ -3,24 +3,31 @@ import {
   ClipboardList,
   Compass,
   Files,
+  Flag,
   Gauge,
   GitCompareArrows,
   GraduationCap,
+  Globe2,
+  History,
   Insight,
   Landmark,
   LayoutDashboard,
   Map,
   Podium,
+  Users,
   Whistle,
   type IconType,
 } from "@/components/icons/glyphs";
-import type { TKey } from "@/lib/i18n/LocaleProvider";
+import type { TKey } from "@/locales";
+import type { Role } from "@/lib/api/types";
 
 export interface NavItem {
   href: string;
   labelKey: TKey;
-  subtitleKey: TKey;
+  subtitleKey?: TKey;
   icon: IconType;
+  /** Roles that see this entry; every staff role when omitted. */
+  roles?: Role[];
 }
 
 export interface NavGroup {
@@ -58,10 +65,35 @@ export const navGroups: NavGroup[] = [
   {
     labelKey: "nav.groupOrganisation",
     items: [
-      { href: "/federations", labelKey: "nav.federations", subtitleKey: "subtitles.federations", icon: Landmark },
+      // the continental comparison of federations is for the confederation, not for one federation's seat
+      { href: "/federations", labelKey: "nav.federations", subtitleKey: "subtitles.federations", icon: Landmark, roles: ["admin"] },
       { href: "/reports", labelKey: "nav.reports", subtitleKey: "subtitles.reports", icon: Files },
+    ],
+  },
+  {
+    labelKey: "nav.groupAdmin",
+    items: [
+      { href: "/admin/accounts", labelKey: "nav.adminAccounts", icon: Users },
+      { href: "/admin/federations", labelKey: "nav.adminFederations", icon: Landmark, roles: ["admin"] },
+      { href: "/admin/countries", labelKey: "nav.adminCountries", icon: Globe2, roles: ["admin"] },
+      { href: "/admin/teams", labelKey: "nav.adminTeams", icon: Flag },
+      { href: "/admin/audit", labelKey: "nav.adminAudit", icon: History },
     ],
   },
 ];
 
-export const navItems: NavItem[] = navGroups.flatMap((g) => g.items);
+const STAFF: Role[] = ["admin", "federation"];
+
+/** Does this role see the entry? */
+export const canSee = (item: NavItem, role: Role | null | undefined) =>
+  Boolean(role) && (item.roles ?? STAFF).includes(role as Role);
+
+/** The navigation as one role sees it: entries it may not use are gone, and so are groups left empty. */
+export function navGroupsFor(role: Role | null | undefined): NavGroup[] {
+  return navGroups
+    .map((group) => ({ ...group, items: group.items.filter((item) => canSee(item, role)) }))
+    .filter((group) => group.items.length > 0);
+}
+
+/** Flat list of what one role may open — the command palette's pages. */
+export const navItemsFor = (role: Role | null | undefined): NavItem[] => navGroupsFor(role).flatMap((g) => g.items);

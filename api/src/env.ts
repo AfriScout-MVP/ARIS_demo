@@ -13,16 +13,26 @@ export interface Env {
   MAIL_WEBHOOK_TOKEN?: string;
 }
 
-export type Role = "admin" | "commission" | "observer" | "referee";
+/** The three roles of the platform: the super-administrator, a national federation's seat, and an official. */
+export type Role = "admin" | "federation" | "referee";
+export const ROLES: readonly Role[] = ["admin", "federation", "referee"];
+
+export type Locale = "fr" | "en" | "es" | "de";
+export const LOCALES: readonly Locale[] = ["fr", "en", "es", "de"];
 
 export interface AuthUser {
   id: string;
   email: string;
   name: string;
   role: Role;
+  /** The official a referee account belongs to; null for admin and federation seats. */
   officialId: string | null;
-  scope: string;
-  locale: "fr" | "en";
+  /** The federation a federation seat belongs to; null otherwise. */
+  federationId: string | null;
+  /** ISO alpha-3 country a federation seat is confined to; null for admin and referees. */
+  country: string | null;
+  federationCode: string | null;
+  locale: Locale;
 }
 
 export interface AppEnv {

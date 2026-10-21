@@ -9,24 +9,22 @@
  * opens by itself.
  */
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ChevronDown, LogOut, Moon, Sun, X } from "@/components/icons/glyphs";
 import { cn } from "@/lib/utils";
-import { useT } from "@/lib/i18n/LocaleProvider";
+import { useLocale, useT } from "@/lib/i18n/LocaleProvider";
 import { useTheme } from "@/lib/theme/ThemeProvider";
 import { useDataset } from "@/lib/dataset/DatasetProvider";
-import { navGroups, type NavItem } from "./nav-items";
+import { navGroupsFor, type NavItem } from "./nav-items";
+import { countryName } from "@/lib/store";
+import { isFederation } from "@/lib/roles";
 import { LocaleToggle } from "./LocaleToggle";
 import { MarkTile } from "@/components/icons/Mark";
 
 const isActive = (pathname: string, item: NavItem) =>
   item.href === "/" ? pathname === "/" : pathname === item.href || pathname.startsWith(`${item.href}/`);
-
-/** The first entry of the first group stands alone above the groups, as "Dashboard" does in the admin. */
-const [topItem, ...firstGroupRest] = navGroups[0].items;
-const groups = [{ ...navGroups[0], items: firstGroupRest }, ...navGroups.slice(1)];
 
 export function Sidebar({
   desktopOpen,
@@ -41,8 +39,17 @@ export function Sidebar({
 }) {
   const pathname = usePathname();
   const t = useT();
-  const { signOut } = useDataset();
+  const { user, signOut } = useDataset();
+  const { locale } = useLocale();
   const { theme, toggle } = useTheme();
+  // the first entry of the first group stands alone above the groups, as "Dashboard" does in the admin
+  const [topItem, groups] = useMemo(() => {
+    const visible = navGroupsFor(user?.role);
+    if (visible.length === 0) return [undefined, []] as const;
+    const [first, ...rest] = visible;
+    const [top, ...firstRest] = first.items;
+    return [top, [{ ...first, items: firstRest }, ...rest].filter((g) => g.items.length > 0)] as const;
+  }, [user?.role]);
   // Only the groups the visitor has opened or closed by hand are stored; the
   // rest follow the page — a group is open while it holds the current route.
   const [manual, setManual] = useState<Record<string, boolean>>({});
@@ -105,14 +112,18 @@ export function Sidebar({
             <MarkTile size={44} />
             <div className="min-w-0">
               <p className="font-display truncate text-[22px] font-extrabold leading-none tracking-[-0.04em] text-chalk">ARIS</p>
-              <p className="mt-1 truncate text-xs text-chalk-dim">{t("nav.role")}</p>
+              <p className="mt-1 truncate text-xs text-chalk-dim">
+                {isFederation(user) && user?.federationCode && user.country
+                  ? `${user.federationCode} · ${countryName(user.country, locale)}`
+                  : t("nav.role")}
+              </p>
             </div>
           </div>
         </div>
 
         {/* Navigation */}
         <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
-          {renderItem(topItem)}
+          {topItem && renderItem(topItem)}
 
           {groups.map((group) => {
             const hasActive = group.items.some((item) => isActive(pathname, item));

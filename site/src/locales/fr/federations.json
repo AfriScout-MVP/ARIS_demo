@@ -1,0 +1,19 @@
+{
+  "title": "Fédérations",
+  "tableSub": "Une ligne par fédération membre",
+  "corps": "Effectif",
+  "eliteCount": "CAF Elite",
+  "avgArps": "ARPS moyen",
+  "calendarSync": "Synchro calendrier",
+  "syncHealthy": "À jour",
+  "syncStale": "Obsolète",
+  "syncManual": "Saisie manuelle",
+  "competitionsTracked": "Compétitions suivies",
+  "fixturesSeason": "Rencontres cette saison",
+  "openSlots": "Postes vides",
+  "zoneSummary": "Par zone CAF",
+  "zoneSummarySub": "Six zones, agrégées",
+  "detail": "Détail fédération",
+  "switchScope": "Définir comme périmètre",
+  "zonesList": "Zones CAF : {list}"
+}

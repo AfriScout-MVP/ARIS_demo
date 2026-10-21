@@ -1,30 +1,31 @@
-import type { AvailabilityState, CrewRole, CrewSlot, Fixture } from "@/lib/core/types";
+import type { Locale } from "@/locales";
+import type { AvailabilityState, CrewRole, Localized } from "@/lib/store/types";
 
-export type Role = "admin" | "commission" | "observer" | "referee";
+export type { ApiFixture } from "@/lib/store/types";
+
+/** Exactly three roles: see api/docs/api-contract.md. */
+export type Role = "admin" | "federation" | "referee";
 
 export interface SessionUser {
   id: string;
   email: string;
   name: string;
   role: Role;
+  /** Referee accounts: their own official record. */
   officialId: string | null;
-  /** "all", "zone:UNAF" or "country:EGY" */
-  scope: string;
-  locale: "fr" | "en";
-}
-
-/** A fixture as the Worker returns it — the app's `Fixture` plus the workflow state. */
-export interface ApiFixture extends Omit<Fixture, "crew"> {
-  homeCode?: string | null;
-  awayCode?: string | null;
-  designationStatus: "draft" | "awaiting_confirmation" | "validated" | "published";
-  crew: Array<CrewSlot & { version?: number }>;
+  /** Federation seats: the federation they sit for. */
+  federationId: string | null;
+  /** Federation seats: e.g. "FRMF". */
+  federationCode: string | null;
+  /** Federation seats: ISO alpha-3 of the one country they are confined to, e.g. "MAR". */
+  country: string | null;
+  locale: Locale;
 }
 
 export interface ApiNotification {
   id: string;
-  title: { en: string; fr: string };
-  detail: { en: string; fr: string };
+  title: Localized;
+  detail: Localized;
   tone: "pitch" | "amber" | "red" | "var";
   href: string;
   createdAt: string;

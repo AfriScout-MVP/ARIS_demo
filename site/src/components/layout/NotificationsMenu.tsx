@@ -5,6 +5,8 @@ import { useEffect, useRef, useState } from "react";
 import { Bell } from "@/components/icons/glyphs";
 import { cn } from "@/lib/utils";
 import { useLocale, useT } from "@/lib/i18n/LocaleProvider";
+import { pickLocalized } from "@/lib/i18n/localized";
+import { formatRelative } from "@/lib/i18n/relative";
 import { useDataset } from "@/lib/dataset/DatasetProvider";
 import { Dot, type Tone } from "@/components/ui";
 
@@ -74,10 +76,10 @@ export function NotificationsMenu() {
                 </span>
                 <span className="min-w-0">
                   <span className={cn("block text-xs", n.read ? "text-chalk-dim" : "font-medium text-chalk")}>
-                    {n.title[locale]}
+                    {pickLocalized(n.title, locale)}
                   </span>
-                  <span className="mt-0.5 block text-xs leading-snug text-chalk-faint">{n.detail[locale]}</span>
-                  <span className="mt-1 block text-[10.5px] text-chalk-faint">{n.time[locale]}</span>
+                  <span className="mt-0.5 block text-xs leading-snug text-chalk-faint">{pickLocalized(n.detail, locale)}</span>
+                  <span className="mt-1 block text-[10.5px] text-chalk-faint">{formatRelative(n.createdAt, locale)}</span>
                 </span>
               </Link>
             ))}

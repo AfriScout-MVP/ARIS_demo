@@ -1,11 +1,13 @@
-// Prints the SQL to create an account — the password never leaves your terminal and is never stored.
+// Creates an account — the password never leaves your terminal and is never stored in clear.
 //
-//   ARIS_PASSWORD='a long passphrase' npm run user:create -- --email a@b.org --name "Ada" --role admin | wrangler d1 execute ARIS_DB --remote --command -
+//   ARIS_PASSWORD='a long passphrase' npm run user:create -- --email a@b.org --name "Ada" --role admin --apply --remote
+//   … --role federation --federation FRMF            (a seat of the Moroccan federation)
+//   … --role referee --official karim-haddad          (an official's own space)
 //
-// Simpler: let this script run it for you with --apply [--remote].
+// Without --apply the SQL is printed instead of run.
 
 import { execFileSync } from "node:child_process";
-import { webcrypto as crypto } from "node:crypto";
+import { accountSql, type NewAccount } from "./lib/accounts";
 
 const argv = process.argv.slice(2);
 const arg = (n: string) => {
@@ -15,33 +17,33 @@ const arg = (n: string) => {
 const email = arg("email");
 const name = arg("name");
 const role = arg("role");
-const official = arg("official") ?? null;
-const scope = arg("scope") ?? "all";
+const federation = arg("federation");
+const official = arg("official");
+const locale = arg("locale");
 const password = process.env.ARIS_PASSWORD;
 
-if (!email || !name || !role || !["admin", "commission", "observer", "referee"].includes(role)) {
-  console.error("Usage: ARIS_PASSWORD=... npm run user:create -- --email X --name Y --role admin|commission|observer|referee [--official ID] [--scope all|zone:UNAF|country:EGY] [--apply [--remote]]");
+const usage = () => {
+  console.error("Usage: ARIS_PASSWORD=... npm run user:create -- --email X --name Y --role admin|federation|referee [--federation CODE] [--official ID] [--locale fr|en|es|de] [--apply [--remote]]");
   process.exit(2);
-}
+};
+if (!email || !name || !role || !["admin", "federation", "referee"].includes(role)) usage();
 if (!password || password.length < 12) {
-  console.error("Set ARIS_PASSWORD to a passphrase of at least 12 characters (it is read from the environment so it stays out of shell history and process lists).");
+  console.error("Set ARIS_PASSWORD to a passphrase of at least 12 characters (read from the environment so it stays out of shell history and process lists).");
   process.exit(2);
 }
-if ((role === "referee" || role === "observer") && !official) {
-  console.error("Referee and observer accounts need --official <official id>.");
+if (role === "federation" && !federation) {
+  console.error("A federation seat needs --federation <federation code>, e.g. FRMF.");
+  process.exit(2);
+}
+if (role === "referee" && !official) {
+  console.error("A referee account needs --official <official id>.");
   process.exit(2);
 }
 
-// Same scheme as src/lib/crypto.ts: PBKDF2-SHA256, 100k iterations, 16-byte salt.
-const ITERATIONS = 100_000;
-const b64 = (b: ArrayBuffer | Uint8Array) => Buffer.from(b instanceof Uint8Array ? b : new Uint8Array(b)).toString("base64");
-const salt = crypto.getRandomValues(new Uint8Array(16));
-const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(password), "PBKDF2", false, ["deriveBits"]);
-const hash = await crypto.subtle.deriveBits({ name: "PBKDF2", hash: "SHA-256", salt, iterations: ITERATIONS }, key, 256);
-const stored = `pbkdf2-sha256$${ITERATIONS}$${b64(salt)}$${b64(hash)}`;
-
-const q = (v: string | null) => (v === null ? "NULL" : `'${v.replace(/'/g, "''")}'`);
-const sql = `INSERT INTO users (id, email, name, role, official_id, scope, password_hash) VALUES (${q(crypto.randomUUID())}, ${q(email)}, ${q(name)}, ${q(role)}, ${q(official)}, ${q(scope)}, ${q(stored)});`;
+const account = (
+  role === "admin" ? { role, email, name, locale } : role === "federation" ? { role, email, name, federation, locale } : { role, email, name, official, locale }
+) as NewAccount;
+const sql = await accountSql(account, password);
 
 if (argv.includes("--apply")) {
   const target = argv.includes("--remote") ? "--remote" : "--local";

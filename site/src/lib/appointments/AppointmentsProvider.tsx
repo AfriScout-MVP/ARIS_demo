@@ -1,14 +1,13 @@
 "use client";
 
 import { createContext, useCallback, useContext, useMemo, useRef, useState } from "react";
-import { bestCandidate, blockerKey } from "@/lib/assignment";
-import { LIVE } from "@/lib/api/config";
+import { blockerKey } from "@/lib/assignment";
 import { api, ApiError, NetworkError } from "@/lib/api/client";
 import type { ApiFixture, AutofillResult } from "@/lib/api/types";
 import { useDataset } from "@/lib/dataset/DatasetProvider";
 import { useT } from "@/lib/i18n/LocaleProvider";
 import { useToast } from "@/lib/toast/ToastProvider";
-import { fixtureById, patchFixtureCrew, type CrewRole, type CrewSlot, type Fixture } from "@/lib/mock-data";
+import { fixtureById, normalizeFixture, patchFixtureCrew, type CrewRole, type CrewSlot, type Fixture } from "@/lib/store";
 import type { BlockerId } from "@/lib/core/types";
 
 export interface TraceEntry {
@@ -24,7 +23,7 @@ export interface TraceEntry {
 
 interface AppointmentsValue {
   crewFor: (fixture: Fixture) => CrewSlot[];
-  assign: (fixtureId: string, role: CrewRole, officialId: string, actor?: TraceEntry["actor"], reason?: TraceEntry["reason"]) => void;
+  assign: (fixtureId: string, role: CrewRole, officialId: string) => void;
   clear: (fixtureId: string, role: CrewRole) => void;
   confirmAll: (fixtureId: string) => void;
   /** Resolves with how many slots were filled. */
@@ -49,7 +48,6 @@ export function AppointmentsProvider({ children }: { children: React.ReactNode }
   const { version, noteFailure } = useDataset();
   const [store, setStore] = useState<{ version: number; map: Record<string, CrewSlot[]> }>({ version, map: EMPTY });
   const [trace, setTrace] = useState<TraceEntry[]>([]);
-  const [lastAutoFill, setLastAutoFill] = useState<Record<string, CrewSlot[]> | null>(null);
   const lastRun = useRef<{ runId: string; fixtureIds: string[] } | null>(null);
 
   // a reload of the data (sign-in, retry) makes the Worker's crews the truth again
@@ -64,23 +62,13 @@ export function AppointmentsProvider({ children }: { children: React.ReactNode }
     [version],
   );
 
-  const write = useCallback(
-    (fixtureId: string, updater: (crew: CrewSlot[]) => CrewSlot[]) => {
-      setStore((prev) => {
-        const map = prev.version === version ? prev.map : EMPTY;
-        const base = map[fixtureId] ?? fixtureById.get(fixtureId)?.crew ?? [];
-        return { version, map: { ...map, [fixtureId]: updater(base) } };
-      });
-    },
-    [version],
-  );
-
-  /* ---------------- live: the Worker decides ---------------- */
+  /* ---------------- the API decides ---------------- */
 
   const adopt = useCallback(
     (fixture: ApiFixture) => {
-      patchFixtureCrew(fixture.id, fixture.crew);
-      setCrew(fixture.id, fixture.crew);
+      const next = normalizeFixture(fixture);
+      patchFixtureCrew(next.id, next.crew);
+      setCrew(next.id, next.crew);
     },
     [setCrew],
   );
@@ -262,117 +250,32 @@ export function AppointmentsProvider({ children }: { children: React.ReactNode }
     }
   }, [refreshMany, toast, explain]);
 
-  /* ---------------- demo: everything stays in the browser ---------------- */
-
   const assign = useCallback<AppointmentsValue["assign"]>(
-    (fixtureId, role, officialId, actor = "you", reason) => {
-      if (LIVE) {
-        void liveAssign(fixtureId, role, officialId);
-        return;
-      }
-      write(fixtureId, (crew) =>
-        crew.map((slot) =>
-          slot.role === role ? { ...slot, officialId, state: "confirmed" as const } : slot,
-        ),
-      );
-      setTrace((prev) => [
-        { id: `${fixtureId}-${role}-${prev.length}`, at: clock(), fixtureId, role, officialId, actor, reason },
-        ...prev,
-      ]);
+    (fixtureId, role, officialId) => {
+      void liveAssign(fixtureId, role, officialId);
     },
-    [write, liveAssign],
+    [liveAssign],
   );
 
   const clear = useCallback<AppointmentsValue["clear"]>(
     (fixtureId, role) => {
-      if (LIVE) {
-        void liveClear(fixtureId, role);
-        return;
-      }
-      write(fixtureId, (crew) =>
-        crew.map((slot) => (slot.role === role ? { ...slot, officialId: null, state: "empty" as const } : slot)),
-      );
-      setTrace((prev) => [
-        { id: `${fixtureId}-${role}-clear-${prev.length}`, at: clock(), fixtureId, role, officialId: null, actor: "you" },
-        ...prev,
-      ]);
+      void liveClear(fixtureId, role);
     },
-    [write, liveClear],
+    [liveClear],
   );
 
   const confirmAll = useCallback<AppointmentsValue["confirmAll"]>(
     (fixtureId) => {
-      if (LIVE) {
-        void liveConfirmAll(fixtureId);
-        return;
-      }
-      write(fixtureId, (crew) =>
-        crew.map((slot) => (slot.officialId ? { ...slot, state: "confirmed" as const } : slot)),
-      );
+      void liveConfirmAll(fixtureId);
     },
-    [write, liveConfirmAll],
+    [liveConfirmAll],
   );
 
-  const autoFill = useCallback<AppointmentsValue["autoFill"]>(
-    async (list) => {
-      if (LIVE) return liveAutoFill(list);
-
-      const snapshot: Record<string, CrewSlot[]> = {};
-      const entries: TraceEntry[] = [];
-      let filled = 0;
-
-      setStore((prev) => {
-        const map = prev.version === version ? prev.map : EMPTY;
-        const next = { ...map };
-        list.forEach((fixture) => {
-          const base = next[fixture.id] ?? fixture.crew;
-          snapshot[fixture.id] = base;
-          let working = base;
-          base.forEach((slot) => {
-            if (slot.role === "OBS") return;
-            if (slot.state !== "empty" && slot.state !== "declined") return;
-            const pick = bestCandidate(fixture, slot.role, working);
-            if (!pick) return;
-            working = working.map((s) =>
-              s.role === slot.role ? { ...s, officialId: pick.id, state: "pending" as const } : s,
-            );
-            filled += 1;
-            entries.push({
-              id: `${fixture.id}-${slot.role}-auto-${filled}`,
-              at: clock(),
-              fixtureId: fixture.id,
-              role: slot.role,
-              officialId: pick.id,
-              actor: "engine",
-              reason: {
-                rating: pick.rating,
-                travel: pick.travelHours,
-                rest: pick.rest,
-                friction: pick.frictionRisk,
-              },
-            });
-          });
-          next[fixture.id] = working;
-        });
-        return { version, map: next };
-      });
-
-      setLastAutoFill(snapshot);
-      setTrace((prev) => [...entries.reverse(), ...prev]);
-      return filled;
-    },
-    [version, liveAutoFill],
-  );
+  const autoFill = useCallback<AppointmentsValue["autoFill"]>((list) => liveAutoFill(list), [liveAutoFill]);
 
   const undoAutoFill = useCallback(() => {
-    if (LIVE) {
-      void liveUndo();
-      return;
-    }
-    if (!lastAutoFill) return;
-    setStore((prev) => ({ version, map: { ...(prev.version === version ? prev.map : EMPTY), ...lastAutoFill } }));
-    setLastAutoFill(null);
-  }, [lastAutoFill, version, liveUndo]);
+    void liveUndo();
+  }, [liveUndo]);
 
   const value = useMemo<AppointmentsValue>(
     () => ({

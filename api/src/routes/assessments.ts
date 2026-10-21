@@ -3,41 +3,64 @@ import { z } from "zod";
 import type { AppEnv } from "../env";
 import { ApiError, forbidden, notFound, parseQuery, readJson, uuid } from "../lib/http";
 import { auditStmt } from "../lib/audit";
-import { isStaff } from "../lib/access";
-import { notifyOfficialStmts } from "../lib/notify";
+import { CONTINENTAL, assertCountry, countryFilter, inCountry, isAdmin, isStaff } from "../lib/access";
+import { localized, type Localized } from "../lib/localized";
+import { notifyOfficialStmts, notifyStmts } from "../lib/notify";
 import { currentUser, requireRole, staff } from "../middleware/auth";
 import { json } from "../domain/mappers";
+import { MATCH_SQL, toDecision, toMatch, type DecisionRow, type MatchRow } from "../domain/matches";
 
 export const assessments = new Hono<AppEnv>();
 export const matches = new Hono<AppEnv>();
 export const criteria = new Hono<AppEnv>();
 export const dossiers = new Hono<AppEnv>();
 
+/** Copy typed by a person: French and English are required, Spanish and German optional. */
+const localizedText = (max: number) => z.object({ fr: z.string().min(1).max(max), en: z.string().min(1).max(max), es: z.string().max(max).optional(), de: z.string().max(max).optional() });
+const optionalText = (max: number) => z.object({ fr: z.string().max(max).default(""), en: z.string().max(max).default(""), es: z.string().max(max).optional(), de: z.string().max(max).optional() });
+
+const countryParam = z.string().length(3).transform((v) => v.toUpperCase());
+
+/** The country a match belongs to (its competition's country), or a 404 when there is no such match. */
+async function matchCountry(db: D1Database, matchId: string) {
+  const row = await db
+    .prepare("SELECT m.id, c.country_code AS countryCode FROM matches m LEFT JOIN competitions c ON c.id = m.league_id WHERE m.id = ?")
+    .bind(matchId)
+    .first<{ id: string; countryCode: string | null }>();
+  if (!row) throw notFound("Match");
+  return row.countryCode;
+}
+
+/** Federation seats of the match's country hear about it; continental matches go to the platform administrators. */
+function staffNotice(countryCode: string | null) {
+  return countryCode && countryCode !== CONTINENTAL ? { audienceRole: "federation" as const, countryCode } : { audienceRole: "admin" as const };
+}
+
 /* ------------------------------------------------------------------ *
- * The evaluation grid — configurable, weights total 100
+ * The evaluation grid — one platform grid, weights total 100
  * ------------------------------------------------------------------ */
 
 interface Criterion {
   key: string;
-  label: { en: string; fr: string };
+  label: Localized;
   weight: number;
 }
 
 async function loadCriteria(db: D1Database): Promise<Criterion[]> {
   const { results } = await db.prepare("SELECT key, label, weight FROM evaluation_criteria ORDER BY sort, key").all<{ key: string; label: string; weight: number }>();
-  return results.map((r) => ({ key: r.key, label: json(r.label, { en: r.key, fr: r.key }), weight: r.weight }));
+  return results.map((r) => ({ key: r.key, label: json<Localized>(r.label, { fr: r.key, en: r.key }), weight: r.weight }));
 }
 
 criteria.get("/", async (c) => c.json({ criteria: await loadCriteria(c.env.DB) }));
 
 const gridSchema = z
-  .array(z.object({ key: z.string().regex(/^[a-zA-Z][a-zA-Z0-9]{1,30}$/), label: z.object({ en: z.string().min(1).max(80), fr: z.string().min(1).max(80) }), weight: z.number().int().min(1).max(100) }))
+  .array(z.object({ key: z.string().regex(/^[a-zA-Z][a-zA-Z0-9]{1,30}$/), label: localizedText(80), weight: z.number().int().min(1).max(100) }))
   .min(2)
   .max(12)
   .refine((rows) => rows.reduce((s, r) => s + r.weight, 0) === 100, { message: "Weights must total 100" })
   .refine((rows) => new Set(rows.map((r) => r.key)).size === rows.length, { message: "Criterion keys must be unique" });
 
-// A published grid is an official scale: changing it is an administrator's act, and it is logged.
+// The grid is the platform's official scale: changing it is an administrator's act, and it is logged.
 criteria.put("/", requireRole("admin"), async (c) => {
   const user = currentUser(c);
   const rows = await readJson(c, z.object({ criteria: gridSchema }));
@@ -57,43 +80,56 @@ criteria.put("/", requireRole("admin"), async (c) => {
 
 matches.get("/", async (c) => {
   const user = currentUser(c);
-  const q = parseQuery(c, z.object({ refereeId: z.string().optional(), limit: z.coerce.number().int().min(1).max(300).default(100) }));
-  const refereeId = isStaff(user) || user.role === "observer" ? q.refereeId : user.officialId;
-  if (!isStaff(user) && user.role !== "observer" && !refereeId) throw forbidden();
-  const { results } = await c.env.DB.prepare(
-    `SELECT id, fixture_id AS fixtureId, home, away, competition_id AS competitionId, country_code AS countryCode, date, score, referee_id AS refereeId,
-            arps_for_match AS arpsForMatch, rmcs, pressure_avg AS pressureAvg
-       FROM matches ${refereeId ? "WHERE referee_id = ?" : ""} ORDER BY date DESC LIMIT ?`,
-  )
-    .bind(...(refereeId ? [refereeId, q.limit] : [q.limit]))
-    .all();
-  return c.json({ matches: results });
+  const q = parseQuery(c, z.object({ refereeId: z.string().optional(), country: countryParam.optional(), status: z.string().optional(), limit: z.coerce.number().int().min(1).max(300).default(100) }));
+  const where: string[] = [];
+  const args: (string | number)[] = [];
+  if (isStaff(user)) {
+    const scope = countryFilter(user, "c.country_code");
+    where.push(scope.sql);
+    args.push(...scope.params);
+    if (q.country) (where.push("c.country_code = ?"), args.push(q.country));
+    if (q.refereeId) (where.push("m.referee_id = ?"), args.push(q.refereeId));
+  } else {
+    // a referee sees the matches they refereed, and those they were appointed to observe
+    if (!user.officialId) throw forbidden();
+    where.push("(m.referee_id = ? OR m.fixture_id IN (SELECT fixture_id FROM designations WHERE official_id = ? AND role = 'OBS'))");
+    args.push(user.officialId, user.officialId);
+  }
+  if (q.status) (where.push("m.status = ?"), args.push(q.status));
+  const { results } = await c.env.DB.prepare(`${MATCH_SQL} WHERE ${where.join(" AND ")} ORDER BY m.match_date DESC LIMIT ?`)
+    .bind(...args, q.limit)
+    .all<MatchRow>();
+  return c.json({
+    matches: results.map((r) => {
+      const { decisions: _decisions, ...light } = toMatch(r);
+      return light;
+    }),
+  });
 });
 
 matches.get("/:id", async (c) => {
   const user = currentUser(c);
   const id = c.req.param("id");
   const db = c.env.DB;
-  const m = await db.prepare("SELECT * FROM matches WHERE id = ?").bind(id).first<{ referee_id: string; physical: string; pressure_timeline: string } & Record<string, unknown>>();
+  const m = await db.prepare(`${MATCH_SQL} WHERE m.id = ?`).bind(id).first<MatchRow>();
   if (!m) throw notFound("Match");
-  if (!isStaff(user) && user.role !== "observer" && user.officialId !== m.referee_id) throw notFound("Match");
-  const { results } = await db
-    .prepare(
-      `SELECT id, minute, type, description, initial_call AS initialCall, var_review AS varReview, final_call AS finalCall, confidence,
-              pressure_index AS pressureIndex, distance, players FROM match_decisions WHERE match_id = ? ORDER BY minute`,
-    )
-    .bind(id)
-    .all<{ description: string; players: string; varReview: number } & Record<string, unknown>>();
-  return c.json({
-    match: { ...m, physical: json(m.physical, {}), pressureTimeline: json(m.pressure_timeline, []) },
-    decisions: results.map((d) => ({ ...d, description: json(d.description, {}), players: json(d.players, []), varReview: d.varReview === 1 })),
-  });
+  if (isStaff(user)) {
+    assertCountry(user, m.country_code, "Match");
+  } else {
+    const observing =
+      !!user.officialId &&
+      !!m.fixture_id &&
+      !!(await db.prepare("SELECT 1 AS x FROM designations WHERE fixture_id = ? AND role = 'OBS' AND official_id = ?").bind(m.fixture_id, user.officialId).first());
+    if (user.officialId !== m.referee_id && !observing) throw notFound("Match");
+  }
+  const { results } = await db.prepare("SELECT * FROM match_decisions WHERE match_id = ? ORDER BY minute").bind(id).all<DecisionRow>();
+  return c.json({ match: toMatch(m, results, { withHeat: true }), decisions: results.map(toDecision) });
 });
 
 const decisionSchema = z.object({
   minute: z.number().int().min(0).max(130),
   type: z.enum(["Penalty", "Red Card", "Yellow Card", "Offside", "Handball", "Foul"]),
-  description: z.object({ en: z.string().min(1).max(300), fr: z.string().min(1).max(300) }),
+  description: localizedText(300),
   initialCall: z.enum(["given", "not-given"]),
   varReview: z.boolean().default(false),
   finalCall: z.enum(["confirmed", "overturned"]),
@@ -107,18 +143,16 @@ matches.post("/:id/decisions", staff, async (c) => {
   const user = currentUser(c);
   const matchId = c.req.param("id");
   const b = await readJson(c, decisionSchema);
+  const db = c.env.DB;
+  const countryCode = await matchCountry(db, matchId);
+  assertCountry(user, countryCode, "Match");
   const id = uuid();
-  try {
-    await c.env.DB.batch([
-      c.env.DB
-        .prepare("INSERT INTO match_decisions (id, match_id, minute, type, description, initial_call, var_review, final_call, confidence, pressure_index, distance, players) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
-        .bind(id, matchId, b.minute, b.type, JSON.stringify(b.description), b.initialCall, b.varReview ? 1 : 0, b.finalCall, b.confidence, b.pressureIndex, b.distance, JSON.stringify(b.players)),
-      auditStmt(c.env.DB, user, { action: "decision.log", entity: "match", entityId: matchId, after: { minute: b.minute, type: b.type }, ip: c.get("ip") }),
-    ]);
-  } catch (err) {
-    if (String(err).includes("FOREIGN KEY")) throw notFound("Match");
-    throw err;
-  }
+  await db.batch([
+    db
+      .prepare("INSERT INTO match_decisions (id, match_id, minute, type, description, initial_call, var_review, final_call, confidence, pressure_index, distance, players) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+      .bind(id, matchId, b.minute, b.type, JSON.stringify(b.description), b.initialCall, b.varReview ? 1 : 0, b.finalCall, b.confidence, b.pressureIndex, b.distance, JSON.stringify(b.players)),
+    auditStmt(db, user, { action: "decision.log", entity: "match", entityId: matchId, after: { minute: b.minute, type: b.type }, countryCode, ip: c.get("ip") }),
+  ]);
   return c.json({ id }, 201);
 });
 
@@ -126,44 +160,56 @@ matches.post("/:id/decisions", staff, async (c) => {
  * Observer reports
  * ------------------------------------------------------------------ */
 
+const FROM = "FROM assessments a JOIN matches m ON m.id = a.match_id LEFT JOIN competitions c ON c.id = m.league_id";
 const COLS = `a.id, a.match_id AS matchId, a.referee_id AS refereeId, a.observer_id AS observerId, a.state, a.filed_hours_after AS filedHoursAfter,
-  a.filed_at AS filedAt, a.published, a.overall, a.marks, a.notes, a.clips`;
+  a.filed_at AS filedAt, a.published, a.overall, a.marks, a.notes, a.clips, c.country_code AS countryCode`;
 
 type AssessmentRow = {
-  id: string; matchId: string; refereeId: string; observerId: string; state: string; published: number;
-  filedHoursAfter: number | null; overall: number; marks: string; notes: string; clips: string;
+  id: string; matchId: string; refereeId: string; observerId: string; state: string; published: number; countryCode: string | null;
+  filedHoursAfter: number | null; filedAt: string | null; overall: number; marks: string; notes: string; clips: string;
 };
 
-const toAssessment = (r: AssessmentRow) => ({ ...r, published: r.published === 1, marks: json(r.marks, {}), notes: json(r.notes, {}), clips: json(r.clips, []) });
+const toAssessment = (r: AssessmentRow) => ({ ...r, published: r.published === 1, marks: json(r.marks, {}), notes: json<Localized>(r.notes, { fr: "", en: "" }), clips: json(r.clips, []) });
+
+async function loadAssessment(db: D1Database, id: string) {
+  const row = await db.prepare(`SELECT ${COLS} ${FROM} WHERE a.id = ?`).bind(id).first<AssessmentRow>();
+  if (!row) throw notFound("Assessment");
+  return row;
+}
 
 assessments.get("/", async (c) => {
   const user = currentUser(c);
-  const q = parseQuery(c, z.object({ refereeId: z.string().optional(), state: z.enum(["filed", "draft", "overdue"]).optional(), matchId: z.string().optional() }));
+  const q = parseQuery(c, z.object({ refereeId: z.string().optional(), state: z.enum(["filed", "draft", "overdue"]).optional(), matchId: z.string().optional(), country: countryParam.optional() }));
   const where: string[] = [];
   const args: string[] = [];
   if (isStaff(user)) {
+    const scope = countryFilter(user, "c.country_code");
+    where.push(scope.sql);
+    args.push(...scope.params);
+    if (q.country) (where.push("c.country_code = ?"), args.push(q.country));
     if (q.refereeId) (where.push("a.referee_id = ?"), args.push(q.refereeId));
-  } else if (user.role === "observer") {
-    // an observer sees the reports they wrote
-    (where.push("a.observer_id = ?"), args.push(user.officialId ?? ""));
   } else {
-    // a referee sees only their own reports, and only once the commission has released them
-    (where.push("a.referee_id = ?", "a.published = 1", "a.state = 'filed'"), args.push(user.officialId ?? ""));
+    if (!user.officialId) throw forbidden();
+    // A referee sees the reports they wrote as observer, and reports about them only once the federation has released them.
+    where.push("((a.referee_id = ? AND a.published = 1 AND a.state = 'filed') OR a.observer_id = ?)");
+    args.push(user.officialId, user.officialId);
+    if (q.refereeId) (where.push("a.referee_id = ?"), args.push(q.refereeId));
   }
   if (q.state) (where.push("a.state = ?"), args.push(q.state));
   if (q.matchId) (where.push("a.match_id = ?"), args.push(q.matchId));
-  const { results } = await c.env.DB.prepare(`SELECT ${COLS} FROM assessments a ${where.length ? "WHERE " + where.join(" AND ") : ""} ORDER BY a.updated_at DESC LIMIT 300`)
+  const { results } = await c.env.DB.prepare(`SELECT ${COLS} ${FROM} WHERE ${where.join(" AND ")} ORDER BY a.updated_at DESC LIMIT 300`)
     .bind(...args)
     .all<AssessmentRow>();
   return c.json({ assessments: results.map(toAssessment) });
 });
 
+const clipSchema = z.object({ minute: z.number().int().min(0).max(130), label: localizedText(120) });
 const writeSchema = z.object({
   matchId: z.string().min(1),
   observerId: z.string().optional(),
   marks: z.record(z.string(), z.number().min(0).max(10)),
-  notes: z.object({ en: z.string().max(4000).default(""), fr: z.string().max(4000).default("") }).default({ en: "", fr: "" }),
-  clips: z.array(z.object({ minute: z.number().int().min(0).max(130), label: z.object({ en: z.string().max(120), fr: z.string().max(120) }) })).max(20).default([]),
+  notes: optionalText(4000).default({ fr: "", en: "" }),
+  clips: z.array(clipSchema).max(20).default([]),
   state: z.enum(["draft", "filed"]).default("filed"),
 });
 
@@ -181,35 +227,118 @@ function checkMarks(marks: Record<string, number>, grid: Criterion[], needAll: b
   if (needAll && missing.length) throw new ApiError(422, "marks_incomplete", "A filed report must mark every criterion", { missing });
 }
 
-assessments.post("/", requireRole("admin", "commission", "observer"), async (c) => {
+/* ---- the referee's running figures, kept current from filed reports ---- */
+
+/** The match's analytics figure (0 until the tracking feed has supplied one). */
+const analyticsArps = (m: { arps_for_match: number | null }) => m.arps_for_match ?? 0;
+
+/** ARPS observed from one report: the report's 0–100 mark, averaged with the match analytics when there are some. */
+const observedArps = (reportScore: number, analytics: number) => Math.round((analytics > 0 ? (reportScore + analytics) / 2 : reportScore) * 10) / 10;
+
+/**
+ * Statements that bring the assessed referee's figures up to date.
+ *
+ * - Filing a report moves `rmcs_avg` and `arps` an exponential step (weight 0.1) towards the report; the very first
+ *   observation of an official with no figures yet sets them. `trend` is the change in `rmcs_avg`.
+ * - Correcting an already-filed report moves them by the same weight times the *difference* between the old and new
+ *   report, so a correction is applied exactly once and never counted as a second observation.
+ * - `matches` never goes down and is at least the number of finished matches on file; the match's own `rmcs`
+ *   (the report's 0–100 mark) is written next to the analytics row.
+ */
+function performanceStmts(
+  db: D1Database,
+  m: { refereeId: string; matchId: string; arpsForMatch: number },
+  overall: number,
+  previousOverall: number | null,
+) {
+  const x = Math.round(overall * 100) / 10; // 0–10 → 0–100, one decimal
+  const a = observedArps(x, m.arpsForMatch);
+  const stats =
+    previousOverall === null
+      ? db
+          .prepare(
+            `UPDATE officials SET
+               trend = ROUND(CASE WHEN rmcs_avg = 0 THEN 0 ELSE ?1 * 0.1 - rmcs_avg * 0.1 END, 1),
+               rmcs_avg = ROUND(CASE WHEN rmcs_avg = 0 THEN ?1 ELSE rmcs_avg * 0.9 + ?1 * 0.1 END, 1),
+               arps = ROUND(CASE WHEN arps = 0 THEN ?2 ELSE arps * 0.9 + ?2 * 0.1 END, 1),
+               matches = MAX(matches, (SELECT COUNT(*) FROM matches WHERE referee_id = ?3 AND status = 'finished')),
+               updated_at = strftime('%Y-%m-%dT%H:%M:%fZ','now')
+             WHERE id = ?3`,
+          )
+          .bind(x, a, m.refereeId)
+      : (() => {
+          const px = Math.round(previousOverall * 100) / 10;
+          const shiftR = 0.1 * (x - px);
+          const shiftA = 0.1 * (a - observedArps(px, m.arpsForMatch));
+          return db
+            .prepare(
+              `UPDATE officials SET
+                 trend = ROUND(trend + ?1, 1),
+                 rmcs_avg = MIN(100, MAX(0, ROUND(rmcs_avg + ?1, 1))),
+                 arps = MIN(100, MAX(0, ROUND(arps + ?2, 1))),
+                 updated_at = strftime('%Y-%m-%dT%H:%M:%fZ','now')
+               WHERE id = ?3`,
+            )
+            .bind(shiftR, shiftA, m.refereeId);
+        })();
+  return [
+    stats,
+    db
+      .prepare(
+        // `arps_for_match` stays the analytics feed's figure (0 until it supplies one); only `rmcs` comes from the report
+        `INSERT INTO match_officiating (match_id, arps_for_match, rmcs, pressure_avg) VALUES (?1, 0, ?2, 0)
+         ON CONFLICT (match_id) DO UPDATE SET rmcs = excluded.rmcs`,
+      )
+      .bind(m.matchId, x),
+  ];
+}
+
+/**
+ * Who may file or edit a report on a match:
+ *  - an administrator;
+ *  - a federation seat, for matches of its own country;
+ *  - a referee-account whose official is designated OBS on that match's fixture — never a match they refereed.
+ */
+assessments.post("/", async (c) => {
   const user = currentUser(c);
   const b = await readJson(c, writeSchema);
   const db = c.env.DB;
   const grid = await loadCriteria(db);
   checkMarks(b.marks, grid, b.state === "filed");
 
-  const match = await db
-    .prepare("SELECT m.id, m.referee_id AS refereeId, m.date, f.kickoff FROM matches m LEFT JOIN fixtures f ON f.id = m.fixture_id WHERE m.id = ?")
-    .bind(b.matchId)
-    .first<{ id: string; refereeId: string; date: string; kickoff: string | null }>();
-  if (!match) throw notFound("Match");
-
-  const observerId = user.role === "observer" ? user.officialId : b.observerId;
-  if (!observerId) throw new ApiError(422, "observer_required", "Say which observer wrote this report");
-  if (observerId === match.refereeId) throw new ApiError(422, "self_assessment", "An official cannot assess their own match");
-  if (user.role === "observer") {
-    // an observer writes about matches they were appointed to
-    const appointed = await db
-      .prepare("SELECT 1 AS x FROM designations d JOIN matches m ON m.fixture_id = d.fixture_id WHERE m.id = ? AND d.role = 'OBS' AND d.official_id = ?")
-      .bind(b.matchId, observerId)
-      .first();
+  if (!isStaff(user)) {
+    const appointed =
+      !!user.officialId &&
+      !!(await db
+        .prepare("SELECT 1 AS x FROM designations d JOIN matches m ON m.fixture_id = d.fixture_id WHERE m.id = ? AND d.role = 'OBS' AND d.official_id = ? AND d.state <> 'declined'")
+        .bind(b.matchId, user.officialId)
+        .first());
+    // 403 whether or not the match exists: a referee learns nothing about matches they were not appointed to
     if (!appointed) throw forbidden("You were not appointed observer for this match");
   }
 
-  const kickoff = new Date(`${match.date}T${match.kickoff ?? "12:00"}:00Z`).getTime();
-  const hours = b.state === "filed" ? Math.max(0, Math.round((Date.now() - kickoff) / 3_600_000)) : null;
+  const match = await db.prepare(`${MATCH_SQL} WHERE m.id = ?`).bind(b.matchId).first<MatchRow>();
+  if (!match) throw notFound("Match");
+  if (isStaff(user)) assertCountry(user, match.country_code, "Match");
+  if (!match.referee_id) throw new ApiError(422, "no_referee", "This match has no referee on record to assess");
+
+  let observerId: string;
+  if (!isStaff(user)) {
+    observerId = user.officialId!;
+  } else {
+    if (!b.observerId) throw new ApiError(422, "observer_required", "Say which observer wrote this report");
+    const obs = await db.prepare("SELECT id, country_code FROM officials WHERE id = ?").bind(b.observerId).first<{ id: string; country_code: string }>();
+    // a federation names observers of its own country only; an unknown or foreign id looks the same
+    if (!obs || (!isAdmin(user) && !inCountry(user, obs.country_code))) throw new ApiError(422, "unknown_observer", "Unknown observer");
+    observerId = obs.id;
+  }
+  if (observerId === match.referee_id) throw new ApiError(422, "self_assessment", "An official cannot assess their own match");
+
+  const kickoff = Date.parse(match.match_date);
+  const hours = b.state === "filed" ? (Number.isFinite(kickoff) ? Math.max(0, Math.round((Date.now() - kickoff) / 3_600_000)) : 0) : null;
   const id = `as-${uuid().slice(0, 12)}`;
   const overall = weighted(b.marks, grid);
+  const countryCode = match.country_code;
 
   const stmts = [
     db
@@ -217,54 +346,51 @@ assessments.post("/", requireRole("admin", "commission", "observer"), async (c) 
         `INSERT INTO assessments (id, match_id, referee_id, observer_id, state, filed_hours_after, filed_at, overall, marks, notes, clips)
          VALUES (?, ?, ?, ?, ?, ?, ${b.state === "filed" ? "strftime('%Y-%m-%dT%H:%M:%fZ','now')" : "NULL"}, ?, ?, ?, ?)`,
       )
-      .bind(id, b.matchId, match.refereeId, observerId, b.state, hours, overall, JSON.stringify(b.marks), JSON.stringify(b.notes), JSON.stringify(b.clips)),
-    auditStmt(db, user, { action: `assessment.${b.state}`, entity: "assessment", entityId: id, after: { matchId: b.matchId, overall }, ip: c.get("ip") }),
+      .bind(id, b.matchId, match.referee_id, observerId, b.state, hours, overall, JSON.stringify(b.marks), JSON.stringify(b.notes), JSON.stringify(b.clips)),
+    auditStmt(db, user, { action: `assessment.${b.state}`, entity: "assessment", entityId: id, after: { matchId: b.matchId, overall }, countryCode, ip: c.get("ip") }),
   ];
-  if (b.state === "filed") stmts.push(...ratingUpdate(db, match.refereeId, overall));
+  if (b.state === "filed") {
+    stmts.push(...performanceStmts(db, { refereeId: match.referee_id, matchId: b.matchId, arpsForMatch: analyticsArps(match) }, overall, null));
+    if (!isStaff(user)) {
+      stmts.push(
+        ...notifyStmts(db, {
+          ...staffNotice(countryCode),
+          title: localized("Rapport d'évaluation déposé", "Assessment report filed"),
+          detail: localized(`${match.home} – ${match.away} : note globale ${overall}/10, en attente de publication.`, `${match.home} – ${match.away}: overall mark ${overall}/10, awaiting release.`),
+          tone: "var",
+          href: "/assessments",
+        }),
+      );
+    }
+  }
   try {
     await db.batch(stmts);
   } catch (err) {
     if (String(err).includes("UNIQUE")) throw new ApiError(409, "duplicate", "This observer already has a report for this match");
-    if (String(err).includes("FOREIGN KEY")) throw new ApiError(422, "unknown_observer", "Unknown observer");
     throw err;
   }
-  const row = await db.prepare(`SELECT ${COLS} FROM assessments a WHERE a.id = ?`).bind(id).first<AssessmentRow>();
-  return c.json({ assessment: toAssessment(row!) }, 201);
+  return c.json({ assessment: toAssessment(await loadAssessment(db, id)) }, 201);
 });
-
-/**
- * A filed report nudges the referee's rating: an exponential moving average
- * (weight 0.1) of the report's 0–100 equivalent. ARPS and the match-analytics
- * figures come from the analytics feed and are not touched here.
- */
-function ratingUpdate(db: D1Database, refereeId: string, overall: number) {
-  return [
-    db
-      .prepare("UPDATE officials SET trend = ROUND(?1 * 10 * 0.1 + rmcs_avg * 0.9 - rmcs_avg, 1), rmcs_avg = ROUND(rmcs_avg * 0.9 + ?1 * 10 * 0.1, 1), updated_at = strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE id = ?2")
-      .bind(overall, refereeId),
-  ];
-}
 
 const fileSchema = z.object({
   marks: z.record(z.string(), z.number().min(0).max(10)).optional(),
-  notes: z.object({ en: z.string().max(4000), fr: z.string().max(4000) }).optional(),
-  clips: writeSchema.shape.clips.optional(),
+  notes: optionalText(4000).optional(),
+  clips: z.array(clipSchema).max(20).optional(),
   file: z.boolean().default(false),
   reason: z.string().min(3).max(300).optional(),
 });
 
-assessments.patch("/:id", requireRole("admin", "commission", "observer"), async (c) => {
+assessments.patch("/:id", async (c) => {
   const user = currentUser(c);
   const id = c.req.param("id");
   const b = await readJson(c, fileSchema);
   const db = c.env.DB;
-  const row = await db.prepare(`SELECT ${COLS} FROM assessments a WHERE a.id = ?`).bind(id).first<AssessmentRow>();
-  if (!row) throw notFound("Assessment");
-  const authored = user.officialId !== null && user.officialId === row.observerId;
-  if (!isStaff(user) && !authored) throw notFound("Assessment");
-  // a filed report is a record: only the commission may correct it, and must say why
+  const row = await loadAssessment(db, id);
+  if (isStaff(user)) assertCountry(user, row.countryCode, "Assessment");
+  else if (!user.officialId || user.officialId !== row.observerId) throw notFound("Assessment"); // not theirs: it does not exist for them
+  // a filed report is a record: only staff may correct it, and must say why
   if (row.state === "filed") {
-    if (!isStaff(user)) throw forbidden("A filed report can only be corrected by the commission");
+    if (!isStaff(user)) throw forbidden("A filed report can only be corrected by the federation");
     if (!b.reason) throw new ApiError(422, "reason_required", "Correcting a filed report needs a written reason");
   }
 
@@ -273,35 +399,38 @@ assessments.patch("/:id", requireRole("admin", "commission", "observer"), async 
   const filing = b.file && row.state !== "filed";
   checkMarks(marks, grid, filing || row.state === "filed");
   const overall = weighted(marks, grid);
+
   const stmts = [
     db
       .prepare(
         `UPDATE assessments SET marks = ?, notes = ?, clips = ?, overall = ?, state = ?, ${filing ? "filed_at = strftime('%Y-%m-%dT%H:%M:%fZ','now')," : ""} updated_at = strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE id = ?`,
       )
-      .bind(JSON.stringify(marks), JSON.stringify(b.notes ?? json(row.notes, {})), JSON.stringify(b.clips ?? json(row.clips, [])), overall, filing ? "filed" : row.state, id),
-    auditStmt(db, user, { action: filing ? "assessment.file" : "assessment.edit", entity: "assessment", entityId: id, before: { overall: row.overall, state: row.state }, after: { overall }, reason: b.reason, ip: c.get("ip") }),
+      .bind(JSON.stringify(marks), JSON.stringify(b.notes ?? json(row.notes, { fr: "", en: "" })), JSON.stringify(b.clips ?? json(row.clips, [])), overall, filing ? "filed" : row.state, id),
+    auditStmt(db, user, { action: filing ? "assessment.file" : "assessment.edit", entity: "assessment", entityId: id, before: { overall: row.overall, state: row.state }, after: { overall }, reason: b.reason, countryCode: row.countryCode, ip: c.get("ip") }),
   ];
-  if (filing) stmts.push(...ratingUpdate(db, row.refereeId, overall));
+  if (filing || row.state === "filed") {
+    const analytics = await db.prepare("SELECT arps_for_match AS a FROM match_officiating WHERE match_id = ?").bind(row.matchId).first<{ a: number }>();
+    stmts.push(...performanceStmts(db, { refereeId: row.refereeId, matchId: row.matchId, arpsForMatch: analytics?.a ?? 0 }, overall, filing ? null : row.overall));
+  }
   await db.batch(stmts);
-  const after = await db.prepare(`SELECT ${COLS} FROM assessments a WHERE a.id = ?`).bind(id).first<AssessmentRow>();
-  return c.json({ assessment: toAssessment(after!) });
+  return c.json({ assessment: toAssessment(await loadAssessment(db, id)) });
 });
 
-// Reports are confidential until the commission releases them to the referee.
+// Reports are confidential until the federation releases them to the referee.
 assessments.post("/:id/publish", staff, async (c) => {
   const user = currentUser(c);
   const id = c.req.param("id");
   const db = c.env.DB;
-  const row = await db.prepare(`SELECT ${COLS} FROM assessments a WHERE a.id = ?`).bind(id).first<AssessmentRow>();
-  if (!row) throw notFound("Assessment");
+  const row = await loadAssessment(db, id);
+  assertCountry(user, row.countryCode, "Assessment");
   if (row.state !== "filed") throw new ApiError(409, "not_filed", "Only a filed report can be released");
   if (row.published === 1) return c.json({ ok: true, changed: false });
   await db.batch([
     db.prepare("UPDATE assessments SET published = 1 WHERE id = ?").bind(id),
-    auditStmt(db, user, { action: "assessment.publish", entity: "assessment", entityId: id, ip: c.get("ip") }),
+    auditStmt(db, user, { action: "assessment.publish", entity: "assessment", entityId: id, countryCode: row.countryCode, ip: c.get("ip") }),
     ...(await notifyOfficialStmts(db, row.refereeId, {
-      title: { en: "A match assessment is available", fr: "Une évaluation de match est disponible" },
-      detail: { en: `Overall mark ${row.overall}/10.`, fr: `Note globale ${row.overall}/10.` },
+      title: localized("Une évaluation de match est disponible", "A match assessment is available"),
+      detail: localized(`Note globale ${row.overall}/10.`, `Overall mark ${row.overall}/10.`),
       tone: "var",
       href: "/me",
     })),
@@ -314,22 +443,28 @@ assessments.post("/:id/publish", staff, async (c) => {
  * ------------------------------------------------------------------ */
 
 dossiers.get("/", staff, async (c) => {
-  const { results } = await c.env.DB.prepare("SELECT id, match_id AS matchId, generated, pages, recipients FROM dossiers ORDER BY generated DESC LIMIT 200").all<{ recipients: string } & Record<string, unknown>>();
+  const user = currentUser(c);
+  const scope = countryFilter(user, "c.country_code");
+  const { results } = await c.env.DB.prepare(
+    `SELECT d.id, d.match_id AS matchId, d.generated, d.pages, d.recipients, c.country_code AS countryCode
+       FROM dossiers d JOIN matches m ON m.id = d.match_id LEFT JOIN competitions c ON c.id = m.league_id
+      WHERE ${scope.sql} ORDER BY d.generated DESC, d.id LIMIT 200`,
+  )
+    .bind(...scope.params)
+    .all<{ recipients: string } & Record<string, unknown>>();
   return c.json({ dossiers: results.map((d) => ({ ...d, recipients: json(d.recipients, []) })) });
 });
 
 dossiers.post("/", staff, async (c) => {
   const user = currentUser(c);
   const b = await readJson(c, z.object({ matchId: z.string(), pages: z.number().int().min(1).max(200).default(12), recipients: z.array(z.string().max(80)).min(1).max(10) }));
+  const db = c.env.DB;
+  const countryCode = await matchCountry(db, b.matchId);
+  assertCountry(user, countryCode, "Match");
   const id = `dos-${uuid().slice(0, 10)}`;
-  try {
-    await c.env.DB.batch([
-      c.env.DB.prepare("INSERT INTO dossiers (id, match_id, generated, pages, recipients, generated_by) VALUES (?, ?, date('now'), ?, ?, ?)").bind(id, b.matchId, b.pages, JSON.stringify(b.recipients), user.id),
-      auditStmt(c.env.DB, user, { action: "dossier.generate", entity: "match", entityId: b.matchId, after: { recipients: b.recipients }, ip: c.get("ip") }),
-    ]);
-  } catch (err) {
-    if (String(err).includes("FOREIGN KEY")) throw notFound("Match");
-    throw err;
-  }
+  await db.batch([
+    db.prepare("INSERT INTO dossiers (id, match_id, generated, pages, recipients, generated_by) VALUES (?, ?, date('now'), ?, ?, ?)").bind(id, b.matchId, b.pages, JSON.stringify(b.recipients), user.id),
+    auditStmt(db, user, { action: "dossier.generate", entity: "match", entityId: b.matchId, after: { recipients: b.recipients }, countryCode, ip: c.get("ip") }),
+  ]);
   return c.json({ id }, 201);
 });

@@ -1,0 +1,15 @@
+{
+  "title": "Rangliste",
+  "tableSub": "Kumulierter ARPS, alle Wettbewerbe im Bereich",
+  "movement": "Entwicklung",
+  "promotionLine": "Aufstiegslinie",
+  "promotionLineNote": "Die ersten 8 kommen in die CAF-Elite-Überprüfung",
+  "filterZone": "Nach Zone filtern",
+  "filterLevel": "Nach Stufe filtern",
+  "levelMix": "Verteilung nach Stufe",
+  "levelMixSub": "Wie das Korps in diesem Bereich eingestuft ist",
+  "zoneLeaders": "Zonenbeste",
+  "zoneLeadersSub": "Der bestbewertete Offizielle jeder CAF-Zone",
+  "biggestMovers": "Größte Veränderungen",
+  "biggestMoversSub": "Größte Veränderung seit der letzten Saison"
+}

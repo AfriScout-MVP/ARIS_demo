@@ -2,7 +2,8 @@
 
 import { cn } from "@/lib/utils";
 import { useT } from "@/lib/i18n/LocaleProvider";
-import { countryFlag, officialById, roleKey, type CrewSlot } from "@/lib/mock-data";
+import { CountryFlag } from "@/components/ui/CountryFlag";
+import { officialById, roleKey, type CrewSlot } from "@/lib/store";
 
 /**
  * The crew strip — six or seven slots, always in the same order, always the
@@ -84,7 +85,7 @@ export function CrewStrip({
                 </span>
                 {size === "md" && (
                   <span className="block text-[10px] text-chalk-faint">
-                    {countryFlag(official.countryCode)}
+                    <CountryFlag code={official.countryCode} />
                   </span>
                 )}
               </span>

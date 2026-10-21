@@ -1,0 +1,12 @@
+{
+  "stale": "Someone else changed this slot. The calendar has been refreshed.",
+  "ineligible": "That official cannot take this role: {why}.",
+  "reasonRequired": "A written reason is required for this change.",
+  "forbidden": "Your account is not allowed to make this change.",
+  "notSaved": "The change was not saved. Try again.",
+  "offline": "No connection — the change was not saved.",
+  "played": "This match has already been played.",
+  "autoFillFailed": "Auto-fill did not run. Try again.",
+  "reasonPrompt": "Reason for this change (required):",
+  "overridePrompt": "{why}. To go ahead anyway, give a written reason:"
+}

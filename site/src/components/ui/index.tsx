@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import type { IconType } from "@/components/icons/glyphs";
 import { cn } from "@/lib/utils";
 
@@ -442,19 +443,44 @@ export function ScoreRing({
 
 export function Avatar({
   initials,
+  photoUrl,
+  name,
   size = 32,
   tone = "neutral",
   className,
 }: {
   initials: string;
+  /** The official's photo; initials are drawn when there is none or it fails to load. */
+  photoUrl?: string | null;
+  /** Accessible name of the photo. */
+  name?: string;
   size?: number;
   tone?: "neutral" | "chalk";
   className?: string;
 }) {
+  const [failed, setFailed] = useState<string | null>(null);
+  const shape = "inline-flex shrink-0 items-center justify-center rounded-[32%]";
+
+  if (photoUrl && failed !== photoUrl) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element -- static export: next/image would only add a loader
+      <img
+        src={photoUrl}
+        alt={name ?? initials}
+        loading="lazy"
+        decoding="async"
+        onError={() => setFailed(photoUrl)}
+        className={cn(shape, "border border-line bg-ink-3 object-cover", className)}
+        style={{ width: size, height: size }}
+      />
+    );
+  }
+
   return (
     <span
       className={cn(
-        "inline-flex shrink-0 items-center justify-center rounded-[32%] font-semibold",
+        shape,
+        "font-semibold",
         tone === "chalk"
           ? "bg-red-600 text-white"
           : "border border-line bg-ink-3 text-chalk-dim",

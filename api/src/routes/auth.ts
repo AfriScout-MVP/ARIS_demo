@@ -1,11 +1,12 @@
 import { Hono } from "hono";
 import { deleteCookie, setCookie } from "hono/cookie";
 import { z } from "zod";
-import type { AppEnv, Role } from "../env";
+import type { AppEnv } from "../env";
 import { ApiError, readJson } from "../lib/http";
 import { burnVerify, hashPassword, signToken, verifyPassword } from "../lib/crypto";
 import { auditStmt } from "../lib/audit";
-import { SESSION_COOKIE, currentUser } from "../middleware/auth";
+import { LOGIN_SQL, SESSION_COOKIE, USER_SQL, currentUser, isUsable, toAuthUser, type UserRow } from "../middleware/auth";
+import { LOCALES } from "../env";
 
 export const SESSION_SECONDS = 12 * 60 * 60;
 export const MIN_PASSWORD = 12;
@@ -41,28 +42,22 @@ auth.post("/login", async (c) => {
     throw new ApiError(429, "too_many_attempts", "Too many failed sign-ins. Try again in 15 minutes.");
   }
 
-  const user = await db
-    .prepare("SELECT id, email, name, role, official_id, scope, locale, password_hash, active, token_version FROM users WHERE email = ?")
-    .bind(email)
-    .first<{
-      id: string; email: string; name: string; role: Role; official_id: string | null; scope: string;
-      locale: "fr" | "en"; password_hash: string; active: number; token_version: number;
-    }>();
-
-  const valid = user ? await verifyPassword(password, user.password_hash) : await burnVerify(password);
-  if (!user || !valid || user.active !== 1) {
+  const row = await db.prepare(`${LOGIN_SQL} WHERE u.email = ?`).bind(email).first<UserRow & { password_hash: string }>();
+  const valid = row ? await verifyPassword(password, row.password_hash) : await burnVerify(password);
+  if (!row || !valid || !isUsable(row)) {
     await db.prepare("INSERT INTO login_attempts (email, ip, success) VALUES (?, ?, 0)").bind(email, ip).run();
     // One message for every failure: it must not reveal which accounts exist.
     throw new ApiError(401, "invalid_credentials", "Incorrect e-mail or password");
   }
+  const user = toAuthUser(row);
 
   await db.batch([
     db.prepare("INSERT INTO login_attempts (email, ip, success) VALUES (?, ?, 1)").bind(email, ip),
     db.prepare("UPDATE users SET last_login_at = strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE id = ?").bind(user.id),
-    auditStmt(db, user, { action: "auth.login", entity: "user", entityId: user.id, ip }),
+    auditStmt(db, user, { action: "auth.login", entity: "user", entityId: user.id, countryCode: user.country, ip }),
   ]);
 
-  const token = await signToken({ sub: user.id, tv: user.token_version }, c.env.JWT_SECRET, SESSION_SECONDS);
+  const token = await signToken({ sub: user.id, tv: row.token_version }, c.env.JWT_SECRET, SESSION_SECONDS);
   setCookie(c, SESSION_COOKIE, token, {
     httpOnly: true,
     secure: new URL(c.req.url).protocol === "https:",
@@ -70,10 +65,7 @@ auth.post("/login", async (c) => {
     path: "/",
     maxAge: SESSION_SECONDS,
   });
-  return c.json({
-    token,
-    user: { id: user.id, email: user.email, name: user.name, role: user.role, officialId: user.official_id, scope: user.scope, locale: user.locale },
-  });
+  return c.json({ token, user });
 });
 
 auth.post("/logout", (c) => {
@@ -82,6 +74,24 @@ auth.post("/logout", (c) => {
 });
 
 auth.get("/me", (c) => c.json({ user: currentUser(c) }));
+
+// A user changing their own language or display name. Nothing else about an account is self-service.
+const selfSchema = z
+  .object({ locale: z.enum(LOCALES as [string, ...string[]]), name: z.string().trim().min(1).max(120) })
+  .partial()
+  .refine((b) => b.locale !== undefined || b.name !== undefined, "Send locale and/or name");
+
+auth.patch("/me", async (c) => {
+  const user = currentUser(c);
+  const body = await readJson(c, selfSchema);
+  const db = c.env.DB;
+  await db.batch([
+    db.prepare("UPDATE users SET name = COALESCE(?, name), locale = COALESCE(?, locale) WHERE id = ?").bind(body.name ?? null, body.locale ?? null, user.id),
+    auditStmt(db, user, { action: "user.update_self", entity: "user", entityId: user.id, before: { name: user.name, locale: user.locale }, after: body, countryCode: user.country, ip: c.get("ip") }),
+  ]);
+  const row = await db.prepare(`${USER_SQL} WHERE u.id = ?`).bind(user.id).first<UserRow>();
+  return c.json({ user: toAuthUser(row!) });
+});
 
 const changeSchema = z.object({ currentPassword: z.string().min(1).max(200), newPassword: passwordSchema });
 
@@ -95,7 +105,7 @@ auth.post("/change-password", async (c) => {
   // Bumping token_version signs the account out everywhere — including this session.
   await c.env.DB.batch([
     c.env.DB.prepare("UPDATE users SET password_hash = ?, token_version = token_version + 1 WHERE id = ?").bind(await hashPassword(newPassword), user.id),
-    auditStmt(c.env.DB, user, { action: "auth.change_password", entity: "user", entityId: user.id, ip: c.get("ip") }),
+    auditStmt(c.env.DB, user, { action: "auth.change_password", entity: "user", entityId: user.id, countryCode: user.country, ip: c.get("ip") }),
   ]);
   deleteCookie(c, SESSION_COOKIE, { path: "/" });
   return c.json({ ok: true, signedOut: true });

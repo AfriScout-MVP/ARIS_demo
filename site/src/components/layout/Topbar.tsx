@@ -6,9 +6,7 @@ import { useTheme } from "@/lib/theme/ThemeProvider";
 import { ScopeSelect } from "./ScopeSelect";
 import { NotificationsMenu } from "./NotificationsMenu";
 import { AvatarMenu } from "./AvatarMenu";
-import { Dot } from "@/components/ui";
 import { MarkTile } from "@/components/icons/Mark";
-import { useDataset } from "@/lib/dataset/DatasetProvider";
 
 /** AfriScout's admin icon button: 40px, rounded-[10px], bordered, tinted. */
 export const iconButton =
@@ -33,7 +31,6 @@ export function Topbar({
   onOpenDesktop: () => void;
 }) {
   const t = useT();
-  const { live } = useDataset();
   const { theme, toggle } = useTheme();
   const themeLabel = theme === "dark" ? t("nav.lightMode") : t("nav.darkMode");
 
@@ -84,12 +81,6 @@ export function Topbar({
             <kbd className="rounded-[4px] border border-line px-1.5 py-0.5 text-[10px]">⌘K</kbd>
           </button>
 
-          {!live && (
-            <span className="hidden h-10 items-center gap-2 rounded-lg border border-line bg-ink-2 px-3 text-xs font-medium text-chalk-dim xl:inline-flex">
-              <Dot tone="pitch" pulse />
-              {t("common.demoData")}
-            </span>
-          )}
 
           <NotificationsMenu />
           <AvatarMenu />

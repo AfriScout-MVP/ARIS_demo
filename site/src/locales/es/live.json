@@ -1,0 +1,12 @@
+{
+  "stale": "Otra persona ha modificado este puesto. El calendario se ha actualizado.",
+  "ineligible": "Este oficial no puede desempeñar este cometido: {why}.",
+  "reasonRequired": "Este cambio exige un motivo por escrito.",
+  "forbidden": "Su cuenta no tiene permiso para realizar este cambio.",
+  "notSaved": "El cambio no se ha guardado. Inténtelo de nuevo.",
+  "offline": "Sin conexión: el cambio no se ha guardado.",
+  "played": "Este partido ya se ha jugado.",
+  "autoFillFailed": "La asignación automática no se ha completado. Inténtelo de nuevo.",
+  "reasonPrompt": "Motivo de este cambio (obligatorio):",
+  "overridePrompt": "{why}. Para continuar de todos modos, indique un motivo por escrito:"
+}

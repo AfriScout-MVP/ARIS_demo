@@ -6,9 +6,14 @@ import { authenticate, currentUser } from "./middleware/auth";
 import { sameOriginOnly, securityHeaders } from "./middleware/security";
 import { auth } from "./routes/auth";
 import { users } from "./routes/users";
+import { federations } from "./routes/federations";
+import { countries } from "./routes/countries";
+import { teams, stadiums } from "./routes/teams";
+import { media } from "./routes/media";
 import { officials } from "./routes/officials";
 import { documents } from "./routes/documents";
 import { fixtures } from "./routes/fixtures";
+import { competitions } from "./routes/competitions";
 import { notifications } from "./routes/notifications";
 import { audit } from "./routes/audit";
 import { payments, feeScales, advances } from "./routes/payments";
@@ -35,6 +40,8 @@ app.get("/api/health", async (c) => {
 
 const v1 = new Hono<AppEnv>();
 v1.route("/auth", auth);
+// Public files (flags, crests, logos) need no session; private ones check it themselves.
+v1.route("/media", media);
 
 // Everything below needs a signed-in user.
 v1.use("*", async (c, next) => {
@@ -42,9 +49,14 @@ v1.use("*", async (c, next) => {
   await next();
 });
 v1.route("/users", users);
+v1.route("/federations", federations);
+v1.route("/countries", countries);
+v1.route("/teams", teams);
+v1.route("/stadiums", stadiums);
 v1.route("/officials", officials);
 v1.route("/documents", documents);
 v1.route("/fixtures", fixtures);
+v1.route("/competitions", competitions);
 v1.route("/notifications", notifications);
 v1.route("/audit", audit);
 v1.route("/payments", payments);

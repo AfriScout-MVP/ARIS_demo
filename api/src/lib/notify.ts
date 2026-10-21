@@ -1,16 +1,16 @@
 import type { Env } from "../env";
 import { uuid } from "./http";
+import type { Localized } from "./localized";
 
-export interface Bilingual {
-  en: string;
-  fr: string;
-}
+export type Bilingual = Localized;
 
 export interface NotificationInput {
   /** One account … */
   userId?: string;
   /** … or every account holding a role. Exactly one of the two. */
-  audienceRole?: "admin" | "commission" | "observer" | "referee";
+  audienceRole?: "admin" | "federation" | "referee";
+  /** Narrow a role-wide notice to one country: only that country's federation seats (and admins) see it. */
+  countryCode?: string;
   title: Bilingual;
   detail: Bilingual;
   tone: "pitch" | "amber" | "red" | "var";
@@ -27,12 +27,13 @@ export function notifyStmts(db: D1Database, n: NotificationInput): D1PreparedSta
   const stmts = [
     db
       .prepare(
-        "INSERT OR IGNORE INTO notifications (id, user_id, audience_role, dedupe_key, title, detail, tone, href) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+        "INSERT OR IGNORE INTO notifications (id, user_id, audience_role, country_code, dedupe_key, title, detail, tone, href) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
       )
       .bind(
         id,
         n.userId ?? null,
-        n.userId ? null : (n.audienceRole ?? "commission"),
+        n.userId ? null : (n.audienceRole ?? "federation"),
+        n.userId ? null : (n.countryCode ?? null),
         n.dedupeKey ?? null,
         JSON.stringify(n.title),
         JSON.stringify(n.detail),

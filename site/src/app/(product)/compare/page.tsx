@@ -9,7 +9,8 @@ import { useScope } from "@/lib/scope/ScopeProvider";
 import { PageHeading } from "@/components/layout/PageHeading";
 import { Badge, Card, ChalkRule, EmptyState, ScoreRing, Select } from "@/components/ui";
 import { CompareRadar } from "@/components/charts/CompareRadar";
-import { countryFlag, countryName, getSubIndices, referees, type Referee } from "@/lib/mock-data";
+import { CountryFlag } from "@/components/ui/CountryFlag";
+import { countryName, getSubIndices, referees, refereeHref, type Referee } from "@/lib/store";
 
 /** A is green, B is sky — the same two colours the radar uses. */
 const SIDE = {
@@ -35,7 +36,7 @@ function Side({
       </div>
       <div className="min-w-0 flex-1">
         <Link
-          href={`/referees/${referee.id}`}
+          href={refereeHref(referee.id)}
           className={cn(
             "flex items-center gap-1 font-display text-base font-semibold text-chalk hover:underline",
             side === "b" && "sm:justify-end",
@@ -45,7 +46,7 @@ function Side({
           <ArrowUpRight size={12} className="shrink-0" />
         </Link>
         <p className="truncate text-xs text-chalk-faint">
-          {countryFlag(referee.countryCode)} {countryName(referee.countryCode, locale)} · {referee.level}
+          <CountryFlag code={referee.countryCode} /> {countryName(referee.countryCode, locale)} · {referee.level}
         </p>
         <div className={cn("mt-1.5 flex flex-wrap gap-1.5", side === "b" && "sm:justify-end")}>
           <Badge tone={side === "a" ? "pitch" : "var"}>
@@ -63,7 +64,6 @@ function Side({
 
 export default function ComparePage() {
   const t = useT();
-  const { locale } = useLocale();
   const { codes } = useScope();
 
   const pool = useMemo(
@@ -71,8 +71,8 @@ export default function ComparePage() {
     [codes],
   );
 
-  const [aId, setAId] = useState(pool[0]?.id ?? referees[0].id);
-  const [bId, setBId] = useState(pool[1]?.id ?? referees[1].id);
+  const [aId, setAId] = useState(pool[0]?.id ?? "");
+  const [bId, setBId] = useState(pool[1]?.id ?? "");
 
   const a = pool.find((r) => r.id === aId) ?? pool[0];
   const b = pool.find((r) => r.id === bId) ?? pool[1];
@@ -117,9 +117,9 @@ export default function ComparePage() {
       max: Math.max(a.matches, b.matches),
     },
     {
-      label: locale === "fr" ? "Cartons / rencontre" : "Cards per match",
-      a: Number(((a.cards.yellow + a.cards.red) / a.matches).toFixed(2)),
-      b: Number(((b.cards.yellow + b.cards.red) / b.matches).toFixed(2)),
+      label: t("referees.cardsPerMatch"),
+      a: Number(((a.cards.yellow + a.cards.red) / Math.max(1, a.matches)).toFixed(2)),
+      b: Number(((b.cards.yellow + b.cards.red) / Math.max(1, b.matches)).toFixed(2)),
       max: 5,
       lowerIsBetter: true,
     },
@@ -162,7 +162,7 @@ export default function ComparePage() {
           <div className="flex items-center justify-center gap-3 sm:flex-col sm:gap-1">
             <span className="board text-[20px] font-semibold text-pitch">{aWins}</span>
             <span className="text-xs font-medium text-chalk-faint">
-              {locale === "fr" ? "avantages" : "wins"}
+              {t("compare.wins")}
             </span>
             <span className="board text-[20px] font-semibold text-var">{headToHead.length - aWins}</span>
           </div>

@@ -4,25 +4,25 @@ import { useMemo, useState } from "react";
 import { Bar, BarChart, CartesianGrid, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Compass, Gauge, Map, Route, Ruler, Video, Zap } from "@/components/icons/glyphs";
 import { cn } from "@/lib/utils";
-import { useFormatters, useLocale, useT } from "@/lib/i18n/LocaleProvider";
+import { useFormatters, useT } from "@/lib/i18n/LocaleProvider";
 import { useScope } from "@/lib/scope/ScopeProvider";
 import { PageHeading } from "@/components/layout/PageHeading";
 import { Badge, Board, Card, CardHeader, EmptyState, Meter } from "@/components/ui";
 import { DiagonalCorridor, HeatField, Pitch, corridorY, heatLegend } from "@/components/pitch/Pitch";
 import { axisProps, barCursor, chartColors, tooltipStyle } from "@/components/charts/theme";
-import { competitionById, countryFlag, heatPointsFor, matches, refereeById } from "@/lib/mock-data";
+import { CountryFlag } from "@/components/ui/CountryFlag";
+import { competitionById, decisionTypeKey, matches, refereeById } from "@/lib/store";
 
 export default function PositioningPage() {
   const t = useT();
-  const { locale } = useLocale();
   const fmt = useFormatters();
   const { matches: inScope } = useScope();
 
   const list = useMemo(() => matches.filter((m) => inScope(m.countryCode)), [inScope]);
-  const [matchId, setMatchId] = useState(list[0]?.id ?? matches[0].id);
+  const [matchId, setMatchId] = useState(list[0]?.id ?? "");
   const match = list.find((m) => m.id === matchId) ?? list[0];
 
-  const points = useMemo(() => (match ? heatPointsFor(match.id) : []), [match]);
+  const points = match?.heatPoints ?? [];
 
   if (!match) {
     return (
@@ -81,7 +81,7 @@ export default function PositioningPage() {
                     : "border-line bg-ink-1 text-chalk-dim hover:border-line-strong hover:text-chalk",
                 )}
               >
-                {countryFlag(m.countryCode)} {m.home} — {m.away}
+                <CountryFlag code={m.countryCode} /> {m.home} — {m.away}
               </button>
             ))}
           </div>
@@ -169,21 +169,21 @@ export default function PositioningPage() {
 
           <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-[11px] text-chalk-faint">
             <span className="inline-flex items-center gap-1.5">
-              {locale === "fr" ? "Présence" : "Presence"}
+              {t("positioning.presence")}
               <span className="flex overflow-hidden rounded-full">
                 {heatLegend.map((fill) => (
                   <span key={fill} className="h-2 w-5" style={{ background: fill }} />
                 ))}
               </span>
-              {locale === "fr" ? "élevée" : "high"}
+              {t("positioning.presenceHigh")}
             </span>
             <span className="inline-flex items-center gap-1.5">
               <span className="h-2 w-2 rounded-full bg-card-red" />
-              {locale === "fr" ? "Penalty / rouge" : "Penalty / red"}
+              {t("positioning.legendRed")}
             </span>
             <span className="inline-flex items-center gap-1.5">
               <span className="h-2 w-2 rounded-full bg-amber" />
-              {locale === "fr" ? "Jaune / main" : "Yellow / handball"}
+              {t("positioning.legendYellow")}
             </span>
             <span className="inline-flex items-center gap-1.5">
               <span className="h-2 w-2 rounded-full bg-var" />
@@ -191,9 +191,7 @@ export default function PositioningPage() {
             </span>
           </div>
           <p className="mt-2 text-xs leading-snug text-chalk-faint">
-            {locale === "fr"
-              ? `Le trait pointillé relie la position de l'arbitre à la décision : sa longueur est la distance mesurée. ${farCalls} décisions ont été prises à plus de 20 m.`
-              : `The dashed line runs from the referee's position to the decision — its length is the measured distance. ${farCalls} calls were made from beyond 20 m.`}
+            {t("positioning.sightLineNote", { n: farCalls })}
           </p>
         </Card>
 
@@ -220,9 +218,7 @@ export default function PositioningPage() {
           </div>
 
           <p className="mt-4 text-xs leading-relaxed text-chalk-faint">
-            {locale === "fr"
-              ? "La diagonale est le couloir que l'arbitre est censé tenir. Chaque décision prise en dehors coûte de l'angle de vue — c'est le lien direct entre placement et justesse."
-              : "The diagonal is the channel the referee is meant to hold. Every call made outside it costs viewing angle — that is the direct link between positioning and accuracy."}
+            {t("positioning.diagonalNote")}
           </p>
 
           <div className="mt-4 space-y-1.5">
@@ -233,7 +229,7 @@ export default function PositioningPage() {
               .map((d) => (
                 <div key={d.id} className="flex items-center justify-between gap-2 rounded-lg border border-line bg-ink-1 px-2.5 py-1.5">
                   <span className="board w-8 text-xs text-chalk-faint">{d.minute}&apos;</span>
-                  <span className="min-w-0 flex-1 truncate text-xs text-chalk-dim">{d.type}</span>
+                  <span className="min-w-0 flex-1 truncate text-xs text-chalk-dim">{t(decisionTypeKey[d.type])}</span>
                   <Badge tone={d.distance > 25 ? "red" : d.distance > 18 ? "amber" : "neutral"}>{d.distance} m</Badge>
                 </div>
               ))}
@@ -259,9 +255,7 @@ export default function PositioningPage() {
           </ResponsiveContainer>
         </div>
         <p className="mt-2 text-xs text-chalk-faint">
-          {locale === "fr"
-            ? "Les barres ambre sont les décisions annulées après revue."
-            : "Amber bars are the calls overturned on review."}
+          {t("positioning.amberNote")}
         </p>
       </Card>
     </div>

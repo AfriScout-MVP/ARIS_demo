@@ -1,0 +1,15 @@
+{
+  "title": "Rankings",
+  "tableSub": "Cumulative ARPS, all competitions in scope",
+  "movement": "Movement",
+  "promotionLine": "Promotion line",
+  "promotionLineNote": "Top 8 enter the CAF Elite review",
+  "filterZone": "Filter by zone",
+  "filterLevel": "Filter by level",
+  "levelMix": "Level mix",
+  "levelMixSub": "How the corps in this scope is graded",
+  "zoneLeaders": "Zone leaders",
+  "zoneLeadersSub": "Top-rated official in each CAF zone",
+  "biggestMovers": "Biggest movers",
+  "biggestMoversSub": "Largest change since last season"
+}

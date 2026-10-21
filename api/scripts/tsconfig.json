@@ -12,7 +12,9 @@
   },
   "include": [
     "./*.ts",
-    "../../site/src/lib/mock-data.ts",
+    "./seed/*.ts",
+    "../seed/*.ts",
+    "../src/lib/time.ts",
     "../../site/src/lib/core"
   ],
   "exclude": []
