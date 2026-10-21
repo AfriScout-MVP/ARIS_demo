@@ -8,6 +8,8 @@ name: Deploy to Cloudflare
 #   CLOUDFLARE_ACCOUNT_ID  the account id
 #   JWT_SECRET             64+ random characters — signs session tokens (generate: openssl rand -base64 48)
 # Optional secrets: MAIL_WEBHOOK_URL, MAIL_WEBHOOK_TOKEN (delivery of e-mail / SMS / WhatsApp notifications)
+#                   ARIS_DEMO_PASSWORD — password for the six shared demo logins, used only by a
+#                   manual run with "Load the demo dataset" ticked. Leave unset on a real deployment.
 # Optional variable: ARIS_URL — the public address (custom domain); otherwise the workers.dev URL is used.
 on:
   push:
@@ -45,6 +47,8 @@ jobs:
     env:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      # `secrets` cannot be read from a step-level `if`, so surface it as an env value here.
+      ARIS_DEMO_PASSWORD: ${{ secrets.ARIS_DEMO_PASSWORD }}
     steps:
       - name: Check credentials are configured
         env:
@@ -81,13 +85,23 @@ jobs:
 
       - name: Apply SQL migrations
         working-directory: api
-        run: npx --no-install wrangler d1 migrations apply ARIS_DB --remote
+        run: npm run db:migrate:remote
 
       # Opt-in, manual runs only: loads the synthetic demo dataset + R2 images. Never runs on push.
       - name: Seed demo data (D1 + R2)
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.seed_demo }}
         working-directory: api
         run: npm run db:seed:remote
+
+      # The six shared demo logins. Only alongside the demo seed (the referee accounts point at
+      # seeded officials), only on a manual run, and only if ARIS_DEMO_PASSWORD is configured.
+      - name: Create the demo accounts
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.seed_demo && env.ARIS_DEMO_PASSWORD != '' }}
+        working-directory: api
+        env:
+          ARIS_PASSWORD: ${{ secrets.ARIS_DEMO_PASSWORD }}
+          ARIS_ALLOW_REMOTE_DEMO: "1"
+        run: npm run user:demo -- --remote
 
       - name: Publish the Worker
         id: publish

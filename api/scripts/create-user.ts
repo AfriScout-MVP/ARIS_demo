@@ -8,6 +8,7 @@
 
 import { execFileSync } from "node:child_process";
 import { accountSql, type NewAccount } from "./lib/accounts";
+import { d1DatabaseName } from "./lib/resources";
 
 const argv = process.argv.slice(2);
 const arg = (n: string) => {
@@ -47,7 +48,7 @@ const sql = await accountSql(account, password);
 
 if (argv.includes("--apply")) {
   const target = argv.includes("--remote") ? "--remote" : "--local";
-  execFileSync("npx", ["wrangler", "d1", "execute", "ARIS_DB", target, "--command", sql], { stdio: "inherit", env: { ...process.env, WRANGLER_SEND_METRICS: "false" } });
+  execFileSync("npx", ["wrangler", "d1", "execute", d1DatabaseName(), target, "--command", sql], { stdio: "inherit", env: { ...process.env, WRANGLER_SEND_METRICS: "false" } });
   console.error(`Created ${role} account for ${email} (${target.slice(2)}).`);
 } else {
   console.log(sql);

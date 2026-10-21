@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Creates what ARIS needs on a Cloudflare account — safe to run again, it only adds what is missing:
-#   • the D1 database  ARIS_DB     (SQL)
-#   • the R2 bucket    aris-media  (photos, licences, certificates, receipts)
+#   • the D1 database  (SQL)
+#   • the R2 bucket    (photos, licences, certificates, receipts)
+# Both names are read from wrangler.jsonc — today ARIS_DB and aris-media.
 # and writes the real D1 id into api/wrangler.jsonc (a local edit — do not commit it).
 #
 #   CLOUDFLARE_API_TOKEN=... CLOUDFLARE_ACCOUNT_ID=... api/scripts/cf-bootstrap.sh
@@ -14,8 +15,10 @@ cd "$(dirname "$0")/.."
 : "${CLOUDFLARE_ACCOUNT_ID:?Set CLOUDFLARE_ACCOUNT_ID}"
 command -v jq >/dev/null || { echo "jq is required" >&2; exit 1; }
 
-DB_NAME="ARIS_DB"
-BUCKET="aris-media"
+# The names come from wrangler.jsonc so this script and the Worker cannot drift apart.
+eval "$(npx --no-install tsx scripts/lib/resources.ts)"
+: "${DB_NAME:?Could not read the D1 database name from wrangler.jsonc}"
+: "${BUCKET:?Could not read the R2 bucket name from wrangler.jsonc}"
 wrangler() { npx --no-install wrangler "$@"; }
 
 database_id() {
