@@ -1,0 +1,116 @@
+{
+  "title": "Tableaux de bord",
+  "csv": "Exporter en CSV",
+  "asOf": "Situation au {date}.",
+  "from": "Du",
+  "to": "Au",
+  "badRange": "Choisissez deux dates dans l'ordre, deux ans d'écart au plus.",
+  "tabs": {
+    "overview": "Vue d'ensemble",
+    "workload": "Charge",
+    "absences": "Absences",
+    "fees": "Indemnités",
+    "reconciliation": "Contrôle des paiements"
+  },
+  "presets": {
+    "last30": "30 derniers jours",
+    "next30": "30 prochains jours",
+    "around30": "± 30 jours",
+    "season": "Saison en cours",
+    "custom": "Période libre"
+  },
+  "fixtureStatus": {
+    "draft": "Brouillon",
+    "awaiting_confirmation": "En attente des officiels",
+    "validated": "Validées",
+    "published": "Publiées"
+  },
+  "overview": {
+    "workforce": "Officiels",
+    "availableToday": "Disponibles aujourd'hui",
+    "avgRating": "Note moyenne (RMCS)",
+    "suspended": "Suspendus",
+    "byLevel": "Effectif par niveau",
+    "byLevelHint": "{referees} arbitres, {assistants} assistants",
+    "designations": "Désignations à venir",
+    "confirmed": "{n} % des postes confirmés par les officiels",
+    "noSlots": "Aucun poste à pourvoir",
+    "compliance": "Conformité",
+    "complianceHint": "Ce qui empêche de désigner en règle",
+    "licencesExpired": "Licences expirées",
+    "licencesExpiring90": "Licences expirant sous 90 jours",
+    "fitnessFailed": "Tests physiques échoués",
+    "assessmentsOverdue": "Rapports d'observation en retard",
+    "budget": "Indemnités",
+    "budgetHint": "Par devise, sans conversion",
+    "noBudget": "Aucune indemnité",
+    "money": {
+      "planned": "À valider",
+      "committed": "Validé",
+      "paid": "Payé",
+      "contested": "Contesté"
+    },
+    "top": "Les mieux notés",
+    "bottom": "À accompagner",
+    "rankHint": "Note moyenne des rapports et tendance"
+  },
+  "workload": {
+    "appointments": "Désignations",
+    "mean": "Moyenne par officiel",
+    "overused": "Sur-sollicités",
+    "unused": "Jamais désignés",
+    "all": "Tous",
+    "flagged": "Signalés",
+    "asReferee": "Comme arbitre central",
+    "last": "Dernier match",
+    "next": "Prochain match",
+    "flag": "Signal",
+    "flags": {
+      "overused": "Sur-sollicité",
+      "unused": "Jamais désigné"
+    },
+    "note": "Sur-sollicité : au moins 4 désignations et 1,75 fois la moyenne. Les officiels suspendus ne sont pas signalés comme inutilisés."
+  },
+  "absences": {
+    "incidents": "Signalements",
+    "open": "Encore ouverts",
+    "refusals": "Désignations refusées",
+    "replacements": "Remplacements",
+    "byKind": "Signalements par nature",
+    "none": "Aucun signalement sur la période",
+    "sanctions": "Sanctions prononcées",
+    "sanctionsHint": "Décisions rendues sur la période",
+    "noSanctions": "Aucune décision",
+    "toDiscipline": "Ouvrir la discipline →"
+  },
+  "fees": {
+    "by": {
+      "official": "Officiel",
+      "competition": "Compétition",
+      "city": "Ville",
+      "day": "Jour"
+    },
+    "none": "Aucune indemnité sur la période",
+    "noneHint": "Générez les lignes depuis Finances une fois les désignations faites.",
+    "totalIn": "Total en {currency}",
+    "paidShare": "{paid} payé · {due} restant · {lines} lignes",
+    "lines": "Lignes",
+    "total": "Total",
+    "validated": "Validé"
+  },
+  "reconciliation": {
+    "checked": "Postes contrôlés",
+    "hint": "Rapproche les matchs réellement arbitrés et les sommes payées.",
+    "match": "Match",
+    "role": "Poste",
+    "payment": "Paiement",
+    "issue": "Anomalie",
+    "issues": {
+      "played-not-billed": "Joué, non facturé",
+      "paid-not-played": "Payé, non joué",
+      "paid-unvalidated": "Payé sans validation du match"
+    },
+    "clean": "Aucune anomalie",
+    "cleanHint": "{n} postes contrôlés sur la période."
+  }
+}

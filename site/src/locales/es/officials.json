@@ -1,0 +1,202 @@
+{
+  "views": {
+    "performance": "Rendimiento",
+    "registry": "Registro"
+  },
+  "register": "Inscribir a un oficial",
+  "searchPlaceholder": "Nombre o matrícula…",
+  "count": "{n} oficiales",
+  "truncated": "Solo se muestran los 500 primeros: afine la búsqueda.",
+  "empty": "Ningún oficial",
+  "emptyHint": "Inscriba al primer árbitro o árbitro asistente de la federación.",
+  "edit": "Editar",
+  "editFile": "Editar la ficha",
+  "openFile": "Ver la ficha",
+  "allKinds": "Todos",
+  "allStatuses": "Todos los estados",
+  "kinds": {
+    "referee": "Árbitro",
+    "assistant": "Árbitro asistente"
+  },
+  "status": {
+    "active": "En activo",
+    "training": "En formación",
+    "elite-pool": "Grupo élite",
+    "unavailable": "No disponible",
+    "retired": "Retirado",
+    "suspended": "Suspendido"
+  },
+  "disciplines": {
+    "football": "Fútbol",
+    "futsal": "Fútbol sala",
+    "football7": "Fútbol 7"
+  },
+  "fields": {
+    "kind": "Función",
+    "name": "Nombre completo",
+    "country": "País",
+    "level": "Nivel",
+    "status": "Estado",
+    "matricule": "Matrícula",
+    "licenceNo": "N.º de licencia",
+    "nationality": "Nacionalidad",
+    "birthDate": "Fecha de nacimiento",
+    "city": "Ciudad",
+    "region": "Región",
+    "league": "Liga",
+    "email": "Correo electrónico",
+    "phone": "Teléfono",
+    "disciplines": "Disciplinas",
+    "zones": "Zonas de actuación",
+    "varQualified": "Cualificado VAR",
+    "yearsActive": "Años arbitrando",
+    "bio": "Presentación",
+    "bioFr": "En francés",
+    "bioEn": "En inglés",
+    "bioEs": "En español (opcional)",
+    "bioDe": "En alemán (opcional)",
+    "updatedAt": "Actualizado"
+  },
+  "sections": {
+    "identity": "Identidad",
+    "career": "Carrera",
+    "contact": "Datos de contacto",
+    "bio": "Presentación pública"
+  },
+  "hints": {
+    "matricule": "Déjelo vacío: ARIS asigna la siguiente del país (ARIS-SEN-R0001…).",
+    "matriculeAuto": "Se asigna automáticamente al inscribir.",
+    "zones": "Códigos de país o regiones, separados por comas.",
+    "var": "Se actualiza solo en cuanto hay un certificado VAR en el expediente.",
+    "suspended": "Suspendido por una decisión disciplinaria: el estado cambia con el procedimiento, no aquí.",
+    "retired": "Un oficial retirado sale de las designaciones y clasificaciones; su ficha sigue en el registro."
+  },
+  "dialog": {
+    "newTitle": "Inscribir a un oficial",
+    "newHint": "La ficha entra en el registro de la federación. El oficial recibe su matrícula al instante.",
+    "editTitle": "Ficha de {name}",
+    "create": "Inscribir",
+    "created": "{name} queda inscrito: matrícula {matricule}.",
+    "saved": "Ficha actualizada.",
+    "unchanged": "No ha cambiado nada."
+  },
+  "registry": {
+    "title": "Registro",
+    "subtitle": "Solo lo ven la federación y el propio oficial.",
+    "none": "—"
+  },
+  "fileOnly": "Este oficial no figura en las clasificaciones (árbitro asistente o retirado): esta es su ficha del registro.",
+  "documents": {
+    "title": "Documentos",
+    "staffHint": "Licencias, certificados médicos, documentos de identidad: revise cada documento presentado.",
+    "selfHint": "Presente aquí sus documentos; la federación los revisa y le avisa.",
+    "kind": "Tipo de documento",
+    "expiresOn": "Caduca el (opcional)",
+    "file": "Archivo",
+    "fileHint": "PDF, PNG, JPEG o WebP, 8 MB como máximo.",
+    "upload": "Presentar",
+    "uploaded": "Documento presentado.",
+    "photoNote": "Una foto sustituye a la anterior en la ficha.",
+    "kinds": {
+      "licence": "Licencia",
+      "identity": "Documento de identidad",
+      "medical": "Certificado médico",
+      "certificate": "Certificado",
+      "attestation": "Constancia",
+      "receipt": "Justificante de gastos",
+      "photo": "Foto",
+      "other": "Otro"
+    },
+    "statuses": {
+      "pending": "Por revisar",
+      "verified": "Verificado",
+      "rejected": "Rechazado"
+    },
+    "expired": "Caducó el {date}",
+    "expiring": "Caduca el {date}",
+    "valid": "Válido hasta el {date}",
+    "uploadedOn": "Presentado el {date}",
+    "download": "Descargar",
+    "verify": "Validar",
+    "reject": "Rechazar",
+    "reopen": "Volver a revisar",
+    "delete": "Eliminar",
+    "deleteTitle": "¿Eliminar este documento?",
+    "deleteBody": "«{name}» se borrará definitivamente del expediente.",
+    "toast": {
+      "verified": "Documento validado; se ha avisado al oficial.",
+      "rejected": "Documento rechazado; se ha avisado al oficial.",
+      "pending": "Documento devuelto a revisión.",
+      "deleted": "Documento eliminado."
+    },
+    "empty": "Ningún documento",
+    "emptyHint": "Aquí aparecen los documentos presentados por el oficial o la federación.",
+    "toReview": "{n} por revisar",
+    "lapsed": "{n} caducados",
+    "lapsing": "{n} caducan pronto",
+    "lockedSelf": "Un documento ya revisado solo puede retirarlo la federación.",
+    "errors": {
+      "type": "Solo se aceptan PDF, PNG, JPEG y WebP (una foto debe ser una imagen).",
+      "size": "8 MB como máximo.",
+      "empty": "Este archivo está vacío.",
+      "missing": "Elija un archivo.",
+      "date": "Fecha no válida."
+    }
+  },
+  "mine": {
+    "title": "Mi ficha",
+    "hint": "Sus datos de contacto y zonas de actuación. El resto de la ficha lo lleva su federación.",
+    "save": "Guardar",
+    "saved": "Datos de contacto guardados."
+  },
+  "errors": {
+    "name": "Entre 2 y 120 caracteres.",
+    "country": "Elija el país del oficial.",
+    "code": "Entre 3 y 40 caracteres.",
+    "birthDate": "Fecha no válida (el oficial debe tener al menos 16 años).",
+    "years": "Un número entre 0 y 60.",
+    "disciplines": "Al menos una disciplina.",
+    "zones": "30 zonas como máximo, de 20 caracteres cada una.",
+    "duplicate": "Ya hay un oficial con esta matrícula o este número de licencia.",
+    "suspended": "Este oficial está suspendido: su estado cambia con el procedimiento disciplinario."
+  },
+  "chooseCountry": "Elija un país…",
+  "conflicts": {
+    "title": "Conflictos de intereses",
+    "selfHint": "Declare cualquier vínculo con un club, un equipo o un país: no será designado en sus partidos.",
+    "staffHint": "Vínculos declarados: el motor aparta al oficial de los partidos afectados.",
+    "add": "Declarar",
+    "declare": "Declarar el vínculo",
+    "declared": "Vínculo declarado: el motor lo tendrá en cuenta.",
+    "empty": "Ningún vínculo declarado",
+    "emptyHint": "Un antiguo club, un familiar entrenador, una doble nacionalidad: declárelo antes de ser designado.",
+    "declaredOn": "Declarado el {date}",
+    "remove": "Retirar",
+    "removeTitle": "¿Retirar este vínculo?",
+    "removeBody": "«{subject}» dejará de contar: el oficial podrá volver a ser designado en esos partidos.",
+    "removed": "Vínculo retirado.",
+    "kinds": {
+      "club": "Club",
+      "team": "Equipo",
+      "country": "País"
+    },
+    "fields": {
+      "kind": "Tipo de vínculo",
+      "club": "Club",
+      "team": "Equipo",
+      "country": "País",
+      "note": "Detalle (opcional)"
+    },
+    "hints": {
+      "name": "El nombre tal como figura en el calendario.",
+      "note": "P. ej.: «jugador de 2015 a 2019», «hermano entrenador adjunto».",
+      "permanent": "Solo la federación puede retirar un vínculo declarado."
+    },
+    "errors": {
+      "subject": "De 2 a 80 caracteres.",
+      "country": "Elija el país.",
+      "duplicate": "Este vínculo ya está declarado.",
+      "note": "300 caracteres como máximo."
+    }
+  }
+}

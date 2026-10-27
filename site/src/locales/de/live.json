@@ -8,5 +8,14 @@
   "played": "Dieses Spiel wurde bereits ausgetragen.",
   "autoFillFailed": "Die automatische Besetzung ist fehlgeschlagen. Versuchen Sie es erneut.",
   "reasonPrompt": "Begründung für diese Änderung (erforderlich):",
-  "overridePrompt": "{why}. Um dennoch fortzufahren, geben Sie eine schriftliche Begründung an:"
+  "overridePrompt": "{why}. Um dennoch fortzufahren, geben Sie eine schriftliche Begründung an:",
+  "reasonDialog": {
+    "title": "Grund der Änderung",
+    "overrideTitle": "Trotzdem ansetzen?",
+    "label": "Grund",
+    "hint": "Wird im Ansetzungsverlauf vermerkt und den betroffenen Offiziellen mitgeteilt.",
+    "short": "Mindestens 3 Zeichen.",
+    "confirm": "Weiter",
+    "override": "Trotzdem ansetzen"
+  }
 }

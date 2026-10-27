@@ -37,7 +37,7 @@ describe("generating the amounts due", () => {
     await scale(w.admin, { amount: 10000, currency: "XOF" }); // platform default, d1/R
     await scale(w.seatA, { amount: 20000 }); // federation d1/R
     await scale(w.seatA, { tier: "cup", competitionId: "PGA-cup", amount: 30000 }); // competition only
-    await scale(w.admin, { role: "AR1", amount: 5000, currency: "XOF" }); // default only
+    await scale(w.admin, { role: "AR1", amount: 5000, currency: "MAD" }); // default only, in the country's currency
 
     const d1 = await match();
     const gen = await generate(w.seatA, d1.fixtureId);
@@ -46,11 +46,26 @@ describe("generating the amounts due", () => {
     const byRole = Object.fromEntries((await lines(d1.fixtureId)).map((p) => [p.role, p]));
     expect(byRole.R.base).toBe(20000);
     expect(byRole.AR1.base).toBe(5000);
-    expect(byRole.AR1.currency).toBe("MAD"); // the fixture country's currency, whichever scale it came from
+    expect(byRole.AR1.currency).toBe("MAD");
 
     const cup = await match("PGA-cup");
     await generate(w.seatA, cup.fixtureId);
     expect((await lines(cup.fixtureId)).find((p) => p.role === "R")!.base).toBe(30000);
+  });
+
+  it("never pays a scale written in another currency as if it were the country's own", async () => {
+    await scale(w.admin, { amount: 10000, currency: "XOF" }); // platform default in XOF; PGA pays in MAD
+    const { fixtureId } = await match();
+    const gen = await generate(w.seatA, fixtureId);
+    expect(gen.json).toMatchObject({ created: 0, currencyMismatch: ["R"] });
+    expect(gen.json.missingScale).not.toContain("R");
+    expect(await lines(fixtureId)).toEqual([]);
+
+    // once a scale in the right currency exists, it is used
+    await scale(w.seatA, { amount: 20000 });
+    const again = await generate(w.seatA, fixtureId);
+    expect(again.json).toMatchObject({ created: 1, currencyMismatch: [] });
+    expect((await lines(fixtureId))[0]).toMatchObject({ role: "R", base: 20000, currency: "MAD" });
   });
 
   it("never uses another federation's scale", async () => {

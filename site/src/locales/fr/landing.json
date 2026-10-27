@@ -1,0 +1,166 @@
+{
+  "skip": "Aller au contenu",
+  "nav": {
+    "modules": "Modules",
+    "workflow": "Parcours",
+    "roles": "Rôles",
+    "security": "Sécurité",
+    "signIn": "Se connecter",
+    "menu": "Menu",
+    "themeLight": "Passer en thème clair",
+    "themeDark": "Passer en thème sombre"
+  },
+  "hero": {
+    "eyebrow": "Système africain d'intelligence de l'arbitrage",
+    "titleA": "L'arbitrage africain,",
+    "titleB": "piloté par la donnée.",
+    "lead": "ARIS réunit calendriers, désignations, évaluations, décisions VAR, licences et indemnités dans une seule plateforme — pour chaque fédération, chaque arbitre, chaque match.",
+    "primary": "Se connecter",
+    "secondary": "Découvrir la plateforme",
+    "proof1": "4 langues",
+    "proof2": "Données cloisonnées par pays",
+    "proof3": "Chaque action journalisée"
+  },
+  "pitch": {
+    "label": "Animation : un arbitre tient sa diagonale pendant qu'ARIS suit le match",
+    "live": "En direct",
+    "arps": "Note ARPS",
+    "crew": "Trio confirmé",
+    "var": "VAR · décision confirmée",
+    "diagonal": "Diagonale tenue",
+    "distance": "Distance au jeu"
+  },
+  "federations": {
+    "title": "Pensé pour {count} fédérations africaines",
+    "lead": "Chaque fédération travaille dans sa langue, sa monnaie et son fuseau horaire, sur ses propres compétitions."
+  },
+  "stats": {
+    "countries": "fédérations prises en charge",
+    "officials": "arbitres et assistants référencés",
+    "competitions": "compétitions suivies",
+    "criteria": "critères d'évaluation pondérés"
+  },
+  "modules": {
+    "eyebrow": "La plateforme",
+    "title": "Tout le cycle de l'arbitrage, au même endroit",
+    "lead": "Huit modules qui se parlent : une désignation alimente les indemnités, un rapport d'observateur alimente le classement, un conflit d'intérêts est repéré avant la désignation.",
+    "calendar": {
+      "title": "Calendrier & rencontres",
+      "body": "Créez, validez et publiez les rencontres, envoyez les convocations, reprogrammez avec un motif tracé."
+    },
+    "designations": {
+      "title": "Désignations des trios",
+      "body": "Un tableau en direct qui vérifie neutralité, qualification, repos, disponibilités et conflits d'intérêts avant qu'ils ne coûtent un match."
+    },
+    "assessments": {
+      "title": "Évaluations & observateurs",
+      "body": "Rapports sur une grille pondérée, brouillons, dépôt, correction motivée et publication à l'arbitre."
+    },
+    "decisions": {
+      "title": "Moteur de décision VAR",
+      "body": "Chaque décision clé minutée, revue VAR comprise, pour mesurer la justesse match après match."
+    },
+    "development": {
+      "title": "Développement & licences",
+      "body": "Licences, tests physiques et formations suivis, avec alertes avant chaque échéance."
+    },
+    "discipline": {
+      "title": "Discipline",
+      "body": "Incidents, dossiers et suspensions instruits avec un historique complet et vérifiable."
+    },
+    "finance": {
+      "title": "Indemnités & finances",
+      "body": "Barèmes par pays et par monnaie, génération des paiements, avances et déductions sans erreur de calcul."
+    },
+    "analytics": {
+      "title": "Analyses & classements",
+      "body": "ARPS, cartes de chaleur, comparaisons et tendances pour repérer les arbitres prêts pour le niveau supérieur."
+    }
+  },
+  "workflow": {
+    "eyebrow": "Le parcours",
+    "title": "Du calendrier au rapport, sans ressaisie",
+    "lead": "Une donnée saisie une fois suit le match jusqu'au bout.",
+    "plan": {
+      "title": "Planifier",
+      "body": "La fédération publie son calendrier national."
+    },
+    "appoint": {
+      "title": "Désigner",
+      "body": "ARIS propose les trios disponibles et sans conflit."
+    },
+    "officiate": {
+      "title": "Arbitrer",
+      "body": "Convocations, résultat et décisions clés enregistrés."
+    },
+    "assess": {
+      "title": "Évaluer",
+      "body": "L'observateur dépose son rapport sur la grille officielle."
+    },
+    "develop": {
+      "title": "Faire progresser",
+      "body": "Classements et progression se mettent à jour ; les indemnités se génèrent en un clic."
+    }
+  },
+  "roles": {
+    "eyebrow": "Trois espaces",
+    "title": "Chacun voit ce qui le concerne — et rien d'autre",
+    "admin": {
+      "title": "Super-admin",
+      "body": "Le département des arbitres pilote tout le continent.",
+      "p1": "Toutes les fédérations",
+      "p2": "Grille d'évaluation et compétitions",
+      "p3": "Partenariats et journal d'audit"
+    },
+    "federation": {
+      "title": "Fédération",
+      "body": "Chaque fédération gère son arbitrage national.",
+      "p1": "Calendrier et désignations",
+      "p2": "Registre des officiels et documents",
+      "p3": "Indemnités dans sa monnaie"
+    },
+    "referee": {
+      "title": "Arbitre",
+      "body": "Un espace personnel, sur téléphone comme sur ordinateur.",
+      "p1": "Désignations et disponibilités",
+      "p2": "Rapports reçus et progression",
+      "p3": "Licences et paiements"
+    }
+  },
+  "security": {
+    "eyebrow": "Confiance",
+    "title": "Des données sensibles, traitées comme telles",
+    "lead": "Dossiers médicaux, sanctions, paiements : ARIS est construit pour que chaque information reste à sa place.",
+    "scope": {
+      "title": "Cloisonnement par pays",
+      "body": "Une fédération ne voit jamais les officiels ni les dossiers d'une autre."
+    },
+    "audit": {
+      "title": "Journal d'audit",
+      "body": "Chaque modification est horodatée, attribuée et conservée avec son état précédent."
+    },
+    "sessions": {
+      "title": "Accès protégés",
+      "body": "Mots de passe hachés, sessions signées, tentatives de connexion limitées."
+    },
+    "edge": {
+      "title": "Rapide partout",
+      "body": "Servi depuis le réseau mondial de Cloudflare, au plus près de chaque stade."
+    }
+  },
+  "languages": {
+    "eyebrow": "Multilingue",
+    "title": "Une plateforme, quatre langues",
+    "lead": "Français, anglais, espagnol et allemand — chacun choisit la sienne, les rapports suivent."
+  },
+  "cta": {
+    "title": "Prêt à entrer sur le terrain ?",
+    "lead": "Connectez-vous avec le compte remis par votre fédération ou par le département des arbitres.",
+    "button": "Se connecter à ARIS"
+  },
+  "footer": {
+    "tagline": "Conçu en Afrique, pour l'arbitrage africain.",
+    "rights": "© {year} Prestige Solutions of Afrika. Tous droits réservés.",
+    "flags": "Drapeaux : flag-icons (licence MIT)."
+  }
+}

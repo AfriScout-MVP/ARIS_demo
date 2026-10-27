@@ -1,0 +1,38 @@
+{
+  "availability": {
+    "hint": "Déclarez vos jours d'indisponibilité à l'avance ; la commission en est informée.",
+    "onFile": "Jours déclarés",
+    "none": "Aucun jour déclaré pour l'année à venir.",
+    "rangeBad": "La fin doit suivre le début.",
+    "withdrawn": "Jour du {date} retiré.",
+    "withdrawFor": "Retirer le {date}",
+    "withdraw": "Retirer"
+  },
+  "designations": {
+    "title": "Mes désignations",
+    "hint": "Ce qui arrive, ce qui a été refusé, ou tout",
+    "calendar": "Exporter (.ics)",
+    "none": "Aucune désignation sur cette période.",
+    "noneDeclined": "Aucune désignation refusée.",
+    "played": "Jouée",
+    "views": {
+      "upcoming": "À venir ({n})",
+      "declined": "Refusées ({n})",
+      "all": "Toutes ({n})"
+    }
+  },
+  "convocation": {
+    "open": "Voir la convocation",
+    "title": "Convocation",
+    "notFound": "Aucune convocation trouvée pour cette rencontre.",
+    "back": "Retour à mes désignations",
+    "issuedBy": "Émise par",
+    "official": "Officiel",
+    "matricule": "Matricule",
+    "licenceNo": "N° de licence",
+    "crew": "Équipe d'arbitrage",
+    "you": "Vous",
+    "published": "Publiée le {date}",
+    "round": "Journée {round}"
+  }
+}

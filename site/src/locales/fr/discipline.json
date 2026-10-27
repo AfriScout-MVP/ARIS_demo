@@ -1,0 +1,164 @@
+{
+  "title": "Discipline",
+  "subtitle": "Absences, retards, refus et incidents signalés, puis les procédures : audition, décision, recours. Un signalement seul ne sanctionne jamais personne.",
+  "tabs": {
+    "incidents": "Signalements",
+    "cases": "Procédures"
+  },
+  "kpi": {
+    "openIncidents": "Signalements ouverts",
+    "openIncidentsHint": "À examiner",
+    "activeCases": "Procédures en cours",
+    "activeCasesHint": "Ouvertes, en audition ou en recours",
+    "suspended": "Suspendus aujourd'hui",
+    "suspendedHint": "Sanction en vigueur",
+    "hearings": "Auditions à venir",
+    "hearingsHint": "Dans les 14 prochains jours"
+  },
+  "kinds": {
+    "absence": "Absence",
+    "lateness": "Retard",
+    "refusal": "Refus",
+    "incident": "Incident"
+  },
+  "severity": {
+    "minor": "Mineur",
+    "major": "Grave",
+    "critical": "Critique",
+    "label": "Gravité"
+  },
+  "incidentStatus": {
+    "open": "Ouvert",
+    "reviewing": "En examen",
+    "closed": "Clos"
+  },
+  "caseStatus": {
+    "opened": "Ouverte",
+    "hearing_scheduled": "Audition fixée",
+    "decided": "Décidée",
+    "appealed": "En recours",
+    "closed": "Close"
+  },
+  "sanctions": {
+    "none": "Aucune sanction",
+    "warning": "Avertissement",
+    "suspension": "Suspension",
+    "removal": "Radiation"
+  },
+  "justified": {
+    "label": "Justifié",
+    "unknown": "Non précisé",
+    "yes": "Justifié",
+    "no": "Non justifié"
+  },
+  "fields": {
+    "reportedAt": "Signalé le",
+    "official": "Officiel",
+    "kind": "Nature",
+    "description": "Description",
+    "status": "Statut",
+    "openedAt": "Ouverte le",
+    "summary": "Objet",
+    "hearing": "Audition",
+    "decision": "Décision",
+    "decisionRef": "Référence de la décision",
+    "sanction": "Sanction",
+    "window": "Période de suspension",
+    "appeal": "Motif du recours",
+    "incident": "Signalement d'origine"
+  },
+  "searchPlaceholder": "Officiel, description…",
+  "views": {
+    "all": "Tous",
+    "active": "En cours",
+    "label": "Afficher"
+  },
+  "report": {
+    "button": "Signaler",
+    "title": "Signaler un fait",
+    "hint": "Le signalement prévient la fédération. Il ne sanctionne personne : seule une procédure décidée le peut.",
+    "submit": "Enregistrer le signalement"
+  },
+  "incident": {
+    "title": "Signalement",
+    "save": "Enregistrer",
+    "openCase": "Ouvrir une procédure",
+    "saved": "Signalement mis à jour."
+  },
+  "open": {
+    "button": "Ouvrir une procédure",
+    "title": "Ouvrir une procédure disciplinaire",
+    "hint": "L'officiel est prévenu qu'une procédure est ouverte, qu'il sera convoqué et qu'il pourra faire appel.",
+    "submit": "Ouvrir la procédure",
+    "done": "Procédure ouverte."
+  },
+  "hearing": {
+    "button": "Fixer l'audition",
+    "title": "Fixer l'audition",
+    "hint": "L'officiel est prévenu de la date dans son espace.",
+    "at": "Date et heure",
+    "submit": "Fixer",
+    "done": "Audition fixée."
+  },
+  "decide": {
+    "button": "Rendre la décision",
+    "onAppeal": "Statuer sur le recours",
+    "title": "Décision",
+    "hint": "La décision est notifiée à l'officiel et inscrite au journal d'audit. Une suspension en cours prend effet immédiatement ; une suspension future, à sa date.",
+    "submit": "Rendre la décision",
+    "refHint": "Obligatoire pour une suspension : la référence de la décision de l'organe compétent.",
+    "from": "Du",
+    "to": "Au",
+    "removalWarning": "La radiation retire définitivement l'officiel des désignations.",
+    "done": "Décision enregistrée.",
+    "affected": "{name} a {n} désignations pendant la sanction : remplacez-les dans le calendrier.",
+    "toCalendar": "Ouvrir le calendrier"
+  },
+  "appeal": {
+    "button": "Enregistrer un recours",
+    "title": "Recours",
+    "hint": "Le recours suspend le caractère définitif de la décision. La fédération statue ensuite à nouveau.",
+    "note": "Motif du recours",
+    "submit": "Enregistrer le recours",
+    "done": "Recours enregistré."
+  },
+  "close": {
+    "button": "Clore la procédure",
+    "title": "Clore la procédure ?",
+    "hint": "Une procédure close n'est plus modifiable.",
+    "liftWarning": "Attention : clore la procédure lève la suspension et rend à l'officiel son statut précédent.",
+    "note": "Motif de la clôture",
+    "submit": "Clore",
+    "done": "Procédure close."
+  },
+  "timeline": {
+    "title": "Déroulé",
+    "opened": "Procédure ouverte",
+    "hearing": "Audition fixée au {date}",
+    "decided": "Décision : {sanction}",
+    "window": "Suspendu du {from} au {to}",
+    "appealed": "Recours déposé",
+    "closed": "Procédure close"
+  },
+  "empty": {
+    "incidents": "Aucun signalement",
+    "incidentsHint": "Les absences, retards et incidents signalés apparaissent ici.",
+    "cases": "Aucune procédure",
+    "casesHint": "Une procédure s'ouvre depuis un signalement ou directement pour un officiel."
+  },
+  "errors": {
+    "description": "Au moins 5 caractères.",
+    "decision": "Au moins 5 caractères.",
+    "ref": "La référence est obligatoire pour une suspension (3 caractères au moins).",
+    "window": "Indiquez les dates de début et de fin ; la fin ne peut précéder le début.",
+    "hearing": "Indiquez la date et l'heure.",
+    "unknown_reference": "Ce signalement ne concerne pas cet officiel."
+  },
+  "mine": {
+    "title": "Mes procédures disciplinaires",
+    "hint": "Vous pouvez faire appel de toute décision.",
+    "appeal": "Faire appel",
+    "appealHint": "Expliquez pourquoi vous contestez la décision.",
+    "send": "Envoyer le recours"
+  }
+}

@@ -6,7 +6,7 @@
   "overview": "Vue d'ensemble",
   "calendar": "Calendrier des désignations",
   "arae": "Désignation assistée",
-  "copilot": "Assistant IA",
+  "copilot": "Réponses rapides",
   "referees": "Arbitres",
   "matchReview": "Revue de match",
   "assessments": "Rapports d'observateur",
@@ -26,5 +26,11 @@
   "adminFederations": "Fédérations",
   "adminCountries": "Pays pris en charge",
   "adminTeams": "Équipes et stades",
-  "adminAudit": "Journal d'audit"
+  "adminAudit": "Journal d'audit",
+  "adminPartnerships": "Partenariats",
+  "finance": "Indemnités",
+  "discipline": "Discipline",
+  "adminCompetitions": "Compétitions",
+  "analytics": "Tableaux de bord",
+  "adminGrid": "Grille d'évaluation"
 }

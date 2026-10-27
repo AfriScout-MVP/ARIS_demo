@@ -16,6 +16,7 @@ export interface UserRow {
   locale: Locale;
   active: number;
   token_version: number;
+  must_change_password: number;
   fed_code: string | null;
   fed_country: string | null;
   fed_status: string | null;
@@ -23,12 +24,14 @@ export interface UserRow {
 }
 
 /** The one query that turns a user id into a caller — also used by sign-in so both agree. */
-const USER_COLUMNS = `u.id, u.email, u.name, u.role, u.official_id, u.federation_id, u.locale, u.active, u.token_version,
+const USER_COLUMNS = `u.id, u.email, u.name, u.role, u.official_id, u.federation_id, u.locale, u.active, u.token_version, u.must_change_password,
          f.code AS fed_code, f.country AS fed_country, f.status AS fed_status, c.active AS country_active`;
 const USER_FROM = `FROM users u
     LEFT JOIN federations f ON f.id = u.federation_id
     LEFT JOIN countries c ON c.code = f.country`;
 export const USER_SQL = `SELECT ${USER_COLUMNS} ${USER_FROM}`;
+/** Every request: the caller, plus whether this very token was signed out (one round trip). */
+const SESSION_SQL = `SELECT ${USER_COLUMNS}, EXISTS (SELECT 1 FROM revoked_tokens WHERE jti = ?1) AS revoked ${USER_FROM} WHERE u.id = ?2`;
 /** Sign-in additionally needs the password hash, which no other request should load. */
 export const LOGIN_SQL = `SELECT ${USER_COLUMNS}, u.password_hash ${USER_FROM}`;
 
@@ -38,11 +41,13 @@ export const LOGIN_SQL = `SELECT ${USER_COLUMNS}, u.password_hash ${USER_FROM}`;
  */
 export function isUsable(row: Pick<UserRow, "role" | "active" | "fed_status" | "country_active">) {
   if (row.active !== 1) return false;
-  if (row.role === "federation") return row.fed_status === "active" && row.country_active === 1;
+  // a tagger is attached to a federation exactly like a federation seat, and dies with it the same way
+  if (row.role === "federation" || row.role === "tagger") return row.fed_status === "active" && row.country_active === 1;
   return true;
 }
 
 export function toAuthUser(row: UserRow): AuthUser {
+  const hasFederation = row.role === "federation" || row.role === "tagger";
   return {
     id: row.id,
     email: row.email,
@@ -50,20 +55,22 @@ export function toAuthUser(row: UserRow): AuthUser {
     role: row.role,
     officialId: row.official_id,
     federationId: row.federation_id,
-    country: row.role === "federation" ? row.fed_country : null,
-    federationCode: row.role === "federation" ? row.fed_code : null,
+    country: hasFederation ? row.fed_country : null,
+    federationCode: hasFederation ? row.fed_code : null,
     locale: row.locale,
+    mustChangePassword: row.must_change_password === 1,
   };
 }
 
 /**
  * Resolves the caller from a session cookie or a Bearer token and loads the
- * account from the database on every request — so deactivating a user or
- * changing their password takes effect immediately, not when the token expires.
+ * account from the database on every request — so deactivating a user,
+ * changing their password or signing out takes effect immediately, not when the token expires.
  */
 export const authenticate: MiddlewareHandler<AppEnv> = async (c, next) => {
   c.set("user", null);
   c.set("viaCookie", false);
+  c.set("token", null);
   c.set("ip", c.req.header("cf-connecting-ip") ?? "unknown");
 
   const bearer = c.req.header("authorization")?.match(/^Bearer (.+)$/i)?.[1];
@@ -73,8 +80,9 @@ export const authenticate: MiddlewareHandler<AppEnv> = async (c, next) => {
   if (token) {
     const payload = await verifyToken(token, c.env.JWT_SECRET);
     if (payload) {
-      const row = await c.env.DB.prepare(`${USER_SQL} WHERE u.id = ?`).bind(payload.sub).first<UserRow>();
-      if (row && isUsable(row) && row.token_version === payload.tv) {
+      const row = await c.env.DB.prepare(SESSION_SQL).bind(payload.jti, payload.sub).first<UserRow & { revoked: number }>();
+      if (row && !row.revoked && isUsable(row) && row.token_version === payload.tv) {
+        c.set("token", payload);
         c.set("user", toAuthUser(row));
         c.set("viaCookie", !bearer && !!cookie);
       }

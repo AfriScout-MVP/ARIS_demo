@@ -11,12 +11,18 @@ import { Badge, Board, Card, CardHeader, EmptyState, Meter } from "@/components/
 import { DiagonalCorridor, HeatField, Pitch, corridorY, heatLegend } from "@/components/pitch/Pitch";
 import { axisProps, barCursor, chartColors, tooltipStyle } from "@/components/charts/theme";
 import { CountryFlag } from "@/components/ui/CountryFlag";
-import { competitionById, decisionTypeKey, matches, refereeById } from "@/lib/store";
+import { competitionById, matches, refereeById } from "@/lib/store";
+import { eventTypeLabel } from "@/lib/matches/eventTypes";
+import { listEventTypes } from "@/lib/api/assessments";
+import { useResource } from "@/lib/admin/hooks";
+import { useLocale } from "@/lib/i18n/LocaleProvider";
 
 export default function PositioningPage() {
   const t = useT();
+  const { locale } = useLocale();
   const fmt = useFormatters();
   const { matches: inScope } = useScope();
+  const { data: eventTypes } = useResource("event-types", (signal) => listEventTypes(signal));
 
   const list = useMemo(() => matches.filter((m) => inScope(m.countryCode)), [inScope]);
   const [matchId, setMatchId] = useState(list[0]?.id ?? "");
@@ -40,7 +46,6 @@ export default function PositioningPage() {
     minute: `${d.minute}'`,
     distance: d.distance,
     overturned: d.finalCall === "overturned",
-    type: d.type,
   }));
   const farCalls = match.decisions.filter((d) => d.distance > 20).length;
 
@@ -137,14 +142,9 @@ export default function PositioningPage() {
               <HeatField points={points} />
               <DiagonalCorridor />
               {spots.map(({ d, refX, refY, x, y }) => {
-                const colour =
-                  d.type === "Red Card" || d.type === "Penalty"
-                    ? "#ef4444"
-                    : d.type === "Yellow Card" || d.type === "Handball"
-                      ? "#eab308"
-                      : d.varReview
-                        ? "#38bdf8"
-                        : "#f1f5f9";
+                const severe = d.eventType === "penalty_decision" || (d.eventType === "card" && (d.subEvent === "red" || d.subEvent === "second_yellow"));
+                const cautioned = d.eventType === "card" && d.subEvent === "yellow";
+                const colour = severe ? "#ef4444" : cautioned ? "#eab308" : d.varReview ? "#38bdf8" : "#f1f5f9";
                 return (
                   <g key={d.id}>
                     {/* The sight line: referee position to the decision. */}
@@ -229,7 +229,7 @@ export default function PositioningPage() {
               .map((d) => (
                 <div key={d.id} className="flex items-center justify-between gap-2 rounded-lg border border-line bg-ink-1 px-2.5 py-1.5">
                   <span className="board w-8 text-xs text-chalk-faint">{d.minute}&apos;</span>
-                  <span className="min-w-0 flex-1 truncate text-xs text-chalk-dim">{t(decisionTypeKey[d.type])}</span>
+                  <span className="min-w-0 flex-1 truncate text-xs text-chalk-dim">{eventTypeLabel(eventTypes, d.eventType, locale)}</span>
                   <Badge tone={d.distance > 25 ? "red" : d.distance > 18 ? "amber" : "neutral"}>{d.distance} m</Badge>
                 </div>
               ))}

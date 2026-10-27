@@ -10,7 +10,7 @@ export function SubIndexRadar({ data }: { data: { metric: string; value: number 
         <RadarChart data={data} outerRadius="72%">
           <PolarGrid stroke={chartColors.grid} />
           <PolarAngleAxis dataKey="metric" tick={{ fill: chartColors.faint, fontSize: 10 }} />
-          <PolarRadiusAxis domain={[50, 100]} tick={false} axisLine={false} />
+          <PolarRadiusAxis domain={[0, 10]} tick={false} axisLine={false} />
           <Tooltip contentStyle={tooltipStyle} />
           <Radar
             dataKey="value"

@@ -6,7 +6,7 @@
   "overview": "Overview",
   "calendar": "Calendar & appointments",
   "arae": "Assisted appointment",
-  "copilot": "AI assistant",
+  "copilot": "Quick answers",
   "referees": "Referees",
   "matchReview": "Match review",
   "assessments": "Observer reports",
@@ -26,5 +26,11 @@
   "adminFederations": "Federations",
   "adminCountries": "Supported countries",
   "adminTeams": "Teams and stadiums",
-  "adminAudit": "Audit log"
+  "adminAudit": "Audit log",
+  "adminPartnerships": "Partnerships",
+  "finance": "Fees",
+  "discipline": "Discipline",
+  "adminCompetitions": "Competitions",
+  "analytics": "Dashboards",
+  "adminGrid": "Evaluation grid"
 }

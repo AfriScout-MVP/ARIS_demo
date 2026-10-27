@@ -189,7 +189,7 @@ export function CountriesView() {
                     <Th>{t("admin.countries.names")}</Th>
                     <Th>{t("admin.countries.zone")}</Th>
                     <Th>{t("admin.countries.capital")}</Th>
-                    <Th>{t("admin.countries.timezone")}</Th>
+                    <Th className="hidden 2xl:table-cell">{t("admin.countries.timezone")}</Th>
                     <Th>{t("admin.countries.currency")}</Th>
                     <Th>{t("admin.countries.federation")}</Th>
                     <Th>{t("admin.countries.active")}</Th>
@@ -207,10 +207,10 @@ export function CountriesView() {
                       <Td className="font-mono text-xs">
                         <span className="font-semibold">{c.code}</span> / {c.iso2}
                       </Td>
-                      <Td className="min-w-64 whitespace-normal">{names(c)}</Td>
+                      <Td className="min-w-56 whitespace-normal">{names(c)}</Td>
                       <Td>{c.zone}</Td>
                       <Td>{c.capital}</Td>
-                      <Td className="font-mono text-xs">{c.timezone}</Td>
+                      <Td className="hidden font-mono text-xs 2xl:table-cell">{c.timezone}</Td>
                       <Td>{c.currency}</Td>
                       <Td>{fed(c)}</Td>
                       <Td>{toggle(c)}</Td>

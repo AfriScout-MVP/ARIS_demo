@@ -27,6 +27,14 @@ describe("the register", async () => {
     expect((await sql("SELECT country_code, action FROM audit_log WHERE action = 'official.create' AND entity_id = ?", one.json.official.id).first())).toEqual({ country_code: "RGA", action: "official.create" });
   });
 
+  it("an assistant's file carries what the register edits (status, city, years, VAR, bio)", async () => {
+    const res = await create(fedA, person({ kind: "assistant", name: "Assistant Kone", status: "unavailable", yearsActive: 4, varQualified: true, bio: { fr: "AR", en: "AR" } }));
+    expect(res.status).toBe(201);
+    expect(res.json.official).toMatchObject({ kind: "assistant", status: "unavailable", city: "Rgaville", yearsActive: 4, varQualified: true, bio: { fr: "AR", en: "AR" } });
+    const listed = await api("GET", "/api/v1/officials?kind=assistant", { session: fedA });
+    expect(listed.json.officials.find((o: { id: string }) => o.id === res.json.official.id)).toMatchObject({ status: "unavailable", yearsActive: 4 });
+  });
+
   it("an explicit country must be its own (404 otherwise); the matricule is not the seat's to choose", async () => {
     expect((await create(fedA, person({ countryCode: "RGA" }))).status).toBe(201);
     const foreign = await create(fedA, person({ countryCode: "RGB", name: "Foreign Intruder" }));

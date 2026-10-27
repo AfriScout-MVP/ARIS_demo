@@ -12,18 +12,25 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { AlertTriangle, ArrowUpRight, BarChart3, CheckCircle2, Flame, ListChecks, Radio, Ruler, Scale, Users, Video } from "@/components/icons/glyphs";
+import { AlertTriangle, ArrowUpRight, BarChart3, CheckCircle2, Flame, ListChecks, Plus, Radio, Ruler, Scale, Trash2, Users, Video } from "@/components/icons/glyphs";
 import { cn } from "@/lib/utils";
 import { useFormatters, useLocale, useT } from "@/lib/i18n/LocaleProvider";
 import { useScope } from "@/lib/scope/ScopeProvider";
 import { PageHeading } from "@/components/layout/PageHeading";
-import { Badge, Board, Card, CardHeader, EmptyState, Meter, type Tone } from "@/components/ui";
+import { Badge, Board, Button, Card, CardHeader, EmptyState, Meter, type Tone } from "@/components/ui";
+import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
+import { DecisionDialog } from "@/components/matches/DecisionDialog";
+import { TaggerMatchReview } from "@/components/matches/TaggerMatchReview";
+import { listEventTypes, removeDecision } from "@/lib/api/assessments";
+import { isStaff, isTagger } from "@/lib/admin/actor";
+import { useActor, useResource } from "@/lib/admin/hooks";
+import { useDataset } from "@/lib/dataset/DatasetProvider";
+import { useToast } from "@/lib/toast/ToastProvider";
 import { axisProps, chartColors, tooltipStyle } from "@/components/charts/theme";
 import { CrewStrip } from "@/components/officiating/CrewStrip";
 import {
   assessmentByMatch,
   competitionById,
-  decisionTypeKey,
   fixtures,
   matches,
   matchesOf,
@@ -31,23 +38,39 @@ import {
   refereeHref,
   type MatchDecision,
 } from "@/lib/store";
+import { eventTypeLabel, outcomeLabel, subEventLabel } from "@/lib/matches/eventTypes";
 import { CountryFlag } from "@/components/ui/CountryFlag";
 import { pickLocalized } from "@/lib/i18n/localized";
 
-const typeTone: Record<MatchDecision["type"], Tone> = {
-  Penalty: "red",
-  "Red Card": "red",
-  "Yellow Card": "amber",
-  Offside: "var",
-  Handball: "amber",
-  Foul: "neutral",
+/** The taxonomy's 7 event types are fixed code, not admin-editable data (see api/src/domain/eventTaxonomy.ts), so their tone can be a plain lookup. */
+const EVENT_TONE: Record<string, Tone> = {
+  penalty_decision: "red",
+  card: "amber",
+  offside_call: "var",
+  foul_advantage: "neutral",
+  var_review: "var",
+  misconduct_dissent: "amber",
+  goal_validation: "gold",
 };
+const toneFor = (eventType: string): Tone => EVENT_TONE[eventType] ?? "neutral";
 
 export default function MatchReviewPage() {
+  const actor = useActor();
+  if (isTagger(actor)) return <TaggerMatchReview />;
+  return <StaffMatchReview />;
+}
+
+function StaffMatchReview() {
   const t = useT();
   const { locale } = useLocale();
   const fmt = useFormatters();
   const { matches: inScope } = useScope();
+  const staff = isStaff(useActor());
+  const { refresh } = useDataset();
+  const toast = useToast();
+  const { data: eventTypes } = useResource("event-types", (signal) => listEventTypes(signal));
+  const [logging, setLogging] = useState(false);
+  const [removing, setRemoving] = useState<MatchDecision | null>(null);
 
   const list = useMemo(() => matches.filter((m) => inScope(m.countryCode)), [inScope]);
   const [matchId, setMatchId] = useState(list[0]?.id ?? "");
@@ -65,28 +88,20 @@ export default function MatchReviewPage() {
     );
   }
 
-  const active = match.decisions.find((d) => d.id === decisionId) ?? match.decisions[0];
-  if (!active) {
-    return (
-      <div className="space-y-4">
-        <PageHeading titleKey="matchReview.title" subtitleKey="subtitles.matchReview" />
-        <Card>
-          <EmptyState title={t("matchReview.noDecisions")} hint={t("matchReview.noDecisionsHint")} />
-        </Card>
-      </div>
-    );
-  }
+  // a match with no decisions logged yet still shows its figures, and staff can start its timeline
+  const active: MatchDecision | undefined = match.decisions.find((d) => d.id === decisionId) ?? match.decisions[0];
+  const matchTitle = `${match.home} ${match.score} ${match.away} · ${fmt.date(match.date)}`;
   const overturned = match.decisions.filter((d) => d.finalCall === "overturned").length;
   const varReviews = match.decisions.filter((d) => d.varReview).length;
   const referee = refereeById.get(match.refereeId);
   const report = assessmentByMatch.get(match.id);
-  const fixture = fixtures.find((f) => f.home === match.home && f.away === match.away);
+  const fixture = match.fixtureId ? fixtures.find((f) => f.id === match.fixtureId) : undefined;
 
   // How this match sat against the referee's own season, which is the only
   // baseline that makes a single-match number mean anything.
   const own = matchesOf(match.refereeId);
   const avg = (pick: (m: (typeof matches)[number]) => number) =>
-    own.reduce((sum, m) => sum + pick(m), 0) / own.length;
+    own.length ? own.reduce((sum, m) => sum + pick(m), 0) / own.length : pick(match);
   const farCalls = match.decisions.filter((d) => d.distance > 20).length;
   const comparison = [
     { label: t("matchReview.matchArps"), now: match.arpsForMatch, season: Math.round(avg((m) => m.arpsForMatch) * 10) / 10, max: 100 },
@@ -164,9 +179,22 @@ export default function MatchReviewPage() {
               title={t("matchReview.timeline")}
               subtitle={t("matchReview.timelineSub", { n: match.decisions.length })}
               className="mb-0"
+              action={
+                staff && (
+                  <Button size="sm" variant="secondary" onClick={() => setLogging(true)}>
+                    <Plus size={13} />
+                    {t("matchReview.log.open")}
+                  </Button>
+                )
+              }
             />
           </div>
           <div className="chalk-rule" />
+          {match.decisions.length === 0 && (
+            <div className="px-4 py-3">
+              <EmptyState title={t("matchReview.noDecisions")} hint={t(staff ? "matchReview.log.emptyStaff" : "matchReview.noDecisionsHint")} />
+            </div>
+          )}
           <ul>
             {match.decisions.map((decision) => (
               <li key={decision.id}>
@@ -174,12 +202,12 @@ export default function MatchReviewPage() {
                   onClick={() => setDecisionId(decision.id)}
                   className={cn(
                     "flex w-full items-center gap-3 border-b border-line px-4 py-3 text-left last:border-0 transition-colors",
-                    active.id === decision.id ? "bg-wash/[0.06]" : "hover:bg-wash/[0.03]",
+                    active?.id === decision.id ? "bg-wash/[0.06]" : "hover:bg-wash/[0.03]",
                   )}
                 >
                   <span className="board w-9 shrink-0 text-sm text-chalk-faint">{decision.minute}&apos;</span>
-                  <Badge tone={typeTone[decision.type]} className="shrink-0">
-                    {t(decisionTypeKey[decision.type])}
+                  <Badge tone={toneFor(decision.eventType)} className="shrink-0">
+                    {eventTypeLabel(eventTypes, decision.eventType, locale)}
                   </Badge>
                   <span className="min-w-0 flex-1 truncate text-xs text-chalk-dim">
                     {pickLocalized(decision.description, locale)}
@@ -196,14 +224,35 @@ export default function MatchReviewPage() {
           </ul>
         </Card>
 
+        {!active ? (
+          <Card>
+            <CardHeader icon={Scale} tint="gold" title={t("matchReview.detail")} />
+            <EmptyState title={t("common.empty")} />
+          </Card>
+        ) : (
         <Card>
           <CardHeader
             icon={Scale}
             tint="gold"
             title={t("matchReview.detail")}
             subtitle={`${t("matchReview.minute")} ${active.minute}'`}
+            action={
+              staff && (
+                <Button size="sm" variant="ghost" onClick={() => setRemoving(active)} aria-label={t("matchReview.log.remove")}>
+                  <Trash2 size={13} />
+                </Button>
+              )
+            }
           />
-          <Badge tone={typeTone[active.type]}>{t(decisionTypeKey[active.type])}</Badge>
+          <div className="flex flex-wrap items-center gap-1.5">
+            <Badge tone={toneFor(active.eventType)}>{eventTypeLabel(eventTypes, active.eventType, locale)}</Badge>
+            {active.subEvent && (
+              <Badge tone="neutral">{subEventLabel(eventTypes, active.eventType, active.subEvent, locale)}</Badge>
+            )}
+            {active.subEvent && active.outcome && (
+              <Badge tone="neutral">{outcomeLabel(eventTypes, active.eventType, active.subEvent, active.outcome, locale)}</Badge>
+            )}
+          </div>
           <p className="mt-3 text-sm leading-relaxed text-chalk">{pickLocalized(active.description, locale)}</p>
 
           <dl className="mt-4 grid grid-cols-2 gap-2">
@@ -265,6 +314,7 @@ export default function MatchReviewPage() {
             )}
           </div>
         </Card>
+        )}
       </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
@@ -345,8 +395,8 @@ export default function MatchReviewPage() {
                 <ReferenceLine
                   key={d.id}
                   x={d.minute}
-                  stroke={d.id === active.id ? chartColors.chalk : "var(--line-strong)"}
-                  strokeDasharray={d.id === active.id ? undefined : "3 3"}
+                  stroke={d.id === active?.id ? chartColors.chalk : "var(--line-strong)"}
+                  strokeDasharray={d.id === active?.id ? undefined : "3 3"}
                 />
               ))}
               <Area
@@ -361,6 +411,35 @@ export default function MatchReviewPage() {
           </ResponsiveContainer>
         </div>
       </Card>
+
+      {logging && (
+        <DecisionDialog
+          matchId={match.id}
+          title={matchTitle}
+          onClose={() => setLogging(false)}
+          onDone={() => {
+            setLogging(false);
+            void refresh();
+          }}
+        />
+      )}
+      {removing && (
+        <ConfirmDialog
+          title={t("matchReview.log.removeTitle")}
+          confirmLabel={t("matchReview.log.remove")}
+          danger
+          perform={() => removeDecision(match.id, removing.id)}
+          onCancel={() => setRemoving(null)}
+          onDone={() => {
+            setRemoving(null);
+            setDecisionId(null);
+            toast.push("success", t("matchReview.log.removed"));
+            void refresh();
+          }}
+        >
+          {t("matchReview.log.removeBody", { minute: removing.minute, type: eventTypeLabel(eventTypes, removing.eventType, locale) })}
+        </ConfirmDialog>
+      )}
     </div>
   );
 }

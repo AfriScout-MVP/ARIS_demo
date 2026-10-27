@@ -1,3 +1,5 @@
+import type { TokenPayload } from "./lib/crypto";
+
 export interface Env {
   /** SQL — Cloudflare D1 (SQLite). */
   DB: D1Database;
@@ -11,11 +13,20 @@ export interface Env {
   /** Optional: where queued e-mail / SMS / WhatsApp messages are POSTed. */
   MAIL_WEBHOOK_URL?: string;
   MAIL_WEBHOOK_TOKEN?: string;
+  /** Optional secret: e-mail is sent through Resend's HTTPS API when set (it takes precedence over the webhook for e-mail). */
+  RESEND_API_KEY?: string;
+  /** Sender for e-mail sent through Resend, e.g. "ARIS <no-reply@example.org>" (a var in wrangler.jsonc). */
+  MAIL_FROM?: string;
+  /** The site's public origin, for links in e-mails (password reset). Falls back to the request's origin. */
+  PUBLIC_ORIGIN?: string;
 }
 
-/** The three roles of the platform: the super-administrator, a national federation's seat, and an official. */
-export type Role = "admin" | "federation" | "referee";
-export const ROLES: readonly Role[] = ["admin", "federation", "referee"];
+/**
+ * The four roles of the platform: the super-administrator, a national federation's seat, an
+ * official, and a tagger (logs referee decisions for its federation's matches, nothing else).
+ */
+export type Role = "admin" | "federation" | "referee" | "tagger";
+export const ROLES: readonly Role[] = ["admin", "federation", "referee", "tagger"];
 
 export type Locale = "fr" | "en" | "es" | "de";
 export const LOCALES: readonly Locale[] = ["fr", "en", "es", "de"];
@@ -33,6 +44,8 @@ export interface AuthUser {
   country: string | null;
   federationCode: string | null;
   locale: Locale;
+  /** Set on an account whose password someone else chose (created or reset by staff): it must be changed first. */
+  mustChangePassword: boolean;
 }
 
 export interface AppEnv {
@@ -42,5 +55,7 @@ export interface AppEnv {
     ip: string;
     /** True when the request was authenticated by cookie (and so needs CSRF checks). */
     viaCookie: boolean;
+    /** The verified session token behind `user` — sign-out revokes it by its id. */
+    token: TokenPayload | null;
   };
 }

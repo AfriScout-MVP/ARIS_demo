@@ -2,24 +2,33 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { AlarmClock, ArrowUpRight, BarChart3, ClipboardCheck, ClipboardList, Clock, Film, Gauge, Quote, Star } from "@/components/icons/glyphs";
+import { AlarmClock, ArrowUpRight, BarChart3, ClipboardCheck, ClipboardList, Clock, Eye, Film, Gauge, LockKeyhole, Pencil, Plus, Quote, Send, Star } from "@/components/icons/glyphs";
 import { cn } from "@/lib/utils";
 import { useFormatters, useLocale, useT } from "@/lib/i18n/LocaleProvider";
 import { useScope } from "@/lib/scope/ScopeProvider";
 import { PageHeading } from "@/components/layout/PageHeading";
-import { Badge, Board, Card, CardHeader, EmptyState, Meter, Segmented } from "@/components/ui";
+import { Badge, Board, Button, Card, CardHeader, EmptyState, Meter, Segmented } from "@/components/ui";
+import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
+import { Dialog } from "@/components/admin/Dialog";
+import { SelectField } from "@/components/admin/fields";
+import { ReportDialog } from "@/components/assessments/ReportDialog";
+import { publishReport, type AssessmentRow } from "@/lib/api/assessments";
+import { useDataset } from "@/lib/dataset/DatasetProvider";
+import { useToast } from "@/lib/toast/ToastProvider";
 import { CountryFlag } from "@/components/ui/CountryFlag";
 import { pickLocalized } from "@/lib/i18n/localized";
-import { assessments, competitionById, matchById, refereeById, refereeHref, type Assessment } from "@/lib/store";
+import { assessments, CAF, competitionById, criteria, matchById, matches, refereeById, refereeHref, type Assessment } from "@/lib/store";
 
-const markKeys = [
-  ["positioning", "assessments.kpiPositioning"],
-  ["decisions", "assessments.kpiDecisions"],
-  ["gameManagement", "assessments.kpiGameManagement"],
-  ["teamwork", "assessments.kpiTeamwork"],
-  ["discipline", "assessments.kpiDiscipline"],
-  ["fitness", "assessments.kpiFitness"],
-] as const;
+/** The snapshot's report as the dialogs take it (the live row has the same fields). */
+const asRow = (a: Assessment): AssessmentRow => ({
+  ...a,
+  state: a.state,
+  published: a.published ?? false,
+  countryCode: matchById.get(a.matchId)?.countryCode ?? null,
+  filedAt: null,
+});
+
+const markTone = (v: number) => (v >= 8.5 ? "pitch" : v >= 7.5 ? "chalk" : v >= 6.5 ? "amber" : "red");
 
 const stateTone: Record<Assessment["state"], "pitch" | "amber" | "red"> = {
   filed: "pitch",
@@ -36,8 +45,12 @@ const stateKey: Record<Assessment["state"], "assessments.filed" | "assessments.d
 export default function AssessmentsPage() {
   const t = useT();
   const fmt = useFormatters();
+  const { locale } = useLocale();
+  const { refresh } = useDataset();
   const { matches: inScope } = useScope();
   const [filter, setFilter] = useState<"all" | "overdue">("all");
+  const [picking, setPicking] = useState(false);
+  const [filing, setFiling] = useState<string | null>(null);
 
   const scoped = useMemo(
     () =>
@@ -60,21 +73,30 @@ export default function AssessmentsPage() {
   // read a development officer gets out of a season of reports.
   const criterionAverages = useMemo(() => {
     if (filed.length === 0) return [];
-    return markKeys
-      .map(([key, labelKey]) => ({
-        key,
-        labelKey,
-        value: filed.reduce((sum, a) => sum + a.marks[key], 0) / filed.length,
-      }))
+    return criteria
+      .map((c) => {
+        const marked = filed.filter((a) => typeof a.marks[c.key] === "number");
+        return { key: c.key, label: pickLocalized(c.label, locale), value: marked.length ? marked.reduce((sum, a) => sum + a.marks[c.key], 0) / marked.length : 0 };
+      })
+      .filter((row) => row.value > 0)
       .sort((a, b) => b.value - a.value);
-  }, [filed]);
+  }, [filed, locale]);
 
   const weakest = criterionAverages[criterionAverages.length - 1];
   const spread = filed.slice().sort((a, b) => b.overall - a.overall);
 
   return (
     <div className="space-y-4 sm:space-y-5">
-      <PageHeading titleKey="assessments.title" subtitleKey="subtitles.assessments" />
+      <PageHeading
+        titleKey="assessments.title"
+        subtitleKey="subtitles.assessments"
+        action={
+          <Button variant="primary" onClick={() => setPicking(true)} disabled={criteria.length === 0}>
+            <Plus size={16} />
+            {t("assessments.form.new")}
+          </Button>
+        }
+      />
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <Board
@@ -159,7 +181,7 @@ export default function AssessmentsPage() {
             </ul>
           </Card>
 
-          {selected && <ReportDetail report={selected} />}
+          {selected && <ReportDetail report={selected} onFile={() => setFiling(selected.matchId)} />}
         </div>
       )}
 
@@ -174,7 +196,7 @@ export default function AssessmentsPage() {
               action={
                 weakest ? (
                   <Badge tone="amber">
-                    {t("assessments.weakest")}: {t(weakest.labelKey)}
+                    {t("assessments.weakest")}: {weakest.label}
                   </Badge>
                 ) : undefined
               }
@@ -183,7 +205,7 @@ export default function AssessmentsPage() {
               {criterionAverages.map((row) => (
                 <li key={row.key}>
                   <div className="mb-1 flex items-center justify-between text-xs">
-                    <span className="text-chalk-dim">{t(row.labelKey)}</span>
+                    <span className="text-chalk-dim">{row.label}</span>
                     <span className="board text-chalk">{row.value.toFixed(1)}</span>
                   </div>
                   <Meter
@@ -232,14 +254,92 @@ export default function AssessmentsPage() {
           </Card>
         </div>
       )}
+
+      {picking && (
+        <PickMatchDialog
+          inScope={inScope}
+          onClose={() => setPicking(false)}
+          onPick={(id) => {
+            setPicking(false);
+            setFiling(id);
+          }}
+        />
+      )}
+      {filing && matchById.get(filing) && (
+        <ReportDialog
+          mode={{ kind: "new", matchId: filing, pickObserver: { country: observerCountry(filing) } }}
+          grid={criteria}
+          title={matchTitle(filing, fmt.date)}
+          onClose={() => setFiling(null)}
+          onDone={() => {
+            setFiling(null);
+            void refresh();
+          }}
+        />
+      )}
     </div>
   );
 }
 
-function ReportDetail({ report }: { report: Assessment }) {
+/** Observers come from the match's own country; for a CAF match an administrator may pick anyone. */
+const observerCountry = (matchId: string) => {
+  const code = matchById.get(matchId)?.countryCode;
+  return code && code !== CAF ? code : undefined;
+};
+
+const matchTitle = (matchId: string, date: (d: string) => string) => {
+  const m = matchById.get(matchId);
+  return m ? `${m.home} — ${m.away} · ${date(m.date)}` : "";
+};
+
+/** Played matches in scope that have no filed report yet, most recent first. */
+function PickMatchDialog({ inScope, onClose, onPick }: { inScope: (code: string) => boolean; onClose: () => void; onPick: (matchId: string) => void }) {
+  const t = useT();
+  const fmt = useFormatters();
+  const options = useMemo(() => {
+    const done = new Set(assessments.filter((a) => a.state === "filed").map((a) => a.matchId));
+    return matches
+      .filter((m) => inScope(m.countryCode) && !done.has(m.id))
+      .sort((a, b) => b.date.localeCompare(a.date))
+      .slice(0, 150)
+      .map((m) => ({ value: m.id, label: `${fmt.date(m.date)} · ${m.home} — ${m.away}` }));
+  }, [inScope, fmt]);
+  const [value, setValue] = useState("");
+  return (
+    <Dialog
+      size="sm"
+      title={t("assessments.form.new")}
+      description={t("assessments.form.pickHint")}
+      onClose={onClose}
+      onSubmit={() => value && onPick(value)}
+      footer={
+        <>
+          <Button type="button" onClick={onClose}>
+            {t("common.cancel")}
+          </Button>
+          <Button type="submit" variant="primary" disabled={!value}>
+            {t("assessments.form.continue")}
+          </Button>
+        </>
+      }
+    >
+      {options.length === 0 ? (
+        <EmptyState title={t("assessments.form.noMatch")} />
+      ) : (
+        <SelectField label={t("assessments.form.match")} value={value} onChange={setValue} options={options} placeholder={t("assessments.form.chooseMatch")} required />
+      )}
+    </Dialog>
+  );
+}
+
+function ReportDetail({ report, onFile }: { report: Assessment; onFile: () => void }) {
   const t = useT();
   const { locale } = useLocale();
   const fmt = useFormatters();
+  const toast = useToast();
+  const { refresh } = useDataset();
+  const [editing, setEditing] = useState(false);
+  const [releasing, setReleasing] = useState(false);
   const match = matchById.get(report.matchId)!;
   const referee = refereeById.get(report.refereeId)!;
   const observer = refereeById.get(report.observerId);
@@ -255,10 +355,16 @@ function ReportDetail({ report }: { report: Assessment }) {
           title={t("assessments.noReport")}
           hint={t("assessments.noReportHint")}
           action={
-            <Badge tone="red">
-              <Clock size={11} />
-              {t("assessments.overdue")}
-            </Badge>
+            <div className="flex flex-col items-center gap-2">
+              <Badge tone="red">
+                <Clock size={11} />
+                {t("assessments.overdue")}
+              </Badge>
+              <Button variant="primary" size="sm" onClick={onFile} disabled={criteria.length === 0}>
+                <Plus size={13} />
+                {t("assessments.form.fileForObserver")}
+              </Button>
+            </div>
           }
         />
       </Card>
@@ -270,7 +376,21 @@ function ReportDetail({ report }: { report: Assessment }) {
       <Card>
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="min-w-0">
-            <Badge tone={stateTone[report.state]}>{t(stateKey[report.state])}</Badge>
+            <span className="flex flex-wrap gap-1.5">
+              <Badge tone={stateTone[report.state]}>{t(stateKey[report.state])}</Badge>
+              {report.state === "filed" &&
+                (report.published ? (
+                  <Badge tone="var">
+                    <Eye size={11} />
+                    {t("assessments.published")}
+                  </Badge>
+                ) : (
+                  <Badge tone="neutral">
+                    <LockKeyhole size={11} />
+                    {t("assessments.confidential")}
+                  </Badge>
+                ))}
+            </span>
             <h2 className="mt-2 font-display text-[18px] font-semibold text-chalk">
               {match.home} <span className="board text-chalk-dim">{match.score}</span> {match.away}
             </h2>
@@ -295,27 +415,65 @@ function ReportDetail({ report }: { report: Assessment }) {
               )}
             </div>
           </div>
-          <div className="shrink-0">
+          <div className="flex shrink-0 flex-col items-stretch gap-2">
             <Board primary label={t("assessments.overall")} value={report.overall.toFixed(1)} unit="/ 10" />
+            {report.state === "filed" && !report.published && (
+              <Button variant="primary" size="sm" onClick={() => setReleasing(true)}>
+                <Send size={13} />
+                {t("assessments.release")}
+              </Button>
+            )}
+            {criteria.length > 0 && (
+              <Button variant="secondary" size="sm" onClick={() => setEditing(true)}>
+                <Pencil size={13} />
+                {t(report.state === "filed" ? "assessments.form.correct" : "assessments.form.continueDraft")}
+              </Button>
+            )}
           </div>
         </div>
       </Card>
 
+      {releasing && (
+        <ConfirmDialog
+          title={t("assessments.releaseTitle")}
+          confirmLabel={t("assessments.release")}
+          perform={() => publishReport(report.id)}
+          onCancel={() => setReleasing(false)}
+          onDone={() => {
+            setReleasing(false);
+            toast.push("success", t("assessments.released", { name: referee.name }));
+            void refresh();
+          }}
+        >
+          <p>{t("assessments.releaseBody", { name: referee.name })}</p>
+        </ConfirmDialog>
+      )}
+      {editing && (
+        <ReportDialog
+          mode={report.state === "filed" ? { kind: "correct", report: asRow(report) } : { kind: "draft", report: asRow(report) }}
+          grid={criteria}
+          title={`${match.home} — ${match.away} · ${fmt.date(match.date)}`}
+          onClose={() => setEditing(false)}
+          onDone={() => {
+            setEditing(false);
+            void refresh();
+          }}
+        />
+      )}
+
       <Card>
         <CardHeader icon={Gauge} tint="var" title={t("assessments.kpis")} />
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          {markKeys.map(([key, labelKey]) => {
-            const value = report.marks[key];
+          {criteria.map((c) => {
+            const value = report.marks[c.key];
+            const marked = typeof value === "number";
             return (
-              <div key={key}>
+              <div key={c.key}>
                 <div className="mb-1 flex items-center justify-between text-xs">
-                  <span className="text-chalk-dim">{t(labelKey)}</span>
-                  <span className="board text-chalk">{value.toFixed(1)}</span>
+                  <span className="text-chalk-dim">{pickLocalized(c.label, locale)}</span>
+                  <span className="board text-chalk">{marked ? value.toFixed(1) : "—"}</span>
                 </div>
-                <Meter
-                  value={value * 10}
-                  tone={value >= 8.5 ? "pitch" : value >= 7.5 ? "chalk" : value >= 6.5 ? "amber" : "red"}
-                />
+                <Meter value={marked ? value * 10 : 0} tone={marked ? markTone(value) : "chalk"} />
               </div>
             );
           })}

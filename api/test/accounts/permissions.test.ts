@@ -25,7 +25,7 @@ describe("account permissions", async () => {
     expect(res.json.users.length).toBeGreaterThanOrEqual(4);
     const row = res.json.users.find((u: { email: string }) => u.email === "pm-ref@aris.test");
     expect(Object.keys(row).sort()).toEqual(
-      ["active", "country", "createdAt", "email", "federationCode", "federationId", "id", "lastLoginAt", "locale", "name", "officialId", "officialName", "role"].sort(),
+      ["active", "country", "createdAt", "email", "federationCode", "federationId", "id", "lastLoginAt", "locale", "mustChangePassword", "name", "officialId", "officialName", "role"].sort(),
     );
     expect(row).toMatchObject({ officialId: "pm-off", officialName: "Official pm-off", country: "PMA", active: true });
     const filtered = await api("GET", "/api/v1/users?role=federation&country=PMA", { session: admin });

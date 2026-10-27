@@ -10,6 +10,9 @@
   "rankings": "Le tableau de promotion.",
   "compare": "Deux officiels, côte à côte.",
   "development": "Licences, tests physiques et accès au niveau supérieur.",
-  "federations": "Fédérations membres, leurs compétitions et la synchronisation.",
-  "reports": "Composez un dossier match et arbitrage, prêt à envoyer."
+  "federations": "Fédérations membres, leurs compétitions et la fraîcheur de leurs données.",
+  "reports": "Composez un dossier match et arbitrage, prêt à envoyer.",
+  "finance": "Barèmes, contrôles, paiements et avances des officiels.",
+  "discipline": "Signalements, procédures, décisions et recours.",
+  "analytics": "Charge, absences, indemnités et contrôle des paiements, exportables en CSV."
 }

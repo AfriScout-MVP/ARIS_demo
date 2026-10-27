@@ -4,7 +4,7 @@ import type { AdminRole, TeamKind, ZoneCode } from "./constants";
 
 export const roleLabelKey = (role: AdminRole): TKey => `admin.roles.${role}`;
 
-export const roleTone = (role: AdminRole): Tone => (role === "admin" ? "gold" : role === "federation" ? "var" : "pitch");
+export const roleTone = (role: AdminRole): Tone => (role === "admin" ? "gold" : role === "federation" ? "var" : role === "tagger" ? "amber" : "pitch");
 
 export const zoneLabelKey = (zone: ZoneCode): TKey => `admin.zones.${zone}`;
 

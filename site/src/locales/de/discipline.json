@@ -1,0 +1,164 @@
+{
+  "title": "Disziplin",
+  "subtitle": "Gemeldete Abwesenheiten, Verspätungen, Absagen und Vorfälle, dann die Verfahren: Anhörung, Entscheidung, Einspruch. Eine Meldung allein sanktioniert niemanden.",
+  "tabs": {
+    "incidents": "Meldungen",
+    "cases": "Verfahren"
+  },
+  "kpi": {
+    "openIncidents": "Offene Meldungen",
+    "openIncidentsHint": "Zu prüfen",
+    "activeCases": "Laufende Verfahren",
+    "activeCasesHint": "Eröffnet, in Anhörung oder im Einspruch",
+    "suspended": "Heute gesperrt",
+    "suspendedHint": "Sanktion in Kraft",
+    "hearings": "Anstehende Anhörungen",
+    "hearingsHint": "In den nächsten 14 Tagen"
+  },
+  "kinds": {
+    "absence": "Abwesenheit",
+    "lateness": "Verspätung",
+    "refusal": "Absage",
+    "incident": "Vorfall"
+  },
+  "severity": {
+    "minor": "Leicht",
+    "major": "Schwer",
+    "critical": "Kritisch",
+    "label": "Schwere"
+  },
+  "incidentStatus": {
+    "open": "Offen",
+    "reviewing": "In Prüfung",
+    "closed": "Abgeschlossen"
+  },
+  "caseStatus": {
+    "opened": "Eröffnet",
+    "hearing_scheduled": "Anhörung angesetzt",
+    "decided": "Entschieden",
+    "appealed": "Im Einspruch",
+    "closed": "Abgeschlossen"
+  },
+  "sanctions": {
+    "none": "Keine Sanktion",
+    "warning": "Verwarnung",
+    "suspension": "Sperre",
+    "removal": "Streichung von der Liste"
+  },
+  "justified": {
+    "label": "Entschuldigt",
+    "unknown": "Nicht angegeben",
+    "yes": "Entschuldigt",
+    "no": "Nicht entschuldigt"
+  },
+  "fields": {
+    "reportedAt": "Gemeldet am",
+    "official": "Offizieller",
+    "kind": "Art",
+    "description": "Beschreibung",
+    "status": "Status",
+    "openedAt": "Eröffnet am",
+    "summary": "Gegenstand",
+    "hearing": "Anhörung",
+    "decision": "Entscheidung",
+    "decisionRef": "Aktenzeichen der Entscheidung",
+    "sanction": "Sanktion",
+    "window": "Sperrzeitraum",
+    "appeal": "Begründung des Einspruchs",
+    "incident": "Ursprüngliche Meldung"
+  },
+  "searchPlaceholder": "Offizieller, Beschreibung…",
+  "views": {
+    "all": "Alle",
+    "active": "Laufend",
+    "label": "Anzeigen"
+  },
+  "report": {
+    "button": "Melden",
+    "title": "Etwas melden",
+    "hint": "Die Meldung informiert den Verband. Sie sanktioniert niemanden: Das kann nur ein entschiedenes Verfahren.",
+    "submit": "Meldung erfassen"
+  },
+  "incident": {
+    "title": "Meldung",
+    "save": "Speichern",
+    "openCase": "Verfahren eröffnen",
+    "saved": "Meldung aktualisiert."
+  },
+  "open": {
+    "button": "Verfahren eröffnen",
+    "title": "Disziplinarverfahren eröffnen",
+    "hint": "Der Offizielle wird informiert, dass ein Verfahren läuft, dass er geladen wird und dass er Einspruch einlegen kann.",
+    "submit": "Verfahren eröffnen",
+    "done": "Verfahren eröffnet."
+  },
+  "hearing": {
+    "button": "Anhörung ansetzen",
+    "title": "Anhörung ansetzen",
+    "hint": "Der Offizielle erfährt den Termin in seinem Bereich.",
+    "at": "Datum und Uhrzeit",
+    "submit": "Ansetzen",
+    "done": "Anhörung angesetzt."
+  },
+  "decide": {
+    "button": "Entscheidung treffen",
+    "onAppeal": "Über den Einspruch entscheiden",
+    "title": "Entscheidung",
+    "hint": "Die Entscheidung wird dem Offiziellen mitgeteilt und im Prüfprotokoll festgehalten. Eine bereits begonnene Sperre gilt sofort, eine künftige ab ihrem Datum.",
+    "submit": "Entscheidung treffen",
+    "refHint": "Pflicht bei einer Sperre: das Aktenzeichen der Entscheidung des zuständigen Organs.",
+    "from": "Von",
+    "to": "Bis",
+    "removalWarning": "Die Streichung nimmt den Offiziellen endgültig aus den Ansetzungen.",
+    "done": "Entscheidung erfasst.",
+    "affected": "{name} hat {n} Ansetzungen während der Sanktion: Ersetzen Sie sie im Kalender.",
+    "toCalendar": "Kalender öffnen"
+  },
+  "appeal": {
+    "button": "Einspruch erfassen",
+    "title": "Einspruch",
+    "hint": "Ein Einspruch verhindert, dass die Entscheidung rechtskräftig wird. Der Verband entscheidet danach erneut.",
+    "note": "Begründung des Einspruchs",
+    "submit": "Einspruch erfassen",
+    "done": "Einspruch erfasst."
+  },
+  "close": {
+    "button": "Verfahren abschließen",
+    "title": "Verfahren abschließen?",
+    "hint": "Ein abgeschlossenes Verfahren kann nicht mehr geändert werden.",
+    "liftWarning": "Achtung: Der Abschluss hebt die Sperre auf und gibt dem Offiziellen seinen vorherigen Status zurück.",
+    "note": "Grund des Abschlusses",
+    "submit": "Abschließen",
+    "done": "Verfahren abgeschlossen."
+  },
+  "timeline": {
+    "title": "Verlauf",
+    "opened": "Verfahren eröffnet",
+    "hearing": "Anhörung am {date}",
+    "decided": "Entscheidung: {sanction}",
+    "window": "Gesperrt vom {from} bis {to}",
+    "appealed": "Einspruch eingelegt",
+    "closed": "Verfahren abgeschlossen"
+  },
+  "empty": {
+    "incidents": "Keine Meldungen",
+    "incidentsHint": "Gemeldete Abwesenheiten, Verspätungen und Vorfälle erscheinen hier.",
+    "cases": "Keine Verfahren",
+    "casesHint": "Ein Verfahren wird aus einer Meldung oder direkt für einen Offiziellen eröffnet."
+  },
+  "errors": {
+    "description": "Mindestens 5 Zeichen.",
+    "decision": "Mindestens 5 Zeichen.",
+    "ref": "Eine Sperre braucht das Aktenzeichen der Entscheidung (mindestens 3 Zeichen).",
+    "window": "Geben Sie Beginn und Ende an; das Ende kann nicht vor dem Beginn liegen.",
+    "hearing": "Geben Sie Datum und Uhrzeit an.",
+    "unknown_reference": "Diese Meldung betrifft nicht diesen Offiziellen."
+  },
+  "mine": {
+    "title": "Meine Disziplinarverfahren",
+    "hint": "Sie können gegen jede Entscheidung Einspruch einlegen.",
+    "appeal": "Einspruch einlegen",
+    "appealHint": "Erklären Sie, warum Sie die Entscheidung anfechten.",
+    "send": "Einspruch senden"
+  }
+}

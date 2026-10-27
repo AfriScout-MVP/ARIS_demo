@@ -19,6 +19,8 @@ import {
 import { Activity, ArrowUpRight, CalendarDays, ClipboardList, Gauge, Globe2, RefreshCcw, Scale, ShieldAlert, Timer, TrendingUp, Trophy, UserPlus, Users } from "@/components/icons/glyphs";
 import { useFormatters, useT } from "@/lib/i18n/LocaleProvider";
 import { useScope } from "@/lib/scope/ScopeProvider";
+import { useDataset } from "@/lib/dataset/DatasetProvider";
+import { isAdmin } from "@/lib/roles";
 import { PageHeading } from "@/components/layout/PageHeading";
 import { Badge, Board, Card, CardHeader, Dot, EmptyState, Meter, ScoreRing } from "@/components/ui";
 import { CrewStrip } from "@/components/officiating/CrewStrip";
@@ -57,6 +59,7 @@ export default function OverviewPage() {
   const t = useT();
   const fmt = useFormatters();
   const { matches: inScope, codes } = useScope();
+  const admin = isAdmin(useDataset().user);
 
   const data = useMemo(() => {
     const scoped = fixtures.filter((f) => inScope(f.countryCode));
@@ -143,7 +146,8 @@ export default function OverviewPage() {
       label: t("overview.alertLicences"),
       value: data.expiring.length,
     },
-    data.staleFeeds.length > 0 && {
+    // feed health is acted on from the admin-only federations page
+    admin && data.staleFeeds.length > 0 && {
       id: "sync",
       tone: "var" as const,
       icon: RefreshCcw,

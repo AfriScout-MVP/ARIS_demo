@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <g id="icon">
+    <path d="M0 0H368.6L512 143.4V512H0Z" fill="#dc2626"/>
+    <path d="M206 90H306L442 430H354L256 185L158 430H70Z" fill="#ffffff"/>
+    <path d="M140 376L412 184" fill="none" stroke="#ffffff" stroke-width="40"/>
+    <circle cx="412" cy="184" r="46" fill="#fbbf24"/>
+  </g>
+</svg>

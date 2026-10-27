@@ -2,16 +2,18 @@
 
 import { Fragment, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { Mark } from "@/components/icons/Mark";
+import { LoadingScreen } from "@/components/icons/MarkLoader";
+import { Landing } from "@/components/landing/Landing";
 import { Button } from "@/components/ui";
 import { useT } from "@/lib/i18n/LocaleProvider";
 import { useDataset } from "@/lib/dataset/DatasetProvider";
-import { isReferee, isStaff } from "@/lib/roles";
+import { isReferee, isStaff, isTagger } from "@/lib/roles";
+import { ChangePasswordDialog } from "./ChangePasswordDialog";
 import { LoginScreen } from "./LoginScreen";
 
 function Centered({ children }: { children: React.ReactNode }) {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center gap-4 bg-ink-0 p-6 text-center text-chalk-dim">
+    <main className="flex min-h-screen flex-col items-center justify-center gap-4 p-6 text-center text-chalk-dim">
       {children}
     </main>
   );
@@ -28,26 +30,22 @@ export function DataGate({ area, children }: { area: "staff" | "personal"; child
   const router = useRouter();
   const pathname = usePathname();
   const { status, user, version, reload } = useDataset();
+  const forcedPasswordChange = status === "ready" && !!user?.mustChangePassword;
 
-  const sendToPersonal = status === "ready" && area === "staff" && isReferee(user);
-  const sendToStaff = status === "ready" && area === "personal" && isStaff(user);
+  const sendToPersonal = status === "ready" && !forcedPasswordChange && area === "staff" && isReferee(user);
+  const sendToStaff = status === "ready" && !forcedPasswordChange && area === "personal" && isStaff(user);
+  // a tagger reaches only the tagging screen: everywhere else in the product (staff area and /me alike) bounces back to it
+  const sendToTagging = status === "ready" && !forcedPasswordChange && isTagger(user) && pathname !== "/decision-engine";
 
   useEffect(() => {
     if (sendToPersonal && pathname !== "/me") router.replace("/me");
     if (sendToStaff) router.replace("/");
-  }, [sendToPersonal, sendToStaff, pathname, router]);
+    if (sendToTagging) router.replace("/decision-engine");
+  }, [sendToPersonal, sendToStaff, sendToTagging, pathname, router]);
 
-  if (status === "loading") {
-    return (
-      <Centered>
-        <Mark size={36} className="animate-pulse text-chalk" />
-        <p className="text-sm" role="status">
-          {t("auth.loading")}
-        </p>
-      </Centered>
-    );
-  }
-  if (status === "signed-out") return <LoginScreen />;
+  if (status === "loading") return <LoadingScreen label={t("auth.loading")} />;
+  // the public landing page at the root; a deep link keeps the plain sign-in screen
+  if (status === "signed-out") return area === "staff" && pathname === "/" ? <Landing /> : <LoginScreen />;
   if (status === "error") {
     return (
       <Centered>
@@ -57,6 +55,16 @@ export function DataGate({ area, children }: { area: "staff" | "personal"; child
         <Button variant="primary" onClick={() => void reload()}>
           {t("auth.retry")}
         </Button>
+      </Centered>
+    );
+  }
+  // a password set by someone else (a new account, or one just reset) blocks every route on the Worker but
+  // /auth: nothing else can render correctly until it is changed, so this stands in for the whole product.
+  if (forcedPasswordChange) {
+    return (
+      <Centered>
+        {/* required: only the dialog's own success path calls onClose, right before it signs the person out */}
+        <ChangePasswordDialog required onClose={() => {}} />
       </Centered>
     );
   }

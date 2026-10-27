@@ -176,7 +176,8 @@ export const ASSET_SQL = "SELECT id, kind, visibility, r2_key, filename, content
 
 /**
  * May this signed-in user read a private asset? Access follows the owner:
- *   official / payment  the referee it belongs to, a federation seat of that official's country, an admin
+ *   official            the referee it belongs to, a federation seat of that official's country, an admin
+ *   payment             the referee paid, a federation seat of the country paying it (the fixture's), an admin
  *   country / federation / team / stadium  staff of that country (an admin: any)
  *   no owner            admins only
  * An owner that cannot be resolved (deleted, unknown) answers "no" for everyone.
@@ -196,7 +197,8 @@ export async function canReadAsset(db: D1Database, user: AuthUser, a: AssetRow):
     }
     case "payment": {
       const r = await db
-        .prepare("SELECT o.id, o.country_code FROM payments p JOIN officials o ON o.id = p.official_id WHERE p.id = ?")
+        // a receipt sits with the payment: the paying (host) country's staff, or the official paid
+        .prepare("SELECT p.official_id AS id, f.country_code FROM payments p JOIN fixtures f ON f.id = p.fixture_id WHERE p.id = ?")
         .bind(a.owner_id)
         .first<{ id: string; country_code: string }>();
       if (!r) return false;

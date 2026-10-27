@@ -1,4 +1,7 @@
 import {
+  Scale,
+  Banknote,
+  BarChart3,
   CalendarDays,
   ClipboardList,
   Compass,
@@ -7,6 +10,7 @@ import {
   Gauge,
   GitCompareArrows,
   GraduationCap,
+  Handshake,
   Globe2,
   History,
   Insight,
@@ -14,6 +18,8 @@ import {
   LayoutDashboard,
   Map,
   Podium,
+  ShieldAlert,
+  Trophy,
   Users,
   Whistle,
   type IconType,
@@ -48,7 +54,7 @@ export const navGroups: NavGroup[] = [
   {
     labelKey: "nav.groupPerformance",
     items: [
-      { href: "/decision-engine", labelKey: "nav.matchReview", subtitleKey: "subtitles.matchReview", icon: Gauge },
+      { href: "/decision-engine", labelKey: "nav.matchReview", subtitleKey: "subtitles.matchReview", icon: Gauge, roles: ["admin", "federation", "tagger"] },
       { href: "/assessments", labelKey: "nav.assessments", subtitleKey: "subtitles.assessments", icon: ClipboardList },
       { href: "/heatmaps", labelKey: "nav.positioning", subtitleKey: "subtitles.positioning", icon: Map },
       { href: "/rankings", labelKey: "nav.rankings", subtitleKey: "subtitles.rankings", icon: Podium },
@@ -60,6 +66,7 @@ export const navGroups: NavGroup[] = [
     items: [
       { href: "/referees", labelKey: "nav.referees", subtitleKey: "subtitles.referees", icon: Whistle },
       { href: "/development", labelKey: "nav.development", subtitleKey: "subtitles.development", icon: GraduationCap },
+      { href: "/discipline", labelKey: "nav.discipline", subtitleKey: "subtitles.discipline", icon: ShieldAlert },
     ],
   },
   {
@@ -67,6 +74,8 @@ export const navGroups: NavGroup[] = [
     items: [
       // the continental comparison of federations is for the confederation, not for one federation's seat
       { href: "/federations", labelKey: "nav.federations", subtitleKey: "subtitles.federations", icon: Landmark, roles: ["admin"] },
+      { href: "/finance", labelKey: "nav.finance", subtitleKey: "subtitles.finance", icon: Banknote },
+      { href: "/analytics", labelKey: "nav.analytics", subtitleKey: "subtitles.analytics", icon: BarChart3 },
       { href: "/reports", labelKey: "nav.reports", subtitleKey: "subtitles.reports", icon: Files },
     ],
   },
@@ -74,9 +83,12 @@ export const navGroups: NavGroup[] = [
     labelKey: "nav.groupAdmin",
     items: [
       { href: "/admin/accounts", labelKey: "nav.adminAccounts", icon: Users },
+      { href: "/admin/partnerships", labelKey: "nav.adminPartnerships", icon: Handshake, roles: ["admin"] },
       { href: "/admin/federations", labelKey: "nav.adminFederations", icon: Landmark, roles: ["admin"] },
       { href: "/admin/countries", labelKey: "nav.adminCountries", icon: Globe2, roles: ["admin"] },
+      { href: "/admin/competitions", labelKey: "nav.adminCompetitions", icon: Trophy },
       { href: "/admin/teams", labelKey: "nav.adminTeams", icon: Flag },
+      { href: "/admin/grid", labelKey: "nav.adminGrid", icon: Scale, roles: ["admin"] },
       { href: "/admin/audit", labelKey: "nav.adminAudit", icon: History },
     ],
   },

@@ -23,7 +23,7 @@ describe("what each role may do", () => {
   const aSeat = { id: "z", role: "federation", country: "MAR" };
 
   it("the admin creates any role, a seat only referees, a referee nothing", () => {
-    expect(creatableRoles(admin)).toEqual(["admin", "federation", "referee"]);
+    expect(creatableRoles(admin)).toEqual(["admin", "federation", "referee", "tagger"]);
     expect(creatableRoles(seat)).toEqual(["referee"]);
     expect(creatableRoles(referee)).toEqual([]);
     expect(creatableRoles(null)).toEqual([]);

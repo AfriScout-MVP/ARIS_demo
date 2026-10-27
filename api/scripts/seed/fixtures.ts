@@ -1,8 +1,8 @@
 // Fixtures and the designations on them.
 
-import { countries, DEMO_TODAY, fixtureNations, fixtures } from "../../seed/demo-data";
+import { countries, fixtureNations, fixtures } from "../../seed/demo-data";
 import { toUtcIso } from "../../src/lib/time";
-import { daysBetween, type SeedContext } from "./context";
+import type { SeedContext } from "./context";
 
 const nationNames = new Set(countries.map((c) => c.name));
 
@@ -28,8 +28,8 @@ export function writeFixtures(ctx: SeedContext) {
         : required.every((s) => s.officialId && s.state !== "declined")
           ? "awaiting_confirmation"
           : "draft";
-    // the demo gives every week the same matchday number; a real calendar advances one round per week
-    let round = Math.max(1, f.matchday + Math.floor(daysBetween(DEMO_TODAY, f.date) / 7));
+    // the round the generator scheduled; a pairing repeats only in the return half, a later round
+    let round = f.matchday;
     while (pairings.has(`${f.competitionId}|${round}|${homeTeam}|${awayTeam}`)) round += 1;
     pairings.add(`${f.competitionId}|${round}|${homeTeam}|${awayTeam}`);
     const kickoffAt = toUtcIso(ctx.sh(f.date), f.kickoff, ctx.timezone(homeCountry));

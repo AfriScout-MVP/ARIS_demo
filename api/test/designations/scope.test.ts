@@ -37,7 +37,7 @@ describe("listing is scoped in SQL", () => {
 
   it("returns nothing when a federation asks for another country", async () => {
     const res = await get(w.egy, "/fixtures?country=MAR&from=2000-01-01&to=2100-01-01");
-    expect(res.json).toEqual({ fixtures: [], total: 0 });
+    expect(res.json).toEqual({ fixtures: [], total: 0, nextCursor: null });
   });
 
   it("shows the admin everything, including continental ties", async () => {

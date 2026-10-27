@@ -1,0 +1,116 @@
+{
+  "title": "Dashboards",
+  "csv": "Export as CSV",
+  "asOf": "As of {date}.",
+  "from": "From",
+  "to": "To",
+  "badRange": "Choose two dates in order, at most two years apart.",
+  "tabs": {
+    "overview": "Overview",
+    "workload": "Workload",
+    "absences": "Absences",
+    "fees": "Fees",
+    "reconciliation": "Payment control"
+  },
+  "presets": {
+    "last30": "Last 30 days",
+    "next30": "Next 30 days",
+    "around30": "± 30 days",
+    "season": "This season",
+    "custom": "Custom"
+  },
+  "fixtureStatus": {
+    "draft": "Draft",
+    "awaiting_confirmation": "Awaiting the officials",
+    "validated": "Validated",
+    "published": "Published"
+  },
+  "overview": {
+    "workforce": "Officials",
+    "availableToday": "Available today",
+    "avgRating": "Average mark (RMCS)",
+    "suspended": "Suspended",
+    "byLevel": "Workforce by level",
+    "byLevelHint": "{referees} referees, {assistants} assistants",
+    "designations": "Upcoming designations",
+    "confirmed": "{n}% of slots confirmed by the officials",
+    "noSlots": "No slots to fill",
+    "compliance": "Compliance",
+    "complianceHint": "What stands in the way of a valid designation",
+    "licencesExpired": "Expired licences",
+    "licencesExpiring90": "Licences expiring within 90 days",
+    "fitnessFailed": "Failed fitness tests",
+    "assessmentsOverdue": "Overdue observer reports",
+    "budget": "Fees",
+    "budgetHint": "Per currency, never converted",
+    "noBudget": "No fees",
+    "money": {
+      "planned": "To validate",
+      "committed": "Validated",
+      "paid": "Paid",
+      "contested": "Contested"
+    },
+    "top": "Highest rated",
+    "bottom": "Needing support",
+    "rankHint": "Average report mark and trend"
+  },
+  "workload": {
+    "appointments": "Designations",
+    "mean": "Average per official",
+    "overused": "Overused",
+    "unused": "Never designated",
+    "all": "All",
+    "flagged": "Flagged",
+    "asReferee": "As centre referee",
+    "last": "Last match",
+    "next": "Next match",
+    "flag": "Flag",
+    "flags": {
+      "overused": "Overused",
+      "unused": "Never designated"
+    },
+    "note": "Overused: at least 4 designations and 1.75 times the average. Suspended officials are not flagged as unused."
+  },
+  "absences": {
+    "incidents": "Reports",
+    "open": "Still open",
+    "refusals": "Designations declined",
+    "replacements": "Replacements",
+    "byKind": "Reports by kind",
+    "none": "No reports in the period",
+    "sanctions": "Sanctions given",
+    "sanctionsHint": "Decisions given in the period",
+    "noSanctions": "No decisions",
+    "toDiscipline": "Open discipline →"
+  },
+  "fees": {
+    "by": {
+      "official": "Official",
+      "competition": "Competition",
+      "city": "City",
+      "day": "Day"
+    },
+    "none": "No fees in the period",
+    "noneHint": "Generate the lines from Finance once designations are made.",
+    "totalIn": "Total in {currency}",
+    "paidShare": "{paid} paid · {due} outstanding · {lines} lines",
+    "lines": "Lines",
+    "total": "Total",
+    "validated": "Validated"
+  },
+  "reconciliation": {
+    "checked": "Slots checked",
+    "hint": "Matches actually refereed against the sums paid.",
+    "match": "Match",
+    "role": "Role",
+    "payment": "Payment",
+    "issue": "Issue",
+    "issues": {
+      "played-not-billed": "Played, not billed",
+      "paid-not-played": "Paid, not played",
+      "paid-unvalidated": "Paid without match validation"
+    },
+    "clean": "No issues",
+    "cleanHint": "{n} slots checked in the period."
+  }
+}

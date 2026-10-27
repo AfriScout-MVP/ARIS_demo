@@ -31,10 +31,35 @@
   "reviewRate": "Envoyées en revue",
   "noDecisions": "Aucune décision enregistrée pour cette rencontre.",
   "noDecisionsHint": "Les décisions apparaissent dès que la revue du match est saisie.",
-  "typePenalty": "Penalty",
-  "typeRedCard": "Carton rouge",
-  "typeYellowCard": "Carton jaune",
-  "typeOffside": "Hors-jeu",
-  "typeHandball": "Main",
-  "typeFoul": "Faute"
+  "log": {
+    "open": "Saisir une décision",
+    "title": "Nouvelle décision",
+    "submit": "Enregistrer la décision",
+    "flow": "Type de décision",
+    "eventType": "Type d'événement",
+    "subEvent": "Sous-événement",
+    "outcome": "Issue",
+    "description": "Ce qui s'est passé",
+    "descriptionHint": "Une ou deux phrases, dans votre langue.",
+    "varHint": "Si la VAR a examiné l'action, indiquez si la décision a été maintenue ou annulée.",
+    "measures": "Mesures (facultatif)",
+    "distance": "Distance à l'action (m)",
+    "measuresHint": "Issues du suivi ou de la vidéo ; laissez vide si vous ne les avez pas.",
+    "playersHint": "Séparés par des virgules, 6 au plus.",
+    "done": "Décision de la {minute}e minute enregistrée.",
+    "emptyStaff": "Saisissez les décisions clés du match pour construire sa chronologie.",
+    "remove": "Supprimer la décision",
+    "removeTitle": "Supprimer cette décision ?",
+    "removeBody": "La décision « {type} » de la {minute}e minute sera retirée de la chronologie. Le journal d'audit en garde la trace.",
+    "removed": "Décision supprimée.",
+    "errors": {
+      "minute": "Une minute de 0 à 130.",
+      "eventType": "Choisissez un événement, un sous-événement et une issue valides.",
+      "description": "Décrivez la décision.",
+      "descriptionLong": "300 caractères au plus.",
+      "percent": "Un nombre de 0 à 100.",
+      "distance": "Un nombre de 0 à 120 mètres.",
+      "players": "6 joueurs au plus, 80 caractères chacun."
+    }
+  }
 }

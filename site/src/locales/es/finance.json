@@ -1,0 +1,285 @@
+{
+  "title": "Honorarios y anticipos",
+  "subtitle": "De las designaciones validadas a las transferencias: baremos, controles, pagos y anticipos, con cada paso registrado.",
+  "tabs": {
+    "payments": "Honorarios",
+    "advances": "Anticipos",
+    "scales": "Baremos"
+  },
+  "status": {
+    "due": "Por validar",
+    "validated": "Validada",
+    "paid": "Pagada",
+    "contested": "Impugnada",
+    "cancelled": "Anulada"
+  },
+  "views": {
+    "open": "En curso",
+    "all": "Todas",
+    "label": "Mostrar"
+  },
+  "checks": {
+    "presenceConfirmed": "Asistencia confirmada",
+    "matchValidated": "Partido validado",
+    "expensesVerified": "Gastos verificados",
+    "title": "Controles",
+    "hint": "Los tres controles son obligatorios antes de validar. Se marcan uno a uno.",
+    "done": "{n}/3 controles"
+  },
+  "money": {
+    "base": "Honorario del partido",
+    "transport": "Transporte",
+    "lodging": "Alojamiento",
+    "meals": "Comidas",
+    "bonus": "Prima",
+    "deduction": "Retención",
+    "total": "Total"
+  },
+  "tiers": {
+    "d1": "Primera división",
+    "d2": "Segunda división",
+    "cup": "Copa",
+    "continental": "Continental"
+  },
+  "kpi": {
+    "outstanding": "Pendiente de pago",
+    "outstandingHint": "{n} líneas por validar, validadas o impugnadas",
+    "toPay": "Listo para transferir",
+    "toPayHint": "Líneas validadas a la espera de la transferencia",
+    "paid": "Pagado",
+    "paidHint": "En el periodo",
+    "contested": "Impugnaciones",
+    "contestedHint": "Las resuelve la federación",
+    "otherCurrencies": "Otras monedas"
+  },
+  "range": {
+    "from": "Desde",
+    "to": "Hasta",
+    "label": "Periodo de los partidos"
+  },
+  "searchPlaceholder": "Árbitro, equipo, ciudad, referencia…",
+  "export": "Exportar (CSV)",
+  "exportName": "honorarios",
+  "fields": {
+    "date": "Fecha",
+    "match": "Partido",
+    "role": "Función",
+    "official": "Oficial",
+    "total": "Total",
+    "status": "Estado",
+    "checks": "Controles",
+    "reference": "Referencia",
+    "city": "Ciudad",
+    "competition": "Competición",
+    "currency": "Moneda"
+  },
+  "ready": {
+    "title": "Por facturar",
+    "hint": "Partidos con el equipo arbitral validado cuyos honorarios aún no se han calculado.",
+    "count": "{n} partidos",
+    "roles": "Sin línea: {roles}",
+    "generate": "Calcular",
+    "generateAll": "Calcular todo",
+    "generating": "Calculando… {done}/{total}",
+    "empty": "Todo el periodo está facturado."
+  },
+  "report": {
+    "title": "Último cálculo",
+    "created": "{n} líneas creadas",
+    "nothing": "Ninguna línea nueva.",
+    "missingScale": "Sin baremo para: {roles}",
+    "currencyMismatch": "Baremo solo en otra moneda para: {roles}. ARIS no aplica tipo de cambio.",
+    "defaultScaleUsed": "Calculado con el baremo por defecto de la plataforma: {roles}",
+    "heldByPrevious": "Línea todavía a nombre del oficial sustituido: {roles}. Anúlela o corríjala antes de volver a calcular.",
+    "reissued": "Emitida de nuevo a nombre del nuevo oficial: {roles}",
+    "openScales": "Abrir los baremos",
+    "dismiss": "Ocultar"
+  },
+  "bulk": {
+    "selected": "{n} seleccionadas",
+    "check": "Marcar los controles",
+    "validate": "Validar",
+    "pay": "Pagar…",
+    "clear": "Quitar la selección",
+    "done": "{ok} hechas · {failed} con error · {skipped} omitidas",
+    "selectAll": "Seleccionar todo",
+    "selectRow": "Seleccionar la línea de {name}",
+    "running": "Procesando… {done}/{total}"
+  },
+  "panel": {
+    "breakdown": "Detalle",
+    "receipts": "Justificantes",
+    "noReceipts": "Ningún justificante subido.",
+    "contestNote": "Motivo de la impugnación",
+    "paidOn": "Pagada el {date} · ref. {ref}",
+    "validatedOn": "Validada el {date}",
+    "closed": "Esta línea está cerrada y ya no se puede modificar."
+  },
+  "actions": {
+    "adjust": "Ajustar",
+    "validate": "Validar",
+    "pay": "Marcar como pagada",
+    "resolve": "Resolver",
+    "cancel": "Anular la línea",
+    "open": "Abrir la línea de {name}"
+  },
+  "adjust": {
+    "title": "Ajustar los importes",
+    "hint": "Cada cambio de importe lleva un motivo y queda en el registro de auditoría.",
+    "reason": "Motivo",
+    "reasonHint": "Por ejemplo: billete de avión más caro que el baremo, retraso de 45 minutos.",
+    "newTotal": "Nuevo total: {total}",
+    "negative": "La retención supera el importe debido.",
+    "noChange": "Ningún importe ha cambiado.",
+    "sendsBack": "Una línea validada vuelve a «por validar» para un nuevo control."
+  },
+  "pay": {
+    "title": "Registrar el pago",
+    "hint": "El pago se hace fuera de ARIS; indique la referencia de la transferencia para la conciliación.",
+    "bulkTitle": "{n} líneas, una sola transferencia",
+    "bulkHint": "Total: {total}. La misma referencia se inscribe en cada línea.",
+    "reference": "Referencia de la transferencia",
+    "referenceHint": "Al menos 3 caracteres, por ejemplo TRF-2026-0142.",
+    "submit": "Registrar"
+  },
+  "resolve": {
+    "title": "Resolver la impugnación",
+    "hint": "El oficial impugna este importe. Ajústelo primero si hace falta y luego resuelva.",
+    "outcome": "Decisión",
+    "keep": "Mantener la línea (vuelve a «por validar»)",
+    "drop": "Anular la línea",
+    "note": "Respuesta al oficial",
+    "submit": "Resolver"
+  },
+  "cancel": {
+    "title": "¿Anular esta línea?",
+    "hint": "Una línea anulada ya no se debe. Una línea pagada no se puede anular.",
+    "note": "Motivo",
+    "submit": "Anular la línea"
+  },
+  "toast": {
+    "generated": "{n} líneas creadas",
+    "adjusted": "Importes guardados",
+    "validated": "Línea validada",
+    "paid": "Pago registrado",
+    "resolved": "Impugnación resuelta",
+    "cancelled": "Línea anulada",
+    "checked": "Control guardado",
+    "exported": "{n} líneas exportadas"
+  },
+  "empty": "Ningún honorario en el periodo",
+  "emptyHint": "Las líneas aparecen cuando se calculan los honorarios de un partido validado.",
+  "errors": {
+    "closed": "Esta línea está pagada o anulada y ya no se puede modificar.",
+    "bad_state": "Ya no es posible en su estado actual. Recargue para ver cómo está.",
+    "checks_missing": "Los tres controles deben estar marcados antes de validar.",
+    "not_validated": "Primero hay que validarlo.",
+    "negative_total": "La retención supera el importe debido.",
+    "currency_mismatch": "Los baremos de esta federación están en la moneda de su país.",
+    "competition_mismatch": "Esa competición pertenece a otra federación.",
+    "amount": "Un importe entero, 0 o más.",
+    "amountPositive": "Un importe entero mayor que 0.",
+    "short": "Al menos 3 caracteres.",
+    "justification": "Al menos 5 caracteres."
+  },
+  "advances": {
+    "new": "Nuevo anticipo",
+    "status": {
+      "requested": "Solicitado",
+      "approved": "Aprobado",
+      "paid": "Abonado",
+      "settled": "Regularizado",
+      "rejected": "Rechazado"
+    },
+    "decide": {
+      "approved": "Aprobar",
+      "paid": "Marcar como abonado",
+      "settled": "Marcar como regularizado",
+      "rejected": "Rechazar"
+    },
+    "confirm": {
+      "approved": "¿Aprobar el anticipo de {amount} para {name}?",
+      "paid": "¿Confirmar el abono de {amount} a {name}?",
+      "settled": "¿Cubren los justificantes de {name} los {amount}?",
+      "rejected": "¿Rechazar el anticipo de {amount} solicitado por {name}?",
+      "hint": "Se avisa al oficial en su espacio. La decisión queda en el registro de auditoría."
+    },
+    "kpi": {
+      "requested": "Pendientes de decisión",
+      "outstanding": "Por regularizar",
+      "outstandingHint": "Aprobados o abonados, aún sin justificantes"
+    },
+    "fields": {
+      "official": "Oficial",
+      "amount": "Importe",
+      "justification": "Justificación",
+      "requestedAt": "Solicitado el",
+      "status": "Estado"
+    },
+    "form": {
+      "title": "Anticipo para un oficial",
+      "hint": "Para un desplazamiento que hay que pagar antes del partido. El importe está en la moneda del país del oficial.",
+      "official": "Oficial",
+      "amount": "Importe",
+      "justification": "Justificación",
+      "justificationHint": "Lo que cubre el anticipo: billete, alojamiento, visado…",
+      "submit": "Registrar la solicitud"
+    },
+    "empty": "Ningún anticipo",
+    "emptyHint": "Aquí aparecen las solicitudes de los oficiales y las que registra la federación.",
+    "toast": {
+      "requested": "Solicitud de anticipo registrada",
+      "decided": "Anticipo: {status}"
+    }
+  },
+  "scales": {
+    "whose": "Baremos de",
+    "defaults": "Plataforma (por defecto)",
+    "defaultsHint": "Se usan cuando una federación no tiene baremo propio, y solo si están en la moneda de su país.",
+    "readonlyHint": "Baremos por defecto de la plataforma: de solo lectura, se usan a falta de los suyos.",
+    "add": "Nuevo baremo",
+    "editCell": "Modificar {role}, {tier}",
+    "addCell": "Añadir {role}, {tier}",
+    "grid": "Baremos por división y función",
+    "specific": "Baremos propios de una competición",
+    "specificHint": "Tienen prioridad sobre el baremo de la división.",
+    "noSpecific": "Ningún baremo propio de una competición.",
+    "expenses": "+{n} gastos",
+    "empty": "Ningún baremo",
+    "emptyHint": "Sin baremo, ARIS no puede calcular los honorarios de un partido.",
+    "coverage": {
+      "title": "Cobertura",
+      "hint": "Lo que el cálculo de honorarios encontraría para cada competición y cada función.",
+      "ok": "Cada función de cada competición tiene un baremo en la moneda correcta.",
+      "missing": "{competition}: sin baremo para {roles}",
+      "currency": "{competition}: baremo solo en otra moneda para {roles}"
+    },
+    "form": {
+      "newTitle": "Nuevo baremo",
+      "editTitle": "Modificar el baremo",
+      "hint": "Un baremo por división (o competición) y función. Guardarlo sustituye al anterior para los próximos cálculos; las líneas ya calculadas no cambian.",
+      "tier": "División",
+      "competition": "Competición",
+      "anyCompetition": "Todas las competiciones de la división",
+      "role": "Función",
+      "amount": "Honorario del partido",
+      "transport": "Transporte",
+      "lodging": "Alojamiento",
+      "meals": "Comidas",
+      "currency": "Moneda",
+      "currencyHint": "Código ISO de 3 letras. Una federación siempre cobra en la moneda de su país.",
+      "submit": "Guardar"
+    },
+    "toast": {
+      "saved": "Baremo guardado"
+    }
+  },
+  "mine": {
+    "title": "Mis anticipos",
+    "request": "Solicitar un anticipo",
+    "hint": "Para un desplazamiento que hay que pagar antes de un partido. La federación decide y se le avisa aquí.",
+    "empty": "Ninguna solicitud de anticipo.",
+    "submit": "Enviar la solicitud"
+  },
+  "truncated": "Solo se muestran las {n} líneas más recientes: acorte el periodo."
+}

@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { z } from "zod";
 import type { AppEnv } from "../env";
-import { chunk, marks, parseQuery, today } from "../lib/http";
+import { ApiError, chunk, marks, parseQuery, today } from "../lib/http";
 import { countryFilter } from "../lib/access";
 import { requireRole, currentUser } from "../middleware/auth";
 import { addDays, loadFixtures } from "../domain/engine-ctx";
@@ -10,6 +10,7 @@ import { MATCH_SQL, toDecision, toMatch, type DecisionRow, type MatchRow } from 
 import type { Localized } from "../lib/localized";
 import { fixtureDto } from "./fixtures";
 import { competitionDto, COMPETITION_SQL, type CompetitionRow } from "./competitions";
+import { freshness, latestActivitySql } from "../domain/freshness";
 
 export const snapshot = new Hono<AppEnv>();
 
@@ -17,6 +18,16 @@ const MATCH_LIMIT = 200;
 const ASSESSMENT_LIMIT = 400;
 const DOSSIER_LIMIT = 100;
 const TREND_MONTHS = 12;
+/** A real calendar day (2026-02-30 is refused, not rolled over). */
+const DAY = z
+  .string()
+  .regex(/^\d{4}-\d{2}-\d{2}$/)
+  .refine((d) => !Number.isNaN(Date.parse(d)) && new Date(d).toISOString().slice(0, 10) === d, "Not a calendar day");
+/** The widest range one request may ask for. */
+const MAX_RANGE_DAYS = 400;
+/** Extra matches / reports returned for an explicitly requested range (a calendar month, a picker's "load older"). */
+const RANGE_MATCH_LIMIT = 500;
+const RANGE_ASSESSMENT_LIMIT = 800;
 
 /** Whole-number percentages that add up to exactly 100 (largest remainder). */
 function percentages(counts: number[]): number[] {
@@ -40,10 +51,12 @@ function percentages(counts: number[]): number[] {
  */
 snapshot.get("/", requireRole("admin", "federation"), async (c) => {
   const user = currentUser(c);
-  const q = parseQuery(c, z.object({ from: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(), to: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional() }));
+  const q = parseQuery(c, z.object({ from: DAY.optional(), to: DAY.optional() }));
   const t = today();
   const from = q.from ?? addDays(t, -21);
   const to = q.to ?? addDays(t, 35);
+  if (from > to) throw new ApiError(422, "bad_range", "`from` must not be after `to`");
+  if (Date.parse(to) - Date.parse(from) > MAX_RANGE_DAYS * 86_400_000) throw new ApiError(422, "range_too_long", `Ask for at most ${MAX_RANGE_DAYS} days at a time`);
   const db = c.env.DB;
 
   const byCountry = (column: string) => countryFilter(user, column);
@@ -55,8 +68,9 @@ snapshot.get("/", requireRole("admin", "federation"), async (c) => {
   const fedId = user.role === "federation" ? user.federationId : null;
   const courseScope = fedId ? { sql: "(federation_id IS NULL OR federation_id = ?)", params: [fedId] } : { sql: "1 = 1", params: [] as string[] };
   const trendCountry = user.role === "federation" ? (user.country ?? "") : "";
+  const activityCountry = byCountry("cc");
 
-  const [countries, clubs, competitions, officials, matches, breakdown, assessments, licences, fitness, courses, enrolments, dossiers, criteria, availability, trend] =
+  const [countries, clubs, competitions, officials, matches, breakdown, assessments, licences, fitness, courses, enrolments, dossiers, criteria, availability, trend, activity, criterionMarks, reportCounts] =
     await db.batch<Record<string, unknown>>([
       db
         .prepare(
@@ -111,12 +125,54 @@ snapshot.get("/", requireRole("admin", "federation"), async (c) => {
           `SELECT month, avg_arps FROM (SELECT month, avg_arps FROM performance_history WHERE country_code = ? ORDER BY month DESC LIMIT ${TREND_MONTHS}) ORDER BY month`,
         )
         .bind(trendCountry),
+      // data freshness: the latest real change to each visible country's fixtures, crews, matches and reports
+      db.prepare(latestActivitySql(activityCountry.sql)).bind(...activityCountry.params),
+      // the radar: every filed report's per-criterion marks, averaged per referee (not only the capped list above)
+      db
+        .prepare(
+          `SELECT a.referee_id AS refereeId, j.key AS key, ROUND(AVG(j.value), 2) AS avg, COUNT(*) AS n
+             FROM assessments a JOIN matches m ON m.id = a.match_id LEFT JOIN competitions c ON c.id = m.league_id JOIN json_each(a.marks) j
+            WHERE a.state = 'filed' AND j.type IN ('integer', 'real') AND ${matchCountry.sql}
+            GROUP BY a.referee_id, j.key`,
+        )
+        .bind(...matchCountry.params),
+      db
+        .prepare(
+          `SELECT a.referee_id AS refereeId, COUNT(*) AS n
+             FROM assessments a JOIN matches m ON m.id = a.match_id LEFT JOIN competitions c ON c.id = m.league_id
+            WHERE a.state = 'filed' AND ${matchCountry.sql} GROUP BY a.referee_id`,
+        )
+        .bind(...matchCountry.params),
     ]);
+
+  // An explicit range (the calendar's month, a picker's "load older") also brings that range's matches and reports,
+  // on top of the most recent ones every screen relies on.
+  const explicit = q.from !== undefined || q.to !== undefined;
+  let matchRows = matches.results as unknown as MatchRow[];
+  let assessmentRows = assessments.results as Array<Record<string, unknown>>;
+  if (explicit) {
+    const [rangeMatches, rangeAssessments] = await db.batch<Record<string, unknown>>([
+      db
+        .prepare(`${MATCH_SQL} WHERE ${matchCountry.sql} AND substr(m.match_date, 1, 10) BETWEEN ? AND ? ORDER BY m.match_date DESC, m.id LIMIT ${RANGE_MATCH_LIMIT}`)
+        .bind(...matchCountry.params, from, to),
+      db
+        .prepare(
+          `SELECT a.* FROM assessments a JOIN matches m ON m.id = a.match_id LEFT JOIN competitions c ON c.id = m.league_id
+            WHERE ${matchCountry.sql} AND substr(m.match_date, 1, 10) BETWEEN ? AND ? ORDER BY a.updated_at DESC, a.id LIMIT ${RANGE_ASSESSMENT_LIMIT}`,
+        )
+        .bind(...matchCountry.params, from, to),
+    ]);
+    const seenM = new Set(matchRows.map((m) => m.id));
+    matchRows = [...matchRows, ...(rangeMatches.results as unknown as MatchRow[]).filter((m) => !seenM.has(m.id))].sort(
+      (x, y) => y.match_date.localeCompare(x.match_date) || x.id.localeCompare(y.id),
+    );
+    const seenA = new Set(assessmentRows.map((a) => a.id));
+    assessmentRows = [...assessmentRows, ...(rangeAssessments.results as Array<Record<string, unknown>>).filter((a) => !seenA.has(a.id))];
+  }
 
   const fixtureList = await loadFixtures(db, { from, to, scope: user });
 
   // decisions of the matches that are returned
-  const matchRows = matches.results as unknown as MatchRow[];
   const decisionsByMatch = new Map<string, DecisionRow[]>();
   for (const ids of chunk(matchRows.map((m) => m.id))) {
     const { results } = await db
@@ -133,6 +189,19 @@ snapshot.get("/", requireRole("admin", "federation"), async (c) => {
   for (const e of enrolments.results as Array<{ course_id: string; official_id: string }>) {
     enrolled.set(e.course_id, [...(enrolled.get(e.course_id) ?? []), e.official_id]);
   }
+
+  const lastActivity = new Map((activity.results as Array<{ cc: string; at: string }>).map((r) => [r.cc, r.at]));
+
+  // per referee: how many filed reports, and the mean mark (0–10) of each criterion they were marked on
+  const marksByReferee = new Map<string, Record<string, { avg: number; n: number }>>();
+  for (const r of criterionMarks.results as Array<{ refereeId: string; key: string; avg: number; n: number }>) {
+    marksByReferee.set(r.refereeId, { ...(marksByReferee.get(r.refereeId) ?? {}), [r.key]: { avg: r.avg, n: r.n } });
+  }
+  const criterionAverages = (reportCounts.results as Array<{ refereeId: string; n: number }>).map((r) => ({
+    refereeId: r.refereeId,
+    reports: r.n,
+    marks: marksByReferee.get(r.refereeId) ?? {},
+  }));
 
   const b = breakdown.results[0] as { correct: number; correctVar: number; overturned: number };
   const counts = [b.correct, b.correctVar, b.overturned];
@@ -166,8 +235,10 @@ snapshot.get("/", requireRole("admin", "federation"), async (c) => {
       currency: r.currency,
       active: r.active === 1,
       syncSource: r.sync_source,
-      syncHealth: r.sync_health,
-      lastSyncHours: r.last_sync_hours,
+      // derived from the rows themselves (domain/freshness.ts), not from a stored status
+      syncHealth: freshness(lastActivity.get(r.code as string)).health,
+      lastSyncHours: freshness(lastActivity.get(r.code as string)).hours,
+      lastActivityAt: lastActivity.get(r.code as string) ?? null,
       clubs: clubsByCountry.get(r.code as string) ?? [],
     })),
     competitions: (competitions.results as unknown as CompetitionRow[]).map(competitionDto),
@@ -175,7 +246,7 @@ snapshot.get("/", requireRole("admin", "federation"), async (c) => {
     assistants: people.filter((p) => p.kind === "assistant").map(toAssistant),
     fixtures: fixtureList.map(fixtureDto),
     matches: matchRows.map((m) => toMatch(m, decisionsByMatch.get(m.id) ?? [], { withHeat: true })),
-    assessments: (assessments.results as Array<Record<string, unknown>>).map((a) => ({
+    assessments: assessmentRows.map((a) => ({
       id: a.id,
       matchId: a.match_id,
       refereeId: a.referee_id,
@@ -206,12 +277,13 @@ snapshot.get("/", requireRole("admin", "federation"), async (c) => {
       state: r.state,
       refereeIds: enrolled.get(r.id as string) ?? [],
     })),
-    dossiers: (dossiers.results as Array<Record<string, unknown>>).map((d) => ({ id: d.id, matchId: d.match_id, generated: d.generated, pages: d.pages, recipients: json(d.recipients as string, []) })),
+    dossiers: (dossiers.results as Array<Record<string, unknown>>).map((d) => ({ id: d.id, matchId: d.match_id, generated: d.generated, pages: d.pages, recipients: json(d.recipients as string, []), sections: json(d.sections as string, []) })),
     availability: (availability.results as Array<{ official_id: string; date: string; state: string }>).map((a) => ({ officialId: a.official_id, date: a.date, state: a.state })),
     criteria: (criteria.results as Array<{ key: string; label: string; weight: number }>).map((r) => ({ key: r.key, label: json<Localized>(r.label, { fr: "", en: "" }), weight: r.weight })),
     analytics: {
       arpsTrend: (trend.results as Array<{ month: string; avg_arps: number }>).map((r) => ({ month: r.month, score: r.avg_arps })),
       decisionsBreakdown,
+      criterionAverages,
     },
   });
 });

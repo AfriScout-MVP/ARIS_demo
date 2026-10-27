@@ -2,7 +2,7 @@
 
 import { useSyncNow } from "@/lib/dataset/useSyncNow";
 import { useMemo, useState } from "react";
-import { CalendarCheck, CalendarDays, CheckCircle2, ChevronLeft, ChevronRight, LayoutGrid, RefreshCcw, Trophy, UserPlus, Wand2 } from "@/components/icons/glyphs";
+import { CalendarCheck, CalendarDays, CheckCircle2, ChevronLeft, ChevronRight, LayoutGrid, Plus, RefreshCcw, Trophy, UserPlus, Wand2 } from "@/components/icons/glyphs";
 import { cn } from "@/lib/utils";
 import { useFormatters, useLocale, useT } from "@/lib/i18n/LocaleProvider";
 import { useScope } from "@/lib/scope/ScopeProvider";
@@ -11,7 +11,10 @@ import { PageHeading } from "@/components/layout/PageHeading";
 import { Badge, Board, Button, Card, CardHeader, EmptyState, Segmented, Th } from "@/components/ui";
 import { CrewStrip } from "@/components/officiating/CrewStrip";
 import { SlotPicker } from "@/components/officiating/SlotPicker";
+import { FixtureActions, FixtureDialog } from "@/components/calendar/FixtureDialogs";
+import { STATUS_TONE } from "@/lib/fixtures/workflow";
 import { CountryFlag } from "@/components/ui/CountryFlag";
+import { FreshnessBadge, useFreshnessAge } from "@/components/ui/FreshnessBadge";
 import { useDataset } from "@/lib/dataset/DatasetProvider";
 import { canDesignate } from "@/lib/roles";
 import {
@@ -56,10 +59,13 @@ export default function CalendarPage() {
   const t = useT();
   const { locale } = useLocale();
   const fmt = useFormatters();
-  const { matches: inScope, codes } = useScope();
+  const { matches: inScope, codes, scope, lockedTo } = useScope();
   const { crewFor, assign, clear, autoFill, undoAutoFill } = useAppointments();
-  const { user } = useDataset();
+  const { user, refresh } = useDataset();
+  const [creating, setCreating] = useState(false);
+  const staff = user?.role === "admin" || user?.role === "federation";
   const { syncing, syncNow } = useSyncNow();
+  const age = useFreshnessAge();
   // a federation seat designates only on its own country's fixtures; an admin on every fixture
   const mayEdit = (fixture: Fixture) => canDesignate(user, fixture.countryCode);
 
@@ -106,7 +112,28 @@ export default function CalendarPage() {
 
   return (
     <div className="space-y-4 sm:space-y-5">
-      <PageHeading titleKey="calendar.title" subtitleKey="subtitles.calendar" />
+      <PageHeading
+        titleKey="calendar.title"
+        subtitleKey="subtitles.calendar"
+        action={
+          staff ? (
+            <Button variant="primary" onClick={() => setCreating(true)}>
+              <Plus size={16} />
+              {t("fixtures.new")}
+            </Button>
+          ) : undefined
+        }
+      />
+      {creating && (
+        <FixtureDialog
+          defaultCountry={lockedTo ?? (scope.kind === "country" ? scope.code : undefined)}
+          onClose={() => setCreating(false)}
+          onDone={() => {
+            setCreating(false);
+            void refresh();
+          }}
+        />
+      )}
 
       <div className="flex flex-wrap items-center gap-2">
         <div className="flex items-center gap-1 rounded-lg border border-line bg-ink-1 p-0.5">
@@ -235,11 +262,16 @@ export default function CalendarPage() {
                         <p className="mt-0.5 truncate text-xs text-chalk-faint">
                           {comp?.name} · {t("common.matchday")} {fixture.matchday} · {fixture.venue}
                         </p>
-                        {(fixture.status === "postponed" || fixture.status === "cancelled") && (
-                          <Badge tone={fixture.status === "cancelled" ? "red" : "amber"} className="mt-1">
-                            {t(fixture.status === "cancelled" ? "calendar.statusCancelled" : "calendar.statusPostponed")}
-                          </Badge>
-                        )}
+                        <div className="mt-1 flex flex-wrap gap-1.5">
+                          {(fixture.status === "postponed" || fixture.status === "cancelled") && (
+                            <Badge tone={fixture.status === "cancelled" ? "red" : "amber"}>
+                              {t(fixture.status === "cancelled" ? "calendar.statusCancelled" : "calendar.statusPostponed")}
+                            </Badge>
+                          )}
+                          {fixture.status === "scheduled" && !fixture.played && (
+                            <Badge tone={STATUS_TONE[fixture.designationStatus]}>{t(`fixtures.pipeline.${fixture.designationStatus}`)}</Badge>
+                          )}
+                        </div>
                       </div>
 
                       <div className="flex items-center gap-2 xl:w-[16%]">
@@ -262,6 +294,7 @@ export default function CalendarPage() {
                         >
                           {open === 0 ? t("common.confirmed") : `${open} ${t("calendar.slotsOpen")}`}
                         </span>
+                        {mayEdit(fixture) && <FixtureActions fixture={fixture} crew={crew} onChanged={() => void refresh()} />}
                       </div>
                     </li>
                   );
@@ -412,21 +445,10 @@ export default function CalendarPage() {
                   <CountryFlag code={country.code} /> {countryName(country.code, locale)}
                 </p>
                 <p className="text-[11px] text-chalk-faint">
-                  {country.syncSource} · {t("common.lastSync")} {country.lastSyncHours}
-                  {t("common.hours")}
+                  {country.syncSource} · {t("common.lastSync")} {age(country.lastSyncHours)}
                 </p>
               </div>
-              <Badge
-                tone={country.syncHealth === "healthy" ? "pitch" : country.syncHealth === "stale" ? "amber" : "neutral"}
-              >
-                {t(
-                  country.syncHealth === "healthy"
-                    ? "federations.syncHealthy"
-                    : country.syncHealth === "stale"
-                      ? "federations.syncStale"
-                      : "federations.syncManual",
-                )}
-              </Badge>
+              <FreshnessBadge health={country.syncHealth} />
             </div>
           ))}
         </div>

@@ -1,7 +1,8 @@
-// ARIS Copilot.
+// Quick answers (the /copilot screen): a keyword matcher, not AI.
 //
-// It answers from the same in-memory data every other screen reads, and returns
-// the rows it used so the answer can be checked. It never produces a number
+// It recognises a fixed set of question types by their keywords, answers from the same
+// in-memory data every other screen reads, and returns the rows it used so the answer
+// can be checked. It never produces a number
 // that is not already on a row somewhere in the product — when a question falls
 // outside that, it says so instead of guessing.
 //
@@ -80,7 +81,8 @@ export function suggestions(locale: Locale, codes: string[]): string[] {
   return out;
 }
 
-export function ask(question: string, locale: Locale, codes: string[]): Answer | null {
+/** `admin` decides whether answers may link to the admin-only federations comparison. */
+export function ask(question: string, locale: Locale, codes: string[], admin = false): Answer | null {
   const q = strip(question);
   const t = (key: TKey, vars?: Vars) => translate(locale, key, vars);
   const inScope = (code: string) => code === CAF || codes.includes(code);
@@ -262,21 +264,25 @@ export function ask(question: string, locale: Locale, codes: string[]): Answer |
   /* ---- Calendar feeds ------------------------------------------------ */
   if (has(q, "sync", "synchro", "feed", "flux", "stale", "obsolete", "comet", "sincroniz", "calendario", "synchronis", "kalender")) {
     const scoped = countries.filter((c) => codes.includes(c.code));
+    // freshness is derived by the API from each country's latest change; "none" means no data at all
     const bad = scoped.filter((c) => c.syncHealth !== "healthy");
     return {
       headline: t("copilot.a.syncHead", { bad: bad.length, n: scoped.length }),
       rows: scoped
         .slice()
-        .sort((a, b) => b.lastSyncHours - a.lastSyncHours)
+        .sort((a, b) => (b.lastSyncHours ?? Infinity) - (a.lastSyncHours ?? Infinity))
         .slice(0, 8)
         .map((c) => ({
           label: countryName(c.code, locale),
           flag: c.code,
-          meta: t("copilot.a.syncRow", { source: c.syncSource, hours: c.lastSyncHours }),
-          href: "/federations",
+          meta:
+            c.lastSyncHours === null
+              ? t("copilot.a.syncRowNone", { source: c.syncSource })
+              : t("copilot.a.syncRow", { source: c.syncSource, hours: c.lastSyncHours }),
+          href: admin ? "/federations" : undefined,
         })),
-      sourceLabel: t("common.countries"),
-      sourceHref: "/federations",
+      sourceLabel: admin ? t("common.countries") : t("nav.overview"),
+      sourceHref: admin ? "/federations" : "/",
     };
   }
 
@@ -350,8 +356,8 @@ export function ask(question: string, locale: Locale, codes: string[]): Answer |
         meta: t("copilot.a.zoneRow", { n: z.corps, arps: z.avg.toFixed(1), name: z.best?.name ?? "—" }),
         href: "/rankings",
       })),
-      sourceLabel: t("common.countries"),
-      sourceHref: "/federations",
+      sourceLabel: admin ? t("common.countries") : t("nav.rankings"),
+      sourceHref: admin ? "/federations" : "/rankings",
     };
   }
 

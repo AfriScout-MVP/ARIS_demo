@@ -1,0 +1,166 @@
+{
+  "skip": "Skip to content",
+  "nav": {
+    "modules": "Modules",
+    "workflow": "Workflow",
+    "roles": "Roles",
+    "security": "Security",
+    "signIn": "Sign in",
+    "menu": "Menu",
+    "themeLight": "Switch to light theme",
+    "themeDark": "Switch to dark theme"
+  },
+  "hero": {
+    "eyebrow": "African Referee Intelligence System",
+    "titleA": "African refereeing,",
+    "titleB": "driven by data.",
+    "lead": "ARIS brings fixtures, appointments, assessments, VAR decisions, licences and match fees into one platform — for every federation, every referee, every match.",
+    "primary": "Sign in",
+    "secondary": "Explore the platform",
+    "proof1": "4 languages",
+    "proof2": "Data walled off by country",
+    "proof3": "Every action logged"
+  },
+  "pitch": {
+    "label": "Animation: a referee holds the diagonal while ARIS tracks the match",
+    "live": "Live",
+    "arps": "ARPS rating",
+    "crew": "Crew confirmed",
+    "var": "VAR · decision confirmed",
+    "diagonal": "Diagonal held",
+    "distance": "Distance to play"
+  },
+  "federations": {
+    "title": "Built for {count} African federations",
+    "lead": "Each federation works in its own language, currency and time zone, on its own competitions."
+  },
+  "stats": {
+    "countries": "federations supported",
+    "officials": "referees and assistants on record",
+    "competitions": "competitions covered",
+    "criteria": "weighted assessment criteria"
+  },
+  "modules": {
+    "eyebrow": "The platform",
+    "title": "The whole refereeing cycle, in one place",
+    "lead": "Eight modules that talk to each other: an appointment feeds match fees, an observer report feeds the rankings, a conflict of interest is caught before the appointment.",
+    "calendar": {
+      "title": "Fixtures & calendar",
+      "body": "Create, validate and publish fixtures, send call-ups, reschedule with a recorded reason."
+    },
+    "designations": {
+      "title": "Crew appointments",
+      "body": "A live board that checks neutrality, qualification, rest, availability and conflicts of interest before they cost a match."
+    },
+    "assessments": {
+      "title": "Assessments & observers",
+      "body": "Reports on a weighted grid: drafts, filing, corrections with a reason, release to the referee."
+    },
+    "decisions": {
+      "title": "VAR decision engine",
+      "body": "Every key decision timed, VAR reviews included, to measure accuracy match after match."
+    },
+    "development": {
+      "title": "Development & licences",
+      "body": "Licences, fitness tests and courses tracked, with alerts before every deadline."
+    },
+    "discipline": {
+      "title": "Discipline",
+      "body": "Incidents, cases and suspensions handled with a complete, verifiable history."
+    },
+    "finance": {
+      "title": "Match fees & finance",
+      "body": "Fee scales per country and currency, payment runs, advances and deductions without arithmetic slips."
+    },
+    "analytics": {
+      "title": "Analytics & rankings",
+      "body": "ARPS, heatmaps, comparisons and trends to spot the referees ready for the next level."
+    }
+  },
+  "workflow": {
+    "eyebrow": "The workflow",
+    "title": "From fixture list to report, entered once",
+    "lead": "Data typed in once follows the match all the way through.",
+    "plan": {
+      "title": "Plan",
+      "body": "The federation publishes its national calendar."
+    },
+    "appoint": {
+      "title": "Appoint",
+      "body": "ARIS proposes crews that are available and conflict-free."
+    },
+    "officiate": {
+      "title": "Officiate",
+      "body": "Call-ups, result and key decisions are recorded."
+    },
+    "assess": {
+      "title": "Assess",
+      "body": "The observer files a report on the official grid."
+    },
+    "develop": {
+      "title": "Develop",
+      "body": "Rankings and progress update; match fees are generated in one click."
+    }
+  },
+  "roles": {
+    "eyebrow": "Three spaces",
+    "title": "Everyone sees what concerns them — and nothing else",
+    "admin": {
+      "title": "Super admin",
+      "body": "The referees department runs the whole continent.",
+      "p1": "Every federation",
+      "p2": "Assessment grid and competitions",
+      "p3": "Partnerships and audit log"
+    },
+    "federation": {
+      "title": "Federation",
+      "body": "Each federation runs its national refereeing.",
+      "p1": "Calendar and appointments",
+      "p2": "Officials register and documents",
+      "p3": "Match fees in its own currency"
+    },
+    "referee": {
+      "title": "Referee",
+      "body": "A personal space, on phone or desktop.",
+      "p1": "Appointments and availability",
+      "p2": "Reports received and progress",
+      "p3": "Licences and payments"
+    }
+  },
+  "security": {
+    "eyebrow": "Trust",
+    "title": "Sensitive data, treated that way",
+    "lead": "Medical records, sanctions, payments: ARIS is built so every piece of information stays where it belongs.",
+    "scope": {
+      "title": "Walled off by country",
+      "body": "A federation never sees another federation's officials or files."
+    },
+    "audit": {
+      "title": "Audit log",
+      "body": "Every change is timestamped, attributed and kept with its previous state."
+    },
+    "sessions": {
+      "title": "Protected access",
+      "body": "Hashed passwords, signed sessions, rate-limited sign-in attempts."
+    },
+    "edge": {
+      "title": "Fast everywhere",
+      "body": "Served from Cloudflare's global network, close to every stadium."
+    }
+  },
+  "languages": {
+    "eyebrow": "Multilingual",
+    "title": "One platform, four languages",
+    "lead": "French, English, Spanish and German — everyone picks their own, and the reports follow."
+  },
+  "cta": {
+    "title": "Ready to take the field?",
+    "lead": "Sign in with the account issued by your federation or by the referees department.",
+    "button": "Sign in to ARIS"
+  },
+  "footer": {
+    "tagline": "Designed in Africa, for African refereeing.",
+    "rights": "© {year} Prestige Solutions of Afrika. All rights reserved.",
+    "flags": "Flags: flag-icons (MIT licence)."
+  }
+}

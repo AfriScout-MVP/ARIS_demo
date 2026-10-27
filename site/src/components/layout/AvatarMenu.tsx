@@ -2,14 +2,15 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { LogOut, ShieldCheck } from "@/components/icons/glyphs";
+import { KeyRound, LogOut, ShieldCheck } from "@/components/icons/glyphs";
+import { ChangePasswordDialog } from "@/components/auth/ChangePasswordDialog";
 import { useLocale, useT } from "@/lib/i18n/LocaleProvider";
 import { Badge } from "@/components/ui";
 import { CountryFlag } from "@/components/ui/CountryFlag";
 import { LocaleToggle } from "@/components/layout/LocaleToggle";
 import { useDataset } from "@/lib/dataset/DatasetProvider";
 import { countryName } from "@/lib/store";
-import { isAdmin, isReferee, roleLabelKey } from "@/lib/roles";
+import { isAdmin, isStaff, roleLabelKey } from "@/lib/roles";
 
 /** The account menu: who is signed in, in which role and for which federation, the language, and sign-out. */
 export function AvatarMenu() {
@@ -18,6 +19,7 @@ export function AvatarMenu() {
   const { user, signOut } = useDataset();
   const name = user?.name ?? "";
   const [open, setOpen] = useState(false);
+  const [changing, setChanging] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -63,7 +65,7 @@ export function AvatarMenu() {
             </div>
           </div>
           <div className="p-1">
-            {!isReferee(user) && (
+            {isStaff(user) && (
               <Link href="/development" onClick={() => setOpen(false)} className={linkClass}>
                 {t("nav.development")}
               </Link>
@@ -80,6 +82,16 @@ export function AvatarMenu() {
           </div>
           <div className="border-t border-line p-1">
             <button
+              onClick={() => {
+                setOpen(false);
+                setChanging(true);
+              }}
+              className="flex w-full items-center gap-2 rounded-[10px] px-3 py-2 text-sm text-chalk-dim transition-colors hover:bg-red-500/10 hover:text-chalk"
+            >
+              <KeyRound size={14} />
+              {t("auth.changePassword.menu")}
+            </button>
+            <button
               onClick={() => void signOut()}
               className="flex w-full items-center gap-2 rounded-[10px] px-3 py-2 text-sm text-red-700 transition-colors hover:bg-red-500/10 dark:text-red-400"
             >
@@ -89,6 +101,7 @@ export function AvatarMenu() {
           </div>
         </div>
       )}
+      {changing && <ChangePasswordDialog onClose={() => setChanging(false)} />}
     </div>
   );
 }

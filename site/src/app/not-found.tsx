@@ -8,7 +8,7 @@ import { useT } from "@/lib/i18n/LocaleProvider";
 export default function NotFound() {
   const t = useT();
   return (
-    <main className="flex min-h-screen items-center justify-center bg-ink-0 p-6">
+    <main className="flex min-h-screen items-center justify-center p-6">
       <div className="max-w-md">
         <MarkTile size={44} />
         <p className="board mt-8 text-7xl leading-none text-chalk-faint">404</p>

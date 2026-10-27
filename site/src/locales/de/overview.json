@@ -31,7 +31,7 @@
   "alertSlots": "Offene Positionen diese Woche",
   "alertReports": "Ausstehende Beobachterberichte",
   "alertLicences": "Lizenzen zur Verlängerung",
-  "alertSync": "Nicht synchronisierte Kalender",
+  "alertSync": "Länder ohne aktuelle Daten",
   "alertSuspended": "Gesperrte Offizielle",
   "daysShort": "{n} T",
   "decisionCorrect": "Auf dem Platz richtig",

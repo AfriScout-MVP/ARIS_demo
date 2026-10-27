@@ -1,0 +1,150 @@
+{
+  "new": "Nuevo partido",
+  "newTitle": "Nuevo partido",
+  "newHint": "Los puestos del equipo arbitral se crean según la competición (VAR, observador).",
+  "editTitle": "Editar el partido",
+  "create": "Crear el partido",
+  "created": "{home} — {away} está en el calendario.",
+  "saved": "Partido actualizado.",
+  "rescheduledWarn": "Partido movido: {n} oficiales ya no cumplen las condiciones, revise la tabla.",
+  "chooseTeam": "Elija un equipo…",
+  "chooseCompetition": "Elija una competición…",
+  "noStadium": "Estadio por confirmar",
+  "fields": {
+    "competition": "Competición",
+    "homeCountry": "País del equipo local",
+    "awayCountry": "País del equipo visitante",
+    "home": "Equipo local",
+    "away": "Equipo visitante",
+    "date": "Fecha",
+    "time": "Saque inicial",
+    "stadium": "Estadio",
+    "round": "Jornada",
+    "roundLabel": "Nombre de la ronda",
+    "importance": "Importancia",
+    "reason": "Motivo"
+  },
+  "hints": {
+    "localTime": "Hora local del estadio.",
+    "roundLabel": "Opcional: «Cuartos de final»…",
+    "importance": "De 0 a 100: pesa en la elección de los oficiales.",
+    "reason": "Los oficiales ya designados reciben un aviso con este motivo.",
+    "reasonNotified": "Obligatorio: los oficiales designados reciben un aviso con este motivo."
+  },
+  "errors": {
+    "competition": "Elija la competición.",
+    "team": "Elija el equipo.",
+    "sameTeam": "Un equipo no puede jugar contra sí mismo.",
+    "round": "Una jornada de 1 a 100.",
+    "roundLabel": "60 caracteres como máximo.",
+    "date": "Fecha no válida.",
+    "time": "Hora en formato HH:MM.",
+    "importance": "Un número de 0 a 100.",
+    "reason": "Indique el motivo (3 caracteres como mínimo).",
+    "score": "Un marcador de 0 a 99 para cada equipo.",
+    "attendance": "Un número entero, 300 000 como máximo.",
+    "duplicate": "Estos equipos ya se enfrentan en esta jornada.",
+    "invalid_local_time": "Esa hora no existe ese día (cambio de hora).",
+    "team_outside_country": "Un partido nacional enfrenta a equipos del país de la competición.",
+    "stadium_outside_country": "El estadio debe estar en el país de la competición.",
+    "competition_inactive": "Esta competición está cerrada.",
+    "not_yet_played": "El partido aún no se ha jugado.",
+    "no_referee": "Hace falta un árbitro designado para registrar el resultado.",
+    "duplicate_match": "Ya hay un partido entre estos equipos registrado ese día.",
+    "not_scheduled": "Este partido no está programado.",
+    "not_validated": "Primero hay que validar el equipo arbitral.",
+    "not_published": "Las convocatorias aún no están publicadas.",
+    "unknown": "Ese equipo, estadio o competición ya no existe: recargue la página."
+  },
+  "blocked": {
+    "incomplete": "Cada puesto obligatorio necesita un oficial antes de enviarlo para confirmación.",
+    "unconfirmed": "Cada oficial debe haber confirmado antes de la validación."
+  },
+  "pipeline": {
+    "draft": "Borrador",
+    "awaiting_confirmation": "Pendiente de los oficiales",
+    "validated": "Validado",
+    "published": "Publicado"
+  },
+  "steps": {
+    "submit": "Enviar para confirmación",
+    "validate": "Validar el equipo",
+    "publish": "Publicar las convocatorias",
+    "done": {
+      "submit": "Equipo enviado a los oficiales para confirmación.",
+      "validate": "Equipo arbitral validado.",
+      "publish": "Convocatorias publicadas: se ha avisado a cada oficial."
+    }
+  },
+  "status": {
+    "title": {
+      "postponed": "Aplazar el partido",
+      "cancelled": "Suspender el partido",
+      "scheduled": "Reprogramar el partido"
+    },
+    "body": {
+      "postponed": "El partido sale del calendario activo; se conserva el equipo arbitral.",
+      "cancelled": "El partido se suspende; se avisa a los oficiales designados.",
+      "scheduled": "El partido vuelve al calendario. Revise después la fecha y el equipo arbitral."
+    },
+    "confirm": {
+      "postponed": "Aplazar",
+      "cancelled": "Suspender el partido",
+      "scheduled": "Reprogramar"
+    },
+    "done": {
+      "postponed": "Partido aplazado.",
+      "cancelled": "Partido suspendido.",
+      "scheduled": "Partido reprogramado."
+    }
+  },
+  "result": {
+    "title": "Resultado",
+    "submit": "Registrar el resultado",
+    "attendance": "Asistencia (opcional)",
+    "hint": "El partido pasa a ser evaluable y facturable; ya no se puede modificar.",
+    "done": "{home} {score} {away} registrado."
+  },
+  "convocations": {
+    "title": "Convocatorias",
+    "emailAll": "Escribir a los {n} oficiales"
+  },
+  "history": {
+    "title": "Historial del partido",
+    "engine": "Motor ARIS",
+    "empty": "Ningún evento",
+    "actions": {
+      "assign": "designado",
+      "clear": "puesto liberado",
+      "confirm": "confirmado",
+      "accept": "aceptado por el oficial",
+      "decline": "rechazado por el oficial",
+      "replace": "sustituido",
+      "autofill": "propuesto por el motor",
+      "validate": "validado",
+      "publish": "publicado",
+      "revert": "deshecho el motor"
+    },
+    "events": {
+      "create": "Partido creado",
+      "update": "Partido modificado",
+      "postponed": "Partido aplazado",
+      "cancelled": "Partido suspendido",
+      "submit": "Enviado para confirmación",
+      "validate": "Equipo validado",
+      "publish": "Convocatorias publicadas",
+      "result": "Resultado registrado",
+      "billed": "Honorarios generados"
+    }
+  },
+  "menu": {
+    "label": "Acciones para {home} — {away}",
+    "edit": "Editar, mover",
+    "result": "Registrar el resultado",
+    "convocations": "Ver las convocatorias",
+    "postpone": "Aplazar",
+    "cancel": "Suspender",
+    "reinstate": "Reprogramar",
+    "history": "Historial"
+  }
+}

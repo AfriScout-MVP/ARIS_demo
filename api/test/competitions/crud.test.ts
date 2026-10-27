@@ -85,7 +85,10 @@ describe("GET /competitions", () => {
 
   it("is 401 / 403 for the wrong caller, and one competition is 404 across borders", async () => {
     expect((await get(null, "/competitions")).status).toBe(401);
-    expect((await get(referee, "/competitions")).status).toBe(403);
+    // a referee reads only the competitions they are designated in (none here); see test/competitions/delete-and-read.test.ts
+    expect((await get(referee, "/competitions")).json).toEqual({ competitions: [] });
+    expect((await get(referee, "/competitions/mar-botola")).status).toBe(404);
+
     expect((await get(egy, "/competitions/mar-botola")).status).toBe(404);
     expect((await get(egy, "/competitions/caf-champions")).status).toBe(404);
     expect((await get(mar, "/competitions/mar-botola")).status).toBe(200);

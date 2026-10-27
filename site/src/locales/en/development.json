@@ -31,5 +31,72 @@
   "requirementOpen": "Open",
   "complianceRisk": "Compliance risk",
   "complianceOk": "Every official in scope is compliant.",
-  "renewed": "Licence renewed for one year."
+  "renewed": "Licence renewed for one year.",
+  "addLicence": "Add a licence",
+  "editDatesFor": "Edit the dates of {name}'s licence",
+  "searchLicences": "Official or licence type…",
+  "noLicences": "No licences in scope.",
+  "licenceSaved": "Licence saved.",
+  "varNote": "A valid VAR certification puts the referee on the VAR list; when it expires they are taken off automatically.",
+  "licenceForm": {
+    "title": "New licence",
+    "editTitle": "Licence dates",
+    "kind": "Licence type"
+  },
+  "recordTest": "Record a test",
+  "updateTestFor": "Update {name}'s test",
+  "fitnessSaved": "Fitness test saved.",
+  "fitnessForm": {
+    "title": "Fitness test",
+    "result": "Result",
+    "sprint": "Best sprint (s)",
+    "laps": "Laps completed",
+    "retestHint": "Required after a failure: the official is called back on this date."
+  },
+  "newCourse": "New course",
+  "courseCreated": "Course created.",
+  "platformWide": "Every federation",
+  "ownCourse": "Federation",
+  "officialsCount": "{n} officials enrolled",
+  "enrol": "Enrol",
+  "complete": "Record completion",
+  "enrolledToast": "{n} officials enrolled.",
+  "completedToast": "{n} completions recorded.",
+  "courseForm": {
+    "title": "New course",
+    "kind": "Type",
+    "kinds": {
+      "course": "Course",
+      "exam": "Exam",
+      "camp": "Camp"
+    },
+    "scope": "Offered to",
+    "nameFr": "Title (French)",
+    "nameEn": "Title (English)",
+    "nameEs": "Title (Spanish)",
+    "nameDe": "Title (German)",
+    "provider": "Provider",
+    "hours": "Length (hours)",
+    "submit": "Create the course"
+  },
+  "enrolForm": {
+    "title": "Enrol officials",
+    "hint": "Pick one or more officials; those already enrolled are skipped.",
+    "chosen": "Chosen officials",
+    "remove": "Remove {name}",
+    "submit": "Enrol ({n})"
+  },
+  "completeForm": {
+    "title": "Record completion",
+    "hint": "Tick the officials who finished. The course closes once everyone has.",
+    "submit": "Record ({n})"
+  },
+  "errors": {
+    "dates": "The expiry date must come after the issue date.",
+    "sprint": "Between 3 and 15 seconds.",
+    "laps": "A whole number from 0 to 100.",
+    "hours": "Between 1 and 400 hours.",
+    "retest_required": "A failed test needs a retest date.",
+    "official_not_eligible": "This course is run for another federation's officials."
+  }
 }

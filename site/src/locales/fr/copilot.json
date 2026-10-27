@@ -1,15 +1,14 @@
 {
-  "title": "Assistant IA",
+  "title": "Réponses rapides",
   "intro": "Interrogez le corps arbitral, le calendrier ou un officiel précis.",
-  "introSub": "Le copilote lit les mêmes données que les autres écrans et affiche les lignes derrière chaque réponse, pour que vous puissiez vérifier.",
+  "introSub": "Les réponses rapides reconnaissent des questions types à leurs mots-clés et répondent à partir des mêmes données que les autres écrans, avec les lignes utilisées pour que vous puissiez vérifier.",
   "placeholder": "Posez une question…",
   "send": "Demander",
-  "thinking": "Lecture des données…",
   "suggestions": "Essayez l'une de ces questions",
   "sources": "Lignes utilisées",
   "clear": "Effacer la conversation",
-  "disclaimer": "Le copilote répond uniquement à partir des données ARIS de votre périmètre. Il n'invente jamais un chiffre.",
-  "cannotAnswer": "Cette question sort de ce que contient ARIS. Le copilote traite les arbitres, les rencontres, la couverture, les licences, la condition physique et le classement.",
+  "disclaimer": "Recherche par mots-clés dans les données ARIS de votre périmètre — ce n'est pas une IA. Aucun chiffre n'est inventé.",
+  "cannotAnswer": "Cette question ne correspond à aucune question type. Les réponses rapides couvrent les arbitres, les rencontres, la couverture, les licences, la condition physique et le classement.",
   "s": {
     "reco": "Qui devrait arbitrer {match} ?",
     "licences": "Quelles licences expirent dans les 90 jours ?",
@@ -41,8 +40,8 @@
     "obsFiled": "déposé, note {mark}",
     "obsDraft": "brouillon",
     "obsOverdue": "en retard",
-    "syncHead": "{bad} calendriers sur {n} ne sont pas à jour.",
-    "syncRow": "{source} · dernière synchro il y a {hours} h",
+    "syncHead": "{bad} pays sur {n} n'ont pas de données récentes.",
+    "syncRow": "{source} · dernière mise à jour il y a {hours} h",
     "availHead": "{n} arbitres sont disponibles le {date}.",
     "loadIdleHead": "{n} officiels n'ont aucune désignation sur la fenêtre de trois semaines.",
     "loadHeavyHead": "{n} officiels portent {max} désignations ou plus ; {name} en a le plus.",
@@ -59,6 +58,7 @@
     "refNone": "aucune",
     "refFitness": "Test physique",
     "refTrend": "Tendance",
-    "refAlt": "Alternative recommandée"
+    "refAlt": "Alternative recommandée",
+    "syncRowNone": "{source} · aucune donnée"
   }
 }

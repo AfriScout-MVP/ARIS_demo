@@ -9,6 +9,9 @@ import { Avatar, Badge, Board, Card, CardHeader, EmptyState, Meter, ScoreRing } 
 import { SubIndexRadar } from "@/components/charts/SubIndexRadar";
 import { pickLocalized } from "@/lib/i18n/localized";
 import { CountryFlag } from "@/components/ui/CountryFlag";
+import { OfficialFilePanels } from "@/components/officials/OfficialFilePanels";
+import { isStaff } from "@/lib/admin/actor";
+import { useActor } from "@/lib/admin/hooks";
 import {
   addDays,
   assessments,
@@ -19,11 +22,13 @@ import {
   daysBetween,
   fitnessByReferee,
   fixtures,
-  getSubIndices,
   licenceStatus,
   licences,
   matchById,
   progressionFor,
+  RADAR_MIN_AXES,
+  RADAR_MIN_REPORTS,
+  radarFor,
   refereeById,
   roleKey,
   today,
@@ -44,10 +49,11 @@ export function RefereeProfile({ id }: { id: string }) {
   const { locale } = useLocale();
   const fmt = useFormatters();
   const referee = refereeById.get(id);
+  const staff = isStaff(useActor());
 
   const data = useMemo(() => {
     if (!referee) return null;
-    const sub = getSubIndices(referee);
+    const sub = radarFor(referee.id);
     const appointments = fixtures
       .filter((f) => f.crew.some((s) => s.officialId === referee.id))
       .sort((a, b) => b.date.localeCompare(a.date))
@@ -61,6 +67,9 @@ export function RefereeProfile({ id }: { id: string }) {
     return { sub, appointments, reports, refLicences, fitness, enrolled, progression, days };
   }, [referee]);
 
+  // assistants and retired officials are not in the rankings, but their file is still the federation's to keep
+  if (!referee && staff) return <OfficialFilePanels id={id} standalone />;
+
   if (!referee || !data) {
     return (
       <Card>
@@ -69,13 +78,8 @@ export function RefereeProfile({ id }: { id: string }) {
     );
   }
 
-  const radar = [
-    { metric: t("referees.ras"), value: data.sub.ras },
-    { metric: t("referees.cei"), value: data.sub.cei },
-    { metric: t("referees.mds"), value: data.sub.mds },
-    { metric: t("referees.prs"), value: data.sub.prs },
-    { metric: t("referees.ci"), value: data.sub.ci },
-  ];
+  // one axis per grid criterion the referee has been marked on; nothing is drawn from fewer than RADAR_MIN_REPORTS reports
+  const radar = data.sub.axes.map((axis) => ({ metric: pickLocalized(axis.label, locale), value: axis.value }));
 
   const up = referee.trend >= 0;
 
@@ -143,15 +147,22 @@ export function RefereeProfile({ id }: { id: string }) {
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <Card>
           <CardHeader icon={Radar} tint="var" title={t("referees.subIndices")} subtitle={t("referees.subIndicesSub")} />
-          <SubIndexRadar data={radar} />
-          <div className="mt-2 grid grid-cols-5 gap-1 text-center">
-            {radar.map((d) => (
-              <div key={d.metric}>
-                <p className="board text-xs text-chalk">{d.value}</p>
-                <p className="truncate text-[11px] text-chalk-faint">{d.metric}</p>
+          {!data.sub.enough ? (
+            <EmptyState title={t("referees.radarNotEnough", { n: data.sub.reports, min: RADAR_MIN_REPORTS })} />
+          ) : (
+            <>
+              {radar.length >= RADAR_MIN_AXES && <SubIndexRadar data={radar} />}
+              <div className="mt-2 grid grid-cols-3 gap-1 text-center sm:grid-cols-4">
+                {radar.map((d) => (
+                  <div key={d.metric}>
+                    <p className="board text-xs text-chalk">{d.value.toFixed(1)}</p>
+                    <p className="truncate text-[11px] text-chalk-faint">{d.metric}</p>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+              <p className="mt-2 text-[11px] text-chalk-faint">{t("referees.radarBasis", { n: data.sub.reports })}</p>
+            </>
+          )}
         </Card>
 
         <Card>
@@ -351,6 +362,8 @@ export function RefereeProfile({ id }: { id: string }) {
           </ol>
         </Card>
       </div>
+
+      {staff && <OfficialFilePanels id={referee.id} />}
 
       <p className="text-xs text-chalk-faint">
         {t("referees.passportAsOf", { date: fmt.longDate(today()), n: daysBetween(today(), data.days[13]) })}

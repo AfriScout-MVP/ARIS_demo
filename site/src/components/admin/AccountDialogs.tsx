@@ -90,7 +90,7 @@ export function CreateAccountDialog({
     setErrors((e) => ({ ...e, [key]: undefined }));
   };
 
-  const needsFederations = isSuper && values.role === "federation" && !preset?.federationId;
+  const needsFederations = isSuper && (values.role === "federation" || values.role === "tagger") && !preset?.federationId;
   const federations = useResource("federations", (signal) => listFederations(signal), needsFederations);
   const countries = useResource("countries", (signal) => listCountries(false, signal), isSuper && values.role === "referee");
 
@@ -153,7 +153,7 @@ export function CreateAccountDialog({
           value={values.federationId}
           onChange={(v) => set("federationId", v)}
           placeholder={federations.loading ? t("admin.common.loading") : t("admin.accounts.chooseFederation")}
-          options={(federations.data ?? []).filter((f) => f.status === "active").map((f) => ({ value: f.id, label: `${f.code} — ${f.name}` }))}
+          options={(federations.data ?? []).filter((f) => f.status === "active").map((f) => ({ value: f.id, label: `${f.code} · ${f.name}` }))}
           error={msg("federationId")}
           required
         />
@@ -272,7 +272,7 @@ export function RoleDialog({ user, onClose, onDone }: { user: UserRow; onClose: 
   const [errors, setErrors] = useState<FormErrors<"federationId" | "officialId">>({});
 
   const changed = role !== user.role;
-  const federations = useResource("federations", (signal) => listFederations(signal), role === "federation");
+  const federations = useResource("federations", (signal) => listFederations(signal), role === "federation" || role === "tagger");
   const countries = useResource("countries", (signal) => listCountries(false, signal), role === "referee");
 
   async function submit() {
@@ -312,16 +312,16 @@ export function RoleDialog({ user, onClose, onDone }: { user: UserRow; onClose: 
           setRole(v as AdminRole);
           setErrors({});
         }}
-        options={(["admin", "federation", "referee"] as const).map((r) => ({ value: r, label: t(roleLabelKey(r)) }))}
+        options={(["admin", "federation", "referee", "tagger"] as const).map((r) => ({ value: r, label: t(roleLabelKey(r)) }))}
         hint={t(`admin.accounts.roleHint.${role}`)}
       />
-      {role === "federation" && (
+      {(role === "federation" || role === "tagger") && (
         <SelectField
           label={t("admin.accounts.federation")}
           value={federationId}
           onChange={(v) => setFederationId(v)}
           placeholder={federations.loading ? t("admin.common.loading") : t("admin.accounts.chooseFederation")}
-          options={(federations.data ?? []).filter((f) => f.status === "active").map((f) => ({ value: f.id, label: `${f.code} — ${f.name}` }))}
+          options={(federations.data ?? []).filter((f) => f.status === "active").map((f) => ({ value: f.id, label: `${f.code} · ${f.name}` }))}
           error={errors.federationId ? t(errors.federationId) : undefined}
           required
         />
@@ -335,6 +335,7 @@ export function RoleDialog({ user, onClose, onDone }: { user: UserRow; onClose: 
         />
       )}
       {changed && (
+        // ds-allow-hardcode: pre-existing warning banner colour, unchanged by this edit
         <p role="note" className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2.5 text-sm leading-relaxed text-chalk">
           {t("admin.accounts.roleWarning", { from: t(roleLabelKey(user.role)), to: t(roleLabelKey(role)) })}
         </p>

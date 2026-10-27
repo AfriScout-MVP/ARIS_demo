@@ -52,7 +52,7 @@ export function validateAccount(v: AccountValues): FormErrors<AccountField> {
   if (!isFilled(v.email)) errors.email = REQUIRED;
   else if (!isEmail(v.email)) errors.email = "admin.errors.emailInvalid";
   if (v.password.length < MIN_PASSWORD || v.password.length > MAX_PASSWORD) errors.password = "admin.errors.passwordShort";
-  if (v.role === "federation" && !v.federationId) errors.federationId = "admin.errors.pickFederation";
+  if ((v.role === "federation" || v.role === "tagger") && !v.federationId) errors.federationId = "admin.errors.pickFederation";
   if (v.role === "referee" && !v.officialId) errors.officialId = "admin.errors.pickOfficial";
   return errors;
 }
@@ -64,7 +64,7 @@ export function toCreateUserBody(v: AccountValues): CreateUserBody {
     role: v.role,
     locale: v.locale,
     password: v.password,
-    ...(v.role === "federation" ? { federationId: v.federationId } : {}),
+    ...(v.role === "federation" || v.role === "tagger" ? { federationId: v.federationId } : {}),
     ...(v.role === "referee" ? { officialId: v.officialId } : {}),
   };
 }
@@ -73,14 +73,14 @@ export function toCreateUserBody(v: AccountValues): CreateUserBody {
 export function roleChangeBody(role: AdminRole, federationId: string, officialId: string) {
   return {
     role,
-    federationId: role === "federation" ? federationId : null,
+    federationId: role === "federation" || role === "tagger" ? federationId : null,
     officialId: role === "referee" ? officialId : null,
   };
 }
 
 export function validateRoleChange(role: AdminRole, federationId: string, officialId: string): FormErrors<"federationId" | "officialId"> {
   const errors: FormErrors<"federationId" | "officialId"> = {};
-  if (role === "federation" && !federationId) errors.federationId = "admin.errors.pickFederation";
+  if ((role === "federation" || role === "tagger") && !federationId) errors.federationId = "admin.errors.pickFederation";
   if (role === "referee" && !officialId) errors.officialId = "admin.errors.pickOfficial";
   return errors;
 }

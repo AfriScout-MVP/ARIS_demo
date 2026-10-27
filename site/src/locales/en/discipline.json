@@ -1,0 +1,164 @@
+{
+  "title": "Discipline",
+  "subtitle": "Absences, late arrivals, refusals and reported incidents, then the procedures: hearing, decision, appeal. A report alone never sanctions anyone.",
+  "tabs": {
+    "incidents": "Reports",
+    "cases": "Procedures"
+  },
+  "kpi": {
+    "openIncidents": "Open reports",
+    "openIncidentsHint": "To be looked at",
+    "activeCases": "Procedures under way",
+    "activeCasesHint": "Opened, at hearing or under appeal",
+    "suspended": "Suspended today",
+    "suspendedHint": "Sanction in force",
+    "hearings": "Upcoming hearings",
+    "hearingsHint": "In the next 14 days"
+  },
+  "kinds": {
+    "absence": "Absence",
+    "lateness": "Late arrival",
+    "refusal": "Refusal",
+    "incident": "Incident"
+  },
+  "severity": {
+    "minor": "Minor",
+    "major": "Major",
+    "critical": "Critical",
+    "label": "Severity"
+  },
+  "incidentStatus": {
+    "open": "Open",
+    "reviewing": "Under review",
+    "closed": "Closed"
+  },
+  "caseStatus": {
+    "opened": "Opened",
+    "hearing_scheduled": "Hearing set",
+    "decided": "Decided",
+    "appealed": "Under appeal",
+    "closed": "Closed"
+  },
+  "sanctions": {
+    "none": "No sanction",
+    "warning": "Warning",
+    "suspension": "Suspension",
+    "removal": "Removal from the list"
+  },
+  "justified": {
+    "label": "Justified",
+    "unknown": "Not stated",
+    "yes": "Justified",
+    "no": "Not justified"
+  },
+  "fields": {
+    "reportedAt": "Reported on",
+    "official": "Official",
+    "kind": "Type",
+    "description": "Description",
+    "status": "Status",
+    "openedAt": "Opened on",
+    "summary": "Subject",
+    "hearing": "Hearing",
+    "decision": "Decision",
+    "decisionRef": "Decision reference",
+    "sanction": "Sanction",
+    "window": "Suspension period",
+    "appeal": "Grounds for appeal",
+    "incident": "Original report"
+  },
+  "searchPlaceholder": "Official, description…",
+  "views": {
+    "all": "All",
+    "active": "Under way",
+    "label": "Show"
+  },
+  "report": {
+    "button": "Report",
+    "title": "Report something",
+    "hint": "A report tells the federation. It sanctions nobody: only a decided procedure can.",
+    "submit": "Record the report"
+  },
+  "incident": {
+    "title": "Report",
+    "save": "Save",
+    "openCase": "Open a procedure",
+    "saved": "Report updated."
+  },
+  "open": {
+    "button": "Open a procedure",
+    "title": "Open a disciplinary procedure",
+    "hint": "The official is told that a procedure is open, that they will be summoned and that they may appeal.",
+    "submit": "Open the procedure",
+    "done": "Procedure opened."
+  },
+  "hearing": {
+    "button": "Set the hearing",
+    "title": "Set the hearing",
+    "hint": "The official is told the date in their space.",
+    "at": "Date and time",
+    "submit": "Set",
+    "done": "Hearing set."
+  },
+  "decide": {
+    "button": "Give the decision",
+    "onAppeal": "Rule on the appeal",
+    "title": "Decision",
+    "hint": "The decision is sent to the official and written to the audit log. A suspension that has started takes effect at once; a future one on its date.",
+    "submit": "Give the decision",
+    "refHint": "Required for a suspension: the reference of the competent body's decision.",
+    "from": "From",
+    "to": "To",
+    "removalWarning": "Removal takes the official off designations for good.",
+    "done": "Decision recorded.",
+    "affected": "{name} holds {n} designations during the sanction: replace them in the calendar.",
+    "toCalendar": "Open the calendar"
+  },
+  "appeal": {
+    "button": "Record an appeal",
+    "title": "Appeal",
+    "hint": "An appeal keeps the decision from becoming final. The federation then rules again.",
+    "note": "Grounds for appeal",
+    "submit": "Record the appeal",
+    "done": "Appeal recorded."
+  },
+  "close": {
+    "button": "Close the procedure",
+    "title": "Close the procedure?",
+    "hint": "A closed procedure can no longer be changed.",
+    "liftWarning": "Careful: closing the procedure lifts the suspension and gives the official back their previous status.",
+    "note": "Reason for closing",
+    "submit": "Close",
+    "done": "Procedure closed."
+  },
+  "timeline": {
+    "title": "History",
+    "opened": "Procedure opened",
+    "hearing": "Hearing set for {date}",
+    "decided": "Decision: {sanction}",
+    "window": "Suspended from {from} to {to}",
+    "appealed": "Appeal filed",
+    "closed": "Procedure closed"
+  },
+  "empty": {
+    "incidents": "No reports",
+    "incidentsHint": "Reported absences, late arrivals and incidents appear here.",
+    "cases": "No procedures",
+    "casesHint": "A procedure is opened from a report or directly for an official."
+  },
+  "errors": {
+    "description": "At least 5 characters.",
+    "decision": "At least 5 characters.",
+    "ref": "A suspension needs the decision reference (at least 3 characters).",
+    "window": "Give the start and end dates; the end cannot come before the start.",
+    "hearing": "Give the date and time.",
+    "unknown_reference": "That report does not concern this official."
+  },
+  "mine": {
+    "title": "My disciplinary procedures",
+    "hint": "You may appeal any decision.",
+    "appeal": "Appeal",
+    "appealHint": "Explain why you dispute the decision.",
+    "send": "Send the appeal"
+  }
+}

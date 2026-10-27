@@ -23,5 +23,16 @@
   "legendYellow": "Jaune / main",
   "sightLineNote": "Le trait pointillé relie la position de l'arbitre à la décision : sa longueur est la distance mesurée. {n} décisions ont été prises à plus de 20 m.",
   "diagonalNote": "La diagonale est le couloir que l'arbitre est censé tenir. Chaque décision prise en dehors coûte de l'angle de vue — c'est le lien direct entre placement et justesse.",
-  "amberNote": "Les barres ambre sont les décisions annulées après revue."
+  "amberNote": "Les barres ambre sont les décisions annulées après revue.",
+  "form": {
+    "errors": {
+      "number": "Un nombre valide, dans la plage attendue.",
+      "partial": "Renseignez les cinq valeurs physiques, ou aucune.",
+      "lines": "Une ligne par point, avec les bonnes valeurs.",
+      "tooMany": "Trop de lignes.",
+      "duplicateMinute": "Chaque minute ne doit apparaître qu'une fois.",
+      "condition": "Lettres, chiffres et ponctuation courante, 40 caractères au plus.",
+      "conditionRequired": "Indiquez la condition météo pour enregistrer une température ou une humidité."
+    }
+  }
 }

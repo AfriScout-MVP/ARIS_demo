@@ -1,0 +1,38 @@
+{
+  "availability": {
+    "hint": "Declare sus días de indisponibilidad con antelación; la comisión será informada.",
+    "onFile": "Días declarados",
+    "none": "Ningún día declarado para el año que viene.",
+    "rangeBad": "El fin debe ser posterior al inicio.",
+    "withdrawn": "Día {date} retirado.",
+    "withdrawFor": "Retirar el {date}",
+    "withdraw": "Retirar"
+  },
+  "designations": {
+    "title": "Mis designaciones",
+    "hint": "Lo que viene, lo que se rechazó, o todo",
+    "calendar": "Exportar (.ics)",
+    "none": "Ninguna designación en este período.",
+    "noneDeclined": "Ninguna designación rechazada.",
+    "played": "Jugado",
+    "views": {
+      "upcoming": "Próximas ({n})",
+      "declined": "Rechazadas ({n})",
+      "all": "Todas ({n})"
+    }
+  },
+  "convocation": {
+    "open": "Ver la convocatoria",
+    "title": "Convocatoria",
+    "notFound": "No se encontró convocatoria para este partido.",
+    "back": "Volver a mis designaciones",
+    "issuedBy": "Emitida por",
+    "official": "Árbitro",
+    "matricule": "Matrícula",
+    "licenceNo": "N.º de licencia",
+    "crew": "Equipo arbitral",
+    "you": "Usted",
+    "published": "Publicada el {date}",
+    "round": "Jornada {round}"
+  }
+}

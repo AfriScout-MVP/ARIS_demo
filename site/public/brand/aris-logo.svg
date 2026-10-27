@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 512">
+  <g id="icon" transform="translate(56 88) scale(.65625)">
+    <path d="M0 0H368.6L512 143.4V512H0Z" fill="#dc2626"/>
+    <path d="M206 90H306L442 430H354L256 185L158 430H70Z" fill="#ffffff"/>
+    <path d="M140 376L412 184" fill="none" stroke="#ffffff" stroke-width="40"/>
+    <circle cx="412" cy="184" r="46" fill="#fbbf24"/>
+  </g>
+  <g id="wordmark" fill="#0f3d22">
+    <path fill-rule="evenodd" d="M436 300L481 150H531L576 300H534L525 270H487L478 300ZM496 240H516L506 207Z"/>
+    <path fill-rule="evenodd" d="M612 150H686C720 150 736 172 736 200C736 226 722 244 698 251L740 300H692L654 254H650V300H612ZM650 184V222H684C696 222 700 214 700 203C700 192 696 184 684 184Z"/>
+    <path d="M776 150H814V300H776Z"/>
+    <path d="M930 192C928 178 916 169 900 169C880 169 869 180 869 195C869 211 881 217 900 225C919 233 931 239 931 255C931 271 920 281 900 281C883 281 871 272 868 258" fill="none" stroke="#0f3d22" stroke-width="38"/>
+  </g>
+  <g id="tagline">
+    <text x="436" y="356" font-family="Helvetica, Arial, sans-serif" font-weight="700" font-size="28" fill="#14723a" letter-spacing="8.6">REFEREE INTELLIGENCE</text>
+  </g>
+</svg>

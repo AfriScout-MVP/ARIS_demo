@@ -1,7 +1,6 @@
 // Played matches, with their decisions, physical load and heat points. Empty until `applySnapshot` fills them.
 
-import type { TKey } from "@/locales";
-import type { MatchDecision, MatchRecord } from "./types";
+import type { MatchRecord } from "./types";
 
 export const matches: MatchRecord[] = [];
 export const matchById = new Map<string, MatchRecord>();
@@ -21,13 +20,3 @@ export function matchesOf(refereeId: string) {
     .slice()
     .sort((a, b) => b.date.localeCompare(a.date));
 }
-
-/** Translation key of each decision type. */
-export const decisionTypeKey = {
-  Penalty: "matchReview.typePenalty",
-  "Red Card": "matchReview.typeRedCard",
-  "Yellow Card": "matchReview.typeYellowCard",
-  Offside: "matchReview.typeOffside",
-  Handball: "matchReview.typeHandball",
-  Foul: "matchReview.typeFoul",
-} as const satisfies Record<MatchDecision["type"], TKey>;

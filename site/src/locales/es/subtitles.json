@@ -10,6 +10,9 @@
   "rankings": "La tabla de ascensos.",
   "compare": "Dos oficiales, cara a cara.",
   "development": "Licencias, pruebas físicas y camino hacia el siguiente nivel.",
-  "federations": "Federaciones miembro, sus competiciones y la sincronización.",
-  "reports": "Prepare un dosier de partido y arbitraje, listo para enviar."
+  "federations": "Federaciones miembro, sus competiciones y la actualidad de sus datos.",
+  "reports": "Prepare un dosier de partido y arbitraje, listo para enviar.",
+  "finance": "Baremos, controles, pagos y anticipos de los oficiales.",
+  "discipline": "Comunicaciones, procedimientos, decisiones y recursos.",
+  "analytics": "Carga, ausencias, honorarios y control de pagos, exportables a CSV."
 }

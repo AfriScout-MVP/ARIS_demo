@@ -23,5 +23,16 @@
   "legendYellow": "Yellow / handball",
   "sightLineNote": "The dashed line runs from the referee's position to the decision — its length is the measured distance. {n} calls were made from beyond 20 m.",
   "diagonalNote": "The diagonal is the channel the referee is meant to hold. Every call made outside it costs viewing angle — that is the direct link between positioning and accuracy.",
-  "amberNote": "Amber bars are the calls overturned on review."
+  "amberNote": "Amber bars are the calls overturned on review.",
+  "form": {
+    "errors": {
+      "number": "A valid number, in the expected range.",
+      "partial": "Fill in all five physical values, or none.",
+      "lines": "One line per point, with the right values.",
+      "tooMany": "Too many lines.",
+      "duplicateMinute": "Each minute may appear only once.",
+      "condition": "Letters, numbers and common punctuation, 40 characters at most.",
+      "conditionRequired": "Give the weather condition to record a temperature or humidity."
+    }
+  }
 }

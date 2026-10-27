@@ -49,6 +49,8 @@ describe("isolation matrix", async () => {
     path: string;
     body?: object;
     file?: { fields?: Record<string, string> };
+    /** Run before every actor's turn: a DELETE consumes the row it acts on, so each successful actor needs it put back. */
+    before?: () => Promise<unknown>;
     expect: Expect;
   }
   const rows: Row[] = [
@@ -63,7 +65,15 @@ describe("isolation matrix", async () => {
     { name: "update official", method: "PATCH", path: "/officials/mx-a1", body: { city: "Axville" }, expect: [200, 404, 200, 200, 401] },
     { name: "update official (foreign)", method: "PATCH", path: "/officials/mx-b1", body: { city: "Bxville" }, expect: [404, 200, 403, 200, 401] },
     { name: "declare availability", method: "PUT", path: "/officials/mx-a1/availability", body: { dates: ["2037-01-01"], state: "resting" }, expect: [200, 404, 200, 200, 401] },
-    { name: "clear availability", method: "DELETE", path: "/officials/mx-a1/availability/2037-01-01", expect: [200, 404, 200, 200, 401] },
+    {
+      name: "clear availability",
+      method: "DELETE",
+      path: "/officials/mx-a1/availability/2037-01-01",
+      // re-declared before each actor's turn: a successful DELETE removes the row, so the next actor would
+      // otherwise find nothing there and 404 regardless of whether they are allowed to clear it
+      before: () => api("PUT", "/api/v1/officials/mx-a1/availability", { session: admin, body: { dates: ["2037-01-01"], state: "resting" } }),
+      expect: [200, 404, 200, 200, 401],
+    },
     { name: "upload document", method: "POST", path: "/officials/mx-a1/documents", file: { fields: { kind: "other" } }, expect: [201, 404, 201, 201, 401] },
     { name: "upload document (foreign)", method: "POST", path: "/officials/mx-b1/documents", file: { fields: { kind: "other" } }, expect: [404, 201, 403, 201, 401] },
     { name: "declare conflict (foreign)", method: "POST", path: "/officials/mx-b1/conflicts", body: { kind: "country", subject: "MXA" }, expect: [404, 201, 403, 409, 401] },
@@ -104,6 +114,7 @@ describe("isolation matrix", async () => {
   for (const row of rows) {
     it(`${row.method} ${row.name}`, async () => {
       for (const [i, actor] of ACTORS.entries()) {
+        if (row.before) await row.before();
         const session = sessions[actor];
         const res = row.file
           ? await upload(session, row.method, row.path, png(10 + i), "x.png", row.file.fields)

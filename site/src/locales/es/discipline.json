@@ -1,0 +1,164 @@
+{
+  "title": "Disciplina",
+  "subtitle": "Ausencias, retrasos, negativas e incidentes comunicados, y luego los procedimientos: audiencia, decisión, recurso. Una comunicación por sí sola nunca sanciona a nadie.",
+  "tabs": {
+    "incidents": "Comunicaciones",
+    "cases": "Procedimientos"
+  },
+  "kpi": {
+    "openIncidents": "Comunicaciones abiertas",
+    "openIncidentsHint": "Por examinar",
+    "activeCases": "Procedimientos en curso",
+    "activeCasesHint": "Abiertos, en audiencia o en recurso",
+    "suspended": "Suspendidos hoy",
+    "suspendedHint": "Sanción en vigor",
+    "hearings": "Próximas audiencias",
+    "hearingsHint": "En los próximos 14 días"
+  },
+  "kinds": {
+    "absence": "Ausencia",
+    "lateness": "Retraso",
+    "refusal": "Negativa",
+    "incident": "Incidente"
+  },
+  "severity": {
+    "minor": "Leve",
+    "major": "Grave",
+    "critical": "Muy grave",
+    "label": "Gravedad"
+  },
+  "incidentStatus": {
+    "open": "Abierta",
+    "reviewing": "En examen",
+    "closed": "Cerrada"
+  },
+  "caseStatus": {
+    "opened": "Abierto",
+    "hearing_scheduled": "Audiencia fijada",
+    "decided": "Resuelto",
+    "appealed": "En recurso",
+    "closed": "Cerrado"
+  },
+  "sanctions": {
+    "none": "Sin sanción",
+    "warning": "Amonestación",
+    "suspension": "Suspensión",
+    "removal": "Baja definitiva"
+  },
+  "justified": {
+    "label": "Justificada",
+    "unknown": "Sin indicar",
+    "yes": "Justificada",
+    "no": "No justificada"
+  },
+  "fields": {
+    "reportedAt": "Comunicada el",
+    "official": "Oficial",
+    "kind": "Tipo",
+    "description": "Descripción",
+    "status": "Estado",
+    "openedAt": "Abierto el",
+    "summary": "Asunto",
+    "hearing": "Audiencia",
+    "decision": "Decisión",
+    "decisionRef": "Referencia de la decisión",
+    "sanction": "Sanción",
+    "window": "Periodo de suspensión",
+    "appeal": "Motivo del recurso",
+    "incident": "Comunicación de origen"
+  },
+  "searchPlaceholder": "Oficial, descripción…",
+  "views": {
+    "all": "Todos",
+    "active": "En curso",
+    "label": "Mostrar"
+  },
+  "report": {
+    "button": "Comunicar",
+    "title": "Comunicar un hecho",
+    "hint": "La comunicación avisa a la federación. No sanciona a nadie: solo puede hacerlo un procedimiento resuelto.",
+    "submit": "Registrar la comunicación"
+  },
+  "incident": {
+    "title": "Comunicación",
+    "save": "Guardar",
+    "openCase": "Abrir un procedimiento",
+    "saved": "Comunicación actualizada."
+  },
+  "open": {
+    "button": "Abrir un procedimiento",
+    "title": "Abrir un procedimiento disciplinario",
+    "hint": "Se avisa al oficial de que hay un procedimiento abierto, de que será citado y de que podrá recurrir.",
+    "submit": "Abrir el procedimiento",
+    "done": "Procedimiento abierto."
+  },
+  "hearing": {
+    "button": "Fijar la audiencia",
+    "title": "Fijar la audiencia",
+    "hint": "Se avisa al oficial de la fecha en su espacio.",
+    "at": "Fecha y hora",
+    "submit": "Fijar",
+    "done": "Audiencia fijada."
+  },
+  "decide": {
+    "button": "Dictar la decisión",
+    "onAppeal": "Resolver el recurso",
+    "title": "Decisión",
+    "hint": "La decisión se notifica al oficial y queda en el registro de auditoría. Una suspensión ya iniciada surte efecto de inmediato; una futura, en su fecha.",
+    "submit": "Dictar la decisión",
+    "refHint": "Obligatoria para una suspensión: la referencia de la decisión del órgano competente.",
+    "from": "Desde",
+    "to": "Hasta",
+    "removalWarning": "La baja definitiva retira al oficial de las designaciones para siempre.",
+    "done": "Decisión registrada.",
+    "affected": "{name} tiene {n} designaciones durante la sanción: sustitúyalas en el calendario.",
+    "toCalendar": "Abrir el calendario"
+  },
+  "appeal": {
+    "button": "Registrar un recurso",
+    "title": "Recurso",
+    "hint": "El recurso impide que la decisión sea firme. La federación resuelve de nuevo después.",
+    "note": "Motivo del recurso",
+    "submit": "Registrar el recurso",
+    "done": "Recurso registrado."
+  },
+  "close": {
+    "button": "Cerrar el procedimiento",
+    "title": "¿Cerrar el procedimiento?",
+    "hint": "Un procedimiento cerrado ya no se puede modificar.",
+    "liftWarning": "Atención: cerrar el procedimiento levanta la suspensión y devuelve al oficial su estado anterior.",
+    "note": "Motivo del cierre",
+    "submit": "Cerrar",
+    "done": "Procedimiento cerrado."
+  },
+  "timeline": {
+    "title": "Desarrollo",
+    "opened": "Procedimiento abierto",
+    "hearing": "Audiencia fijada el {date}",
+    "decided": "Decisión: {sanction}",
+    "window": "Suspendido del {from} al {to}",
+    "appealed": "Recurso presentado",
+    "closed": "Procedimiento cerrado"
+  },
+  "empty": {
+    "incidents": "Ninguna comunicación",
+    "incidentsHint": "Aquí aparecen las ausencias, retrasos e incidentes comunicados.",
+    "cases": "Ningún procedimiento",
+    "casesHint": "Un procedimiento se abre desde una comunicación o directamente para un oficial."
+  },
+  "errors": {
+    "description": "Al menos 5 caracteres.",
+    "decision": "Al menos 5 caracteres.",
+    "ref": "Una suspensión necesita la referencia de la decisión (al menos 3 caracteres).",
+    "window": "Indique las fechas de inicio y fin; el fin no puede ser anterior al inicio.",
+    "hearing": "Indique la fecha y la hora.",
+    "unknown_reference": "Esa comunicación no se refiere a este oficial."
+  },
+  "mine": {
+    "title": "Mis procedimientos disciplinarios",
+    "hint": "Puede recurrir cualquier decisión.",
+    "appeal": "Recurrir",
+    "appealHint": "Explique por qué impugna la decisión.",
+    "send": "Enviar el recurso"
+  }
+}

@@ -5,6 +5,8 @@ import { CONTINENTAL } from "./lib/access";
 import { drainOutbox, notifyOfficialStmts, notifyStmts, type NotificationInput } from "./lib/notify";
 import { addDays } from "./domain/engine-ctx";
 import { syncSuspensions } from "./routes/discipline";
+import { documentExpiryAlerts } from "./domain/document-expiry";
+import { syncVarQualification } from "./routes/training";
 
 /** Every 15 minutes: deliver queued messages. Daily at 05:00: everything that follows the calendar. */
 export async function runScheduled(cron: string, env: Env) {
@@ -53,9 +55,11 @@ export async function recordPerformanceHistory(db: D1Database, month: string) {
 export async function runDaily(env: Env) {
   const db = env.DB;
   const t = today();
-  const summary = { suspensions: 0, licences: 0, overdueReports: 0, unconfirmed: 0, reminders: 0, retests: 0, history: 0, pruned: 0 };
+  const summary = { suspensions: 0, varLapsed: 0, licences: 0, documents: 0, overdueReports: 0, unconfirmed: 0, reminders: 0, retests: 0, partnerships: 0, history: 0, pruned: 0 };
 
   summary.suspensions = (await syncSuspensions(db)).length;
+  // an expired VAR certificate takes the official off the VAR list the day it lapses
+  summary.varLapsed = (await syncVarQualification(db)).filter((c) => !c.varQualified).length;
 
   // Licences expiring within 60 days (or already expired): tell the official and their federation, once per licence per month.
   const { results: lic } = await db
@@ -86,6 +90,10 @@ export async function runDaily(env: Env) {
     ]);
     summary.licences += 1;
   }
+
+  // Documents with an expiry date (medical certificate, identity …): 30 days ahead, then once expired.
+  summary.documents = await documentExpiryAlerts(db, t);
+
 
   // An observer's report is due within 48 hours of the match.
   const { results: late } = await db
@@ -170,11 +178,41 @@ export async function runDaily(env: Env) {
     summary.retests += 1;
   }
 
+  // Partnership follow-ups whose date has passed: the owner (else every administrator) is reminded once a day.
+  const { results: follow } = await db
+    .prepare(
+      `SELECT p.id, p.federation_name AS name, p.next_step AS step, p.next_step_due AS due, u.id AS ownerId
+         FROM partnerships p LEFT JOIN users u ON u.id = p.owner_user_id AND u.active = 1
+        WHERE p.stage IN ('prospect','contacted','negotiating','on_hold','agreement_signed') AND p.next_step_due IS NOT NULL AND p.next_step_due < ?
+        LIMIT 200`,
+    )
+    .bind(t)
+    .all<{ id: string; name: string; step: string | null; due: string; ownerId: string | null }>();
+  for (const f of follow) {
+    const notice = {
+      dedupeKey: `partnership-due:${f.id}:${t}`,
+      title: { en: "Partnership follow-up overdue", fr: "Relance partenariat en retard" },
+      detail: {
+        en: `${f.name}: ${f.step ?? "next step"} was due on ${f.due}.`,
+        fr: `${f.name} : ${f.step ?? "prochaine étape"} prévue le ${f.due}.`,
+      },
+      tone: "amber" as const,
+      href: "/admin/partnerships",
+    };
+    await db.batch(notifyStmts(db, f.ownerId ? { ...notice, userId: f.ownerId } : { ...notice, audienceRole: "admin" }));
+    summary.partnerships += 1;
+  }
+
   summary.history = await recordPerformanceHistory(db, t.slice(0, 7));
 
   // Housekeeping: sign-in attempts are only useful for the throttle window.
   const pruned = await db.prepare("DELETE FROM login_attempts WHERE at < strftime('%Y-%m-%dT%H:%M:%fZ','now','-1 day')").run();
-  summary.pruned = pruned.meta.changes ?? 0;
+  // signed-out sessions only need listing until the token would have expired by itself
+  const revoked = await db.prepare("DELETE FROM revoked_tokens WHERE expires_at < unixepoch()").run();
+  // recovery throttle rows likewise, and reset links a day after they stopped working
+  const throttle = await db.prepare("DELETE FROM auth_throttle WHERE at < strftime('%Y-%m-%dT%H:%M:%fZ','now','-1 day')").run();
+  const resets = await db.prepare("DELETE FROM password_resets WHERE expires_at < strftime('%Y-%m-%dT%H:%M:%fZ','now','-1 day')").run();
+  summary.pruned = (pruned.meta.changes ?? 0) + (revoked.meta.changes ?? 0) + (throttle.meta.changes ?? 0) + (resets.meta.changes ?? 0);
   await db.batch([auditStmt(db, null, { action: "cron.daily", entity: "system", after: summary })]);
   return summary;
 }

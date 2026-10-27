@@ -33,8 +33,18 @@ import fr_reports from "./fr/reports.json";
 import fr_auth from "./fr/auth.json";
 import fr_live from "./fr/live.json";
 import fr_me from "./fr/me.json";
+import fr_selfService from "./fr/selfService.json";
 import fr_status from "./fr/status.json";
 import fr_admin from "./fr/admin.json";
+import fr_partnerships from "./fr/partnerships.json";
+import fr_finance from "./fr/finance.json";
+import fr_discipline from "./fr/discipline.json";
+import fr_officials from "./fr/officials.json";
+import fr_competitions from "./fr/competitions.json";
+import fr_analytics from "./fr/analytics.json";
+import fr_fixtures from "./fr/fixtures.json";
+import fr_landing from "./fr/landing.json";
+import fr_account from "./fr/account.json";
 
 import en_common from "./en/common.json";
 import en_roles from "./en/roles.json";
@@ -56,8 +66,18 @@ import en_reports from "./en/reports.json";
 import en_auth from "./en/auth.json";
 import en_live from "./en/live.json";
 import en_me from "./en/me.json";
+import en_selfService from "./en/selfService.json";
 import en_status from "./en/status.json";
 import en_admin from "./en/admin.json";
+import en_partnerships from "./en/partnerships.json";
+import en_finance from "./en/finance.json";
+import en_discipline from "./en/discipline.json";
+import en_officials from "./en/officials.json";
+import en_competitions from "./en/competitions.json";
+import en_analytics from "./en/analytics.json";
+import en_fixtures from "./en/fixtures.json";
+import en_landing from "./en/landing.json";
+import en_account from "./en/account.json";
 
 import es_common from "./es/common.json";
 import es_roles from "./es/roles.json";
@@ -79,8 +99,18 @@ import es_reports from "./es/reports.json";
 import es_auth from "./es/auth.json";
 import es_live from "./es/live.json";
 import es_me from "./es/me.json";
+import es_selfService from "./es/selfService.json";
 import es_status from "./es/status.json";
 import es_admin from "./es/admin.json";
+import es_partnerships from "./es/partnerships.json";
+import es_finance from "./es/finance.json";
+import es_discipline from "./es/discipline.json";
+import es_officials from "./es/officials.json";
+import es_competitions from "./es/competitions.json";
+import es_analytics from "./es/analytics.json";
+import es_fixtures from "./es/fixtures.json";
+import es_landing from "./es/landing.json";
+import es_account from "./es/account.json";
 
 import de_common from "./de/common.json";
 import de_roles from "./de/roles.json";
@@ -102,8 +132,18 @@ import de_reports from "./de/reports.json";
 import de_auth from "./de/auth.json";
 import de_live from "./de/live.json";
 import de_me from "./de/me.json";
+import de_selfService from "./de/selfService.json";
 import de_status from "./de/status.json";
 import de_admin from "./de/admin.json";
+import de_partnerships from "./de/partnerships.json";
+import de_finance from "./de/finance.json";
+import de_discipline from "./de/discipline.json";
+import de_officials from "./de/officials.json";
+import de_competitions from "./de/competitions.json";
+import de_analytics from "./de/analytics.json";
+import de_fixtures from "./de/fixtures.json";
+import de_landing from "./de/landing.json";
+import de_account from "./de/account.json";
 
 const fr = {
   common: fr_common,
@@ -126,8 +166,18 @@ const fr = {
   auth: fr_auth,
   live: fr_live,
   me: fr_me,
+  selfService: fr_selfService,
   status: fr_status,
   admin: fr_admin,
+  partnerships: fr_partnerships,
+  finance: fr_finance,
+  discipline: fr_discipline,
+  officials: fr_officials,
+  competitions: fr_competitions,
+  analytics: fr_analytics,
+  fixtures: fr_fixtures,
+  landing: fr_landing,
+  account: fr_account,
 };
 
 const en = {
@@ -151,8 +201,18 @@ const en = {
   auth: en_auth,
   live: en_live,
   me: en_me,
+  selfService: en_selfService,
   status: en_status,
   admin: en_admin,
+  partnerships: en_partnerships,
+  finance: en_finance,
+  discipline: en_discipline,
+  officials: en_officials,
+  competitions: en_competitions,
+  analytics: en_analytics,
+  fixtures: en_fixtures,
+  landing: en_landing,
+  account: en_account,
 };
 
 const es = {
@@ -176,8 +236,18 @@ const es = {
   auth: es_auth,
   live: es_live,
   me: es_me,
+  selfService: es_selfService,
   status: es_status,
   admin: es_admin,
+  partnerships: es_partnerships,
+  finance: es_finance,
+  discipline: es_discipline,
+  officials: es_officials,
+  competitions: es_competitions,
+  analytics: es_analytics,
+  fixtures: es_fixtures,
+  landing: es_landing,
+  account: es_account,
 };
 
 const de = {
@@ -201,8 +271,18 @@ const de = {
   auth: de_auth,
   live: de_live,
   me: de_me,
+  selfService: de_selfService,
   status: de_status,
   admin: de_admin,
+  partnerships: de_partnerships,
+  finance: de_finance,
+  discipline: de_discipline,
+  officials: de_officials,
+  competitions: de_competitions,
+  analytics: de_analytics,
+  fixtures: de_fixtures,
+  landing: de_landing,
+  account: de_account,
 };
 
 /** Widen the literal types of a JSON tree so other languages only have to match its shape. */

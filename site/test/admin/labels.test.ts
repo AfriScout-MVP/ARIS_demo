@@ -8,18 +8,18 @@ import type { TKey } from "@/locales";
 const t = (locale: (typeof locales)[number]) => (key: TKey) => translate(locale, key);
 
 describe("role labels", () => {
-  it("reads Super-admin / Fédération / Arbitre in French", () => {
-    expect(ADMIN_ROLES.map((r) => t("fr")(roleLabelKey(r)))).toEqual(["Super-admin", "Fédération", "Arbitre"]);
+  it("reads Super-admin / Fédération / Arbitre / Taggeur in French", () => {
+    expect(ADMIN_ROLES.map((r) => t("fr")(roleLabelKey(r)))).toEqual(["Super-admin", "Fédération", "Arbitre", "Taggeur"]);
   });
-  it("reads Super-admin / Federation / Referee in English", () => {
-    expect(ADMIN_ROLES.map((r) => t("en")(roleLabelKey(r)))).toEqual(["Super-admin", "Federation", "Referee"]);
+  it("reads Super-admin / Federation / Referee / Tagger in English", () => {
+    expect(ADMIN_ROLES.map((r) => t("en")(roleLabelKey(r)))).toEqual(["Super-admin", "Federation", "Referee", "Tagger"]);
   });
   it("reads the Spanish and German names", () => {
-    expect(ADMIN_ROLES.map((r) => t("es")(roleLabelKey(r)))).toEqual(["Superadministrador", "Federación", "Árbitro"]);
-    expect(ADMIN_ROLES.map((r) => t("de")(roleLabelKey(r)))).toEqual(["Superadministrator", "Verband", "Schiedsrichter"]);
+    expect(ADMIN_ROLES.map((r) => t("es")(roleLabelKey(r)))).toEqual(["Superadministrador", "Federación", "Árbitro", "Etiquetador"]);
+    expect(ADMIN_ROLES.map((r) => t("de")(roleLabelKey(r)))).toEqual(["Superadministrator", "Verband", "Schiedsrichter", "Tagger"]);
   });
   it("gives each role its own tone", () => {
-    expect(new Set(ADMIN_ROLES.map(roleTone)).size).toBe(3);
+    expect(new Set(ADMIN_ROLES.map(roleTone)).size).toBe(4);
   });
 });
 

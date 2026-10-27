@@ -10,6 +10,9 @@
   "rankings": "Die Aufstiegstabelle.",
   "compare": "Zwei Offizielle im direkten Vergleich.",
   "development": "Lizenzen, Fitnesstests und der Weg zur nächsten Stufe.",
-  "federations": "Mitgliedsverbände, ihre Wettbewerbe und die Synchronisierung.",
-  "reports": "Stellen Sie ein Spiel- und Schiedsrichterdossier zusammen, versandfertig."
+  "federations": "Mitgliedsverbände, ihre Wettbewerbe und wie aktuell ihre Daten sind.",
+  "reports": "Stellen Sie ein Spiel- und Schiedsrichterdossier zusammen, versandfertig.",
+  "finance": "Honorarsätze, Prüfungen, Zahlungen und Vorschüsse der Offiziellen.",
+  "discipline": "Meldungen, Verfahren, Entscheidungen und Einsprüche.",
+  "analytics": "Auslastung, Ausfälle, Entschädigungen und Zahlungskontrolle, als CSV exportierbar."
 }

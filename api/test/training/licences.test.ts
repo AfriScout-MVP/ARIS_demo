@@ -1,5 +1,7 @@
 import { beforeAll, describe, expect, it } from "vitest";
+import { env } from "cloudflare:test";
 import { sql } from "../helpers";
+import { runDaily } from "../../src/cron";
 import { get, makeWorld, official, patch, post, type World } from "../helpers/evaluation";
 
 let w: World;
@@ -27,6 +29,28 @@ describe("licences", () => {
     expect((await official("TLA-ref1")).var_qualified).toBe(1);
     await add(w.seatA, { officialId: "TLA-ref2", kind: "VAR Certification", issued: "2015-01-01", expires: "2016-01-01" });
     expect((await official("TLA-ref2")).var_qualified).toBe(0);
+  });
+
+  it("takes a referee off the VAR list once every VAR certificate has lapsed, and back on when one is renewed", async () => {
+    const id = (await add(w.seatA, { officialId: "TLA-as2", kind: "VAR Certification", expires: day(3) })).json.id;
+    expect((await official("TLA-as2")).var_qualified).toBe(1);
+    // the certificate lapses: the daily job withdraws the qualification and says so in the trail
+    await sql("UPDATE licences SET expires = ? WHERE id = ?", day(-1), id).run();
+    expect((await runDaily(env)).varLapsed).toBeGreaterThanOrEqual(1);
+    expect((await official("TLA-as2")).var_qualified).toBe(0);
+    expect(await sql("SELECT country_code FROM audit_log WHERE action = 'official.var_lapsed' AND entity_id = 'TLA-as2'").first()).toMatchObject({ country_code: "TLA" });
+    // renewing it puts the referee back at once
+    expect((await patch(w.seatA, `/licences/${id}`, { expires: day(365) })).status).toBe(200);
+    expect((await official("TLA-as2")).var_qualified).toBe(1);
+    // shortening it into the past takes them off at once too
+    await patch(w.seatA, `/licences/${id}`, { issued: "2019-01-01", expires: day(-2) });
+    expect((await official("TLA-as2")).var_qualified).toBe(0);
+  });
+
+  it("leaves alone a VAR flag set by hand on an official with no certificate on file", async () => {
+    await sql("UPDATE officials SET var_qualified = 1 WHERE id = 'TLA-as3'").run();
+    await runDaily(env);
+    expect((await official("TLA-as3")).var_qualified).toBe(1);
   });
 
   it("is renewed with a date check, and audited with the country", async () => {

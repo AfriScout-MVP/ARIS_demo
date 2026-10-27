@@ -3,12 +3,13 @@ import { z } from "zod";
 import type { AppEnv } from "../env";
 import { ApiError, forbidden, notFound, parseQuery, readJson, uuid } from "../lib/http";
 import { auditStmt } from "../lib/audit";
-import { CONTINENTAL, assertCountry, countryFilter, inCountry, isAdmin, isStaff } from "../lib/access";
+import { CONTINENTAL, assertCountry, assertTaggingCountry, countryFilter, inCountry, isAdmin, isStaff, isTagger, taggingCountryFilter } from "../lib/access";
 import { localized, type Localized } from "../lib/localized";
 import { notifyOfficialStmts, notifyStmts } from "../lib/notify";
 import { currentUser, requireRole, staff } from "../middleware/auth";
 import { json } from "../domain/mappers";
 import { MATCH_SQL, toDecision, toMatch, type DecisionRow, type MatchRow } from "../domain/matches";
+import { EVENT_TYPE_KEYS, REFEREE_EVENT_TAXONOMY, resolveEventFlow } from "../domain/eventTaxonomy";
 
 export const assessments = new Hono<AppEnv>();
 export const matches = new Hono<AppEnv>();
@@ -83,8 +84,8 @@ matches.get("/", async (c) => {
   const q = parseQuery(c, z.object({ refereeId: z.string().optional(), country: countryParam.optional(), status: z.string().optional(), limit: z.coerce.number().int().min(1).max(300).default(100) }));
   const where: string[] = [];
   const args: (string | number)[] = [];
-  if (isStaff(user)) {
-    const scope = countryFilter(user, "c.country_code");
+  if (isStaff(user) || isTagger(user)) {
+    const scope = isTagger(user) ? taggingCountryFilter(user, "c.country_code") : countryFilter(user, "c.country_code");
     where.push(scope.sql);
     args.push(...scope.params);
     if (q.country) (where.push("c.country_code = ?"), args.push(q.country));
@@ -107,14 +108,23 @@ matches.get("/", async (c) => {
   });
 });
 
+// The referee-decision taxonomy, read by every authenticated role (including tagger and referee, who both
+// legitimately need to render the tagging flow). Registered before "/:id" so this literal segment isn't
+// swallowed by the param route.
+matches.get("/event-types", async (c) => {
+  currentUser(c);
+  return c.json({ eventTypes: REFEREE_EVENT_TAXONOMY });
+});
+
 matches.get("/:id", async (c) => {
   const user = currentUser(c);
   const id = c.req.param("id");
   const db = c.env.DB;
   const m = await db.prepare(`${MATCH_SQL} WHERE m.id = ?`).bind(id).first<MatchRow>();
   if (!m) throw notFound("Match");
-  if (isStaff(user)) {
-    assertCountry(user, m.country_code, "Match");
+  if (isStaff(user) || isTagger(user)) {
+    if (isTagger(user)) assertTaggingCountry(user, m.country_code, "Match");
+    else assertCountry(user, m.country_code, "Match");
   } else {
     const observing =
       !!user.officialId &&
@@ -128,7 +138,9 @@ matches.get("/:id", async (c) => {
 
 const decisionSchema = z.object({
   minute: z.number().int().min(0).max(130),
-  type: z.enum(["Penalty", "Red Card", "Yellow Card", "Offside", "Handball", "Foul"]),
+  eventType: z.enum(EVENT_TYPE_KEYS),
+  subEvent: z.string().max(60).optional(),
+  outcome: z.string().max(60).optional(),
   description: localizedText(300),
   initialCall: z.enum(["given", "not-given"]),
   varReview: z.boolean().default(false),
@@ -139,21 +151,48 @@ const decisionSchema = z.object({
   players: z.array(z.string().max(80)).max(6).default([]),
 });
 
-matches.post("/:id/decisions", staff, async (c) => {
+// Staff (admin/federation) tag any match of their scope; a tagger tags matches of its own country. A plain
+// `requireRole` guard can't express that OR, so the check is local to the handler.
+matches.post("/:id/decisions", async (c) => {
   const user = currentUser(c);
+  if (!isStaff(user) && !isTagger(user)) throw forbidden();
   const matchId = c.req.param("id");
   const b = await readJson(c, decisionSchema);
+  const flow = resolveEventFlow(b.eventType, b.subEvent, b.outcome);
+  if (!flow.valid) throw new ApiError(422, "invalid_event_flow", "That sub-event or outcome does not belong to this event type");
   const db = c.env.DB;
   const countryCode = await matchCountry(db, matchId);
-  assertCountry(user, countryCode, "Match");
+  if (isTagger(user)) assertTaggingCountry(user, countryCode, "Match");
+  else assertCountry(user, countryCode, "Match");
   const id = uuid();
   await db.batch([
     db
-      .prepare("INSERT INTO match_decisions (id, match_id, minute, type, description, initial_call, var_review, final_call, confidence, pressure_index, distance, players) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
-      .bind(id, matchId, b.minute, b.type, JSON.stringify(b.description), b.initialCall, b.varReview ? 1 : 0, b.finalCall, b.confidence, b.pressureIndex, b.distance, JSON.stringify(b.players)),
-    auditStmt(db, user, { action: "decision.log", entity: "match", entityId: matchId, after: { minute: b.minute, type: b.type }, countryCode, ip: c.get("ip") }),
+      .prepare(
+        "INSERT INTO match_decisions (id, match_id, minute, type, sub_event, outcome, description, initial_call, var_review, final_call, confidence, pressure_index, distance, players, tagged_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      )
+      .bind(id, matchId, b.minute, b.eventType, b.subEvent ?? null, b.outcome ?? null, JSON.stringify(b.description), b.initialCall, b.varReview ? 1 : 0, b.finalCall, b.confidence, b.pressureIndex, b.distance, JSON.stringify(b.players), user.id),
+    auditStmt(db, user, { action: "decision.log", entity: "match", entityId: matchId, after: { minute: b.minute, eventType: b.eventType, subEvent: b.subEvent, outcome: b.outcome }, countryCode, ip: c.get("ip") }),
   ]);
   return c.json({ id }, 201);
+});
+
+// A decision logged by mistake is removed, not edited: the audit keeps what it said.
+matches.delete("/:id/decisions/:decisionId", async (c) => {
+  const user = currentUser(c);
+  if (!isStaff(user) && !isTagger(user)) throw forbidden();
+  const matchId = c.req.param("id");
+  const decisionId = c.req.param("decisionId");
+  const db = c.env.DB;
+  const countryCode = await matchCountry(db, matchId);
+  if (isTagger(user)) assertTaggingCountry(user, countryCode, "Match");
+  else assertCountry(user, countryCode, "Match");
+  const row = await db.prepare("SELECT minute, type, sub_event, outcome FROM match_decisions WHERE id = ? AND match_id = ?").bind(decisionId, matchId).first<{ minute: number; type: string; sub_event: string | null; outcome: string | null }>();
+  if (!row) throw notFound("Decision");
+  await db.batch([
+    db.prepare("DELETE FROM match_decisions WHERE id = ? AND match_id = ?").bind(decisionId, matchId),
+    auditStmt(db, user, { action: "decision.remove", entity: "match", entityId: matchId, before: { id: decisionId, ...row }, countryCode, ip: c.get("ip") }),
+  ]);
+  return c.json({ ok: true });
 });
 
 /* ------------------------------------------------------------------ *
@@ -442,28 +481,103 @@ assessments.post("/:id/publish", staff, async (c) => {
  * Dossiers — the report pack sent to federations after a match
  * ------------------------------------------------------------------ */
 
+/** The sections a dossier can hold, in print order. */
+export const DOSSIER_SECTIONS = ["summary", "decisions", "positioning", "observer", "crew", "comparison"] as const;
+
 dossiers.get("/", staff, async (c) => {
   const user = currentUser(c);
   const scope = countryFilter(user, "c.country_code");
   const { results } = await c.env.DB.prepare(
-    `SELECT d.id, d.match_id AS matchId, d.generated, d.pages, d.recipients, c.country_code AS countryCode
+    `SELECT d.id, d.match_id AS matchId, d.generated, d.pages, d.recipients, d.sections, c.country_code AS countryCode
        FROM dossiers d JOIN matches m ON m.id = d.match_id LEFT JOIN competitions c ON c.id = m.league_id
       WHERE ${scope.sql} ORDER BY d.generated DESC, d.id LIMIT 200`,
   )
     .bind(...scope.params)
-    .all<{ recipients: string } & Record<string, unknown>>();
-  return c.json({ dossiers: results.map((d) => ({ ...d, recipients: json(d.recipients, []) })) });
+    .all<{ recipients: string; sections: string } & Record<string, unknown>>();
+  return c.json({ dossiers: results.map((d) => ({ ...d, recipients: json(d.recipients, []), sections: json(d.sections, []) })) });
+});
+
+/**
+ * Everything the printable dossier shows, from the records themselves: the match and its decisions, the referee,
+ * the crew, the filed observer reports against the grid, and who the federation is. Staff of the match's country.
+ */
+dossiers.get("/:id", staff, async (c) => {
+  const user = currentUser(c);
+  const db = c.env.DB;
+  const d = await db
+    .prepare(
+      `SELECT d.id, d.match_id AS matchId, d.generated, d.pages, d.recipients, d.sections, c.country_code AS countryCode, u.name AS generatedBy
+         FROM dossiers d JOIN matches m ON m.id = d.match_id LEFT JOIN competitions c ON c.id = m.league_id LEFT JOIN users u ON u.id = d.generated_by
+        WHERE d.id = ?`,
+    )
+    .bind(c.req.param("id"))
+    .first<{ id: string; matchId: string; generated: string; pages: number; recipients: string; sections: string; countryCode: string | null; generatedBy: string | null }>();
+  if (!d) throw notFound("Dossier");
+  assertCountry(user, d.countryCode, "Dossier");
+
+  const m = (await db.prepare(`${MATCH_SQL} WHERE m.id = ?`).bind(d.matchId).first<MatchRow>())!;
+  const [decisions, referee, crew, reports, competition, place] = await db.batch<Record<string, unknown>>([
+    db.prepare("SELECT * FROM match_decisions WHERE match_id = ? ORDER BY minute").bind(d.matchId),
+    db.prepare("SELECT id, name, level, country_code AS countryCode FROM officials WHERE id = ?").bind(m.referee_id ?? ""),
+    db
+      .prepare(
+        `SELECT g.role, g.official_id AS officialId, o.name, g.state FROM designations g LEFT JOIN officials o ON o.id = g.official_id
+          WHERE g.fixture_id = ? AND g.official_id IS NOT NULL ORDER BY CASE g.role WHEN 'R' THEN 0 WHEN 'AR1' THEN 1 WHEN 'AR2' THEN 2 WHEN 'FOURTH' THEN 3 ELSE 4 END, g.role`,
+      )
+      .bind(m.fixture_id ?? ""),
+    db
+      .prepare(
+        `SELECT a.id, a.observer_id AS observerId, o.name AS observerName, a.overall, a.marks, a.notes, a.filed_at AS filedAt, a.published
+           FROM assessments a LEFT JOIN officials o ON o.id = a.observer_id WHERE a.match_id = ? AND a.state = 'filed' ORDER BY a.filed_at, a.id`,
+      )
+      .bind(d.matchId),
+    db.prepare("SELECT id, name, short_name AS shortName, season, tier FROM competitions WHERE id = ?").bind(m.competition_id ?? ""),
+    db
+      .prepare(
+        `SELECT c.code, c.name, c.name_fr AS nameFr, c.name_es AS nameEs, c.name_de AS nameDe, f.code AS federation, f.name AS federationName
+           FROM countries c LEFT JOIN federations f ON f.country = c.code WHERE c.code = ?`,
+      )
+      .bind(d.countryCode ?? ""),
+  ]);
+  const { decisions: _d, ...match } = toMatch(m, decisions.results as unknown as DecisionRow[], { withHeat: true });
+  return c.json({
+    dossier: { ...d, recipients: json(d.recipients, []), sections: json(d.sections, []) },
+    match,
+    decisions: (decisions.results as unknown as DecisionRow[]).map(toDecision),
+    referee: referee.results[0] ?? null,
+    crew: crew.results,
+    reports: (reports.results as Array<Record<string, unknown>>).map((r) => ({
+      ...r,
+      published: r.published === 1,
+      marks: json(r.marks as string, {}),
+      notes: json<Localized>(r.notes as string, { fr: "", en: "" }),
+    })),
+    criteria: await loadCriteria(db),
+    competition: competition.results[0] ?? null,
+    // continental ties are the platform's own: no national federation heads them
+    country: place.results[0] ?? null,
+  });
 });
 
 dossiers.post("/", staff, async (c) => {
   const user = currentUser(c);
-  const b = await readJson(c, z.object({ matchId: z.string(), pages: z.number().int().min(1).max(200).default(12), recipients: z.array(z.string().max(80)).min(1).max(10) }));
+  const b = await readJson(
+    c,
+    z.object({
+      matchId: z.string(),
+      pages: z.number().int().min(1).max(200).default(12),
+      recipients: z.array(z.string().max(80)).min(1).max(10),
+      sections: z.array(z.enum(DOSSIER_SECTIONS)).max(DOSSIER_SECTIONS.length).default([...DOSSIER_SECTIONS]),
+    }),
+  );
   const db = c.env.DB;
   const countryCode = await matchCountry(db, b.matchId);
   assertCountry(user, countryCode, "Match");
   const id = `dos-${uuid().slice(0, 10)}`;
   await db.batch([
-    db.prepare("INSERT INTO dossiers (id, match_id, generated, pages, recipients, generated_by) VALUES (?, ?, date('now'), ?, ?, ?)").bind(id, b.matchId, b.pages, JSON.stringify(b.recipients), user.id),
+    db
+      .prepare("INSERT INTO dossiers (id, match_id, generated, pages, recipients, sections, generated_by) VALUES (?, ?, date('now'), ?, ?, ?, ?)")
+      .bind(id, b.matchId, b.pages, JSON.stringify(b.recipients), JSON.stringify(DOSSIER_SECTIONS.filter((s) => b.sections.includes(s))), user.id),
     auditStmt(db, user, { action: "dossier.generate", entity: "match", entityId: b.matchId, after: { recipients: b.recipients }, countryCode, ip: c.get("ip") }),
   ]);
   return c.json({ id }, 201);

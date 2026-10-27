@@ -23,5 +23,16 @@
   "legendYellow": "Amarilla / mano",
   "sightLineNote": "La línea discontinua une la posición del árbitro con la decisión: su longitud es la distancia medida. {n} decisiones se tomaron a más de 20 m.",
   "diagonalNote": "La diagonal es el pasillo que el árbitro debe mantener. Cada decisión tomada fuera de él cuesta ángulo de visión: es el vínculo directo entre colocación y acierto.",
-  "amberNote": "Las barras ámbar son las decisiones revocadas tras la revisión."
+  "amberNote": "Las barras ámbar son las decisiones revocadas tras la revisión.",
+  "form": {
+    "errors": {
+      "number": "Un número válido, dentro del rango esperado.",
+      "partial": "Rellene los cinco valores físicos, o ninguno.",
+      "lines": "Una línea por punto, con los valores correctos.",
+      "tooMany": "Demasiadas líneas.",
+      "duplicateMinute": "Cada minuto solo puede aparecer una vez.",
+      "condition": "Letras, números y puntuación habitual, 40 caracteres como máximo.",
+      "conditionRequired": "Indique la condición meteorológica para registrar una temperatura o humedad."
+    }
+  }
 }

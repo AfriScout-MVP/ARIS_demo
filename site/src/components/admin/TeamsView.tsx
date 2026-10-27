@@ -1,16 +1,18 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Pencil, Plus, Upload } from "@/components/icons/glyphs";
+import { Pencil, Plus, Trash2, Upload } from "@/components/icons/glyphs";
 import { Badge, Button, Card, EmptyState, Segmented, Td, Th } from "@/components/ui";
-import { listCountries, listStadiums, listTeams, uploadTeamLogo, type StadiumRow, type TeamRow } from "@/lib/api/admin";
+import { deleteStadium, deleteTeam, listCountries, listStadiums, listTeams, uploadTeamLogo, type StadiumRow, type TeamRow } from "@/lib/api/admin";
 import { isAdmin, type Actor } from "@/lib/admin/actor";
 import type { TeamKind } from "@/lib/admin/constants";
 import { filterTeams, matches } from "@/lib/admin/filters";
 import { useActor, useResource } from "@/lib/admin/hooks";
 import { countryLabel, teamKindKey } from "@/lib/admin/labels";
 import { useLocale, useT } from "@/lib/i18n/LocaleProvider";
+import { useToast } from "@/lib/toast/ToastProvider";
 import { AdminPage } from "./AdminPage";
+import { ConfirmDialog } from "./ConfirmDialog";
 import { SelectField } from "./fields";
 import { useImageUpload } from "./FilePicker";
 import { RowMenu } from "./RowMenu";
@@ -20,13 +22,18 @@ import { Thumb } from "./Thumb";
 import { SearchBox } from "./Toolbar";
 
 type Tab = "teams" | "stadiums";
-type DialogState = { kind: "team"; team?: TeamRow } | { kind: "stadium"; stadium?: StadiumRow };
+type DialogState =
+  | { kind: "team"; team?: TeamRow }
+  | { kind: "stadium"; stadium?: StadiumRow }
+  | { kind: "deleteTeam"; team: TeamRow }
+  | { kind: "deleteStadium"; stadium: StadiumRow };
 
 export function TeamsView() {
   const t = useT();
   const { locale } = useLocale();
   const actor = useActor() as Actor;
   const admin = isAdmin(actor);
+  const toast = useToast();
 
   const countries = useResource("countries", (signal) => listCountries(false, signal));
   const [picked, setPicked] = useState("");
@@ -49,6 +56,11 @@ export function TeamsView() {
     setDialog(null);
     (tab === "teams" ? teams : stadiums).reload();
   };
+
+  const stadiumMenu = (s: StadiumRow) => [
+    { key: "edit", label: t("admin.teams.edit"), icon: Pencil, onSelect: () => setDialog({ kind: "stadium", stadium: s }) },
+    { key: "delete", label: t("admin.teams.delete"), icon: Trash2, danger: true, onSelect: () => setDialog({ kind: "deleteStadium", stadium: s }) },
+  ];
 
   const fmt = (n: number | null) => (n === null ? "—" : n.toLocaleString(locale));
   const current = tab === "teams" ? teams : stadiums;
@@ -166,7 +178,7 @@ export function TeamsView() {
                               <Badge tone={tm.kind === "national" ? "gold" : "neutral"}>{t(teamKindKey(tm.kind))}</Badge>
                             </div>
                           </div>
-                          <TeamMenu team={tm} onEdit={() => setDialog({ kind: "team", team: tm })} onLogo={() => upload.start(tm.id)} busy={upload.busyId === tm.id} />
+                          <TeamMenu team={tm} onEdit={() => setDialog({ kind: "team", team: tm })} onLogo={() => upload.start(tm.id)} onDelete={() => setDialog({ kind: "deleteTeam", team: tm })} busy={upload.busyId === tm.id} />
                         </div>
                       </Card>
                     </li>
@@ -202,7 +214,7 @@ export function TeamsView() {
                             </Td>
                             <Td>{tm.city ?? "—"}</Td>
                             <Td className="text-end">
-                              <TeamMenu team={tm} onEdit={() => setDialog({ kind: "team", team: tm })} onLogo={() => upload.start(tm.id)} busy={upload.busyId === tm.id} />
+                              <TeamMenu team={tm} onEdit={() => setDialog({ kind: "team", team: tm })} onLogo={() => upload.start(tm.id)} onDelete={() => setDialog({ kind: "deleteTeam", team: tm })} busy={upload.busyId === tm.id} />
                             </Td>
                           </tr>
                         ))}
@@ -243,7 +255,7 @@ export function TeamsView() {
                         </div>
                         <RowMenu
                           label={t("admin.teams.actionsFor", { name: s.name })}
-                          items={[{ key: "edit", label: t("admin.teams.edit"), icon: Pencil, onSelect: () => setDialog({ kind: "stadium", stadium: s }) }]}
+                          items={stadiumMenu(s)}
                         />
                       </div>
                     </Card>
@@ -273,7 +285,7 @@ export function TeamsView() {
                           <Td className="text-end">
                             <RowMenu
                               label={t("admin.teams.actionsFor", { name: s.name })}
-                              items={[{ key: "edit", label: t("admin.teams.edit"), icon: Pencil, onSelect: () => setDialog({ kind: "stadium", stadium: s }) }]}
+                              items={stadiumMenu(s)}
                             />
                           </Td>
                         </tr>
@@ -289,11 +301,41 @@ export function TeamsView() {
 
       {dialog?.kind === "team" && <TeamFormDialog country={country} team={dialog.team} onClose={() => setDialog(null)} onDone={done} />}
       {dialog?.kind === "stadium" && <StadiumFormDialog country={country} stadium={dialog.stadium} onClose={() => setDialog(null)} onDone={done} />}
+      {dialog?.kind === "deleteTeam" && (
+        <ConfirmDialog
+          title={t("admin.teams.deleteTeamTitle")}
+          confirmLabel={t("admin.teams.delete")}
+          danger
+          perform={() => deleteTeam(dialog.team.id)}
+          onDone={() => {
+            toast.push("success", t("admin.teams.teamDeleted", { name: dialog.team.name }));
+            done();
+          }}
+          onCancel={() => setDialog(null)}
+        >
+          <p>{t("admin.teams.deleteTeamBody", { name: dialog.team.name })}</p>
+        </ConfirmDialog>
+      )}
+      {dialog?.kind === "deleteStadium" && (
+        <ConfirmDialog
+          title={t("admin.teams.deleteStadiumTitle")}
+          confirmLabel={t("admin.teams.delete")}
+          danger
+          perform={() => deleteStadium(dialog.stadium.id)}
+          onDone={() => {
+            toast.push("success", t("admin.teams.stadiumDeleted", { name: dialog.stadium.name }));
+            done();
+          }}
+          onCancel={() => setDialog(null)}
+        >
+          <p>{t("admin.teams.deleteStadiumBody", { name: dialog.stadium.name })}</p>
+        </ConfirmDialog>
+      )}
     </AdminPage>
   );
 }
 
-function TeamMenu({ team, onEdit, onLogo, busy }: { team: TeamRow; onEdit: () => void; onLogo: () => void; busy: boolean }) {
+function TeamMenu({ team, onEdit, onLogo, onDelete, busy }: { team: TeamRow; onEdit: () => void; onLogo: () => void; onDelete: () => void; busy: boolean }) {
   const t = useT();
   return (
     <RowMenu
@@ -301,6 +343,7 @@ function TeamMenu({ team, onEdit, onLogo, busy }: { team: TeamRow; onEdit: () =>
       items={[
         { key: "edit", label: t("admin.teams.edit"), icon: Pencil, onSelect: onEdit },
         { key: "logo", label: t("admin.teams.uploadLogo"), icon: Upload, disabled: busy, onSelect: onLogo },
+        { key: "delete", label: t("admin.teams.delete"), icon: Trash2, danger: true, onSelect: onDelete },
       ]}
     />
   );

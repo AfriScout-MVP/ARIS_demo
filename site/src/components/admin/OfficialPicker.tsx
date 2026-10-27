@@ -3,7 +3,7 @@
 import { useId, useState } from "react";
 import { Search } from "@/components/icons/glyphs";
 import { Badge } from "@/components/ui";
-import { listOfficials, type CountryRow } from "@/lib/api/admin";
+import { listOfficials, type CountryRow, type OfficialOption } from "@/lib/api/admin";
 import { useDebounced, useResource } from "@/lib/admin/hooks";
 import { useLocale, useT } from "@/lib/i18n/LocaleProvider";
 import { cn } from "@/lib/utils";
@@ -20,9 +20,12 @@ export function OfficialPicker({
   country,
   countries,
   error,
+  onPickOption,
 }: {
   value: string;
   onChange: (id: string) => void;
+  /** Also hands over the picked row, for callers that keep a list of names. */
+  onPickOption?: (official: OfficialOption) => void;
   /** Fixed country (federation seats). When omitted the picker offers `countries` as a filter. */
   country?: string | null;
   countries?: CountryRow[];
@@ -114,7 +117,10 @@ export function OfficialPicker({
                     name={`${searchId}-official`}
                     value={o.id}
                     checked={value === o.id}
-                    onChange={() => onChange(o.id)}
+                    onChange={() => {
+                      onChange(o.id);
+                      onPickOption?.(o);
+                    }}
                     className="h-4 w-4 shrink-0 accent-red-600"
                   />
                   <span className="min-w-0 flex-1 truncate text-chalk">{o.name}</span>

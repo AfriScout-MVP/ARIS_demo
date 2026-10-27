@@ -1,6 +1,8 @@
 "use client";
 
-import { LogOut } from "@/components/icons/glyphs";
+import { useState } from "react";
+import { KeyRound, LogOut } from "@/components/icons/glyphs";
+import { ChangePasswordDialog } from "./ChangePasswordDialog";
 import { MarkTile } from "@/components/icons/Mark";
 import { LocaleToggle } from "@/components/layout/LocaleToggle";
 import { NotificationsMenu } from "@/components/layout/NotificationsMenu";
@@ -11,8 +13,9 @@ import { useDataset } from "@/lib/dataset/DatasetProvider";
 export function PersonalShell({ children }: { children: React.ReactNode }) {
   const t = useT();
   const { user, signOut } = useDataset();
+  const [changing, setChanging] = useState(false);
   return (
-    <div className="min-h-screen bg-ink-0">
+    <div className="min-h-screen">
       <header className="sticky top-0 z-30 border-b border-line bg-ink-1/90 backdrop-blur">
         <div className="mx-auto flex h-16 w-full max-w-4xl items-center justify-between gap-3 px-4">
           <div className="flex min-w-0 items-center gap-2.5 text-chalk">
@@ -26,6 +29,14 @@ export function PersonalShell({ children }: { children: React.ReactNode }) {
             <LocaleToggle />
             <NotificationsMenu />
             <button
+              onClick={() => setChanging(true)}
+              aria-label={t("auth.changePassword.menu")}
+              title={t("auth.changePassword.menu")}
+              className="flex h-10 w-10 items-center justify-center rounded-[10px] border border-field bg-ink-3 text-chalk-dim transition-colors hover:bg-ink-4 hover:text-chalk"
+            >
+              <KeyRound size={17} />
+            </button>
+            <button
               onClick={() => void signOut()}
               aria-label={t("common.signOut")}
               title={t("common.signOut")}
@@ -37,6 +48,7 @@ export function PersonalShell({ children }: { children: React.ReactNode }) {
         </div>
       </header>
       <main className="mx-auto w-full max-w-4xl space-y-5 p-4 pb-16 lg:py-6">{children}</main>
+      {changing && <ChangePasswordDialog onClose={() => setChanging(false)} />}
     </div>
   );
 }

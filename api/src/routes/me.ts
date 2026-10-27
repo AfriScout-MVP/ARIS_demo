@@ -50,7 +50,10 @@ me.get("/", async (c) => {
 
 me.get("/designations", async (c) => {
   const user = currentUser(c);
-  const q = parseQuery(c, z.object({ from: DATE.default(() => addDays(today(), -60)), to: DATE.default(() => addDays(today(), 120)) }));
+  const q = parseQuery(
+    c,
+    z.object({ from: DATE.default(() => addDays(today(), -60)), to: DATE.default(() => addDays(today(), 120)), state: z.enum(["pending", "confirmed", "declined"]).optional() }),
+  );
   // fixtures are stored in UTC: widen the window by a day, then keep what falls in the range on the venue's local calendar
   const { results } = await c.env.DB.prepare(
     `SELECT f.id AS fixtureId, d.role, d.state, d.version, ht.name AS home, aw.name AS away, f.kickoff_at AS kickoffAt, f.status AS fixtureState,
@@ -62,9 +65,9 @@ me.get("/designations", async (c) => {
        JOIN teams aw ON aw.id = f.away_team_id
        LEFT JOIN stadiums s ON s.id = f.stadium_id
        LEFT JOIN countries k ON k.code = COALESCE(s.country, f.country_code)
-      WHERE d.official_id = ? AND f.date BETWEEN ? AND ? ORDER BY f.kickoff_at`,
+      WHERE d.official_id = ? AND f.date BETWEEN ? AND ? AND (? IS NULL OR d.state = ?) ORDER BY f.kickoff_at`,
   )
-    .bind(user.officialId, addDays(q.from, -1), addDays(q.to, 1))
+    .bind(user.officialId, addDays(q.from, -1), addDays(q.to, 1), q.state ?? null, q.state ?? null)
     .all<{ kickoffAt: string; tz: string | null } & Record<string, unknown>>();
   const designations = results
     .map(({ tz, ...r }) => {
@@ -75,18 +78,23 @@ me.get("/designations", async (c) => {
   return c.json({ designations });
 });
 
+// Paged, newest first: `hasMore` says whether another page follows.
 me.get("/history", async (c) => {
   const user = currentUser(c);
+  const q = parseQuery(c, z.object({ limit: z.coerce.number().int().min(1).max(100).default(100), offset: z.coerce.number().int().min(0).default(0) }));
   const { results } = await c.env.DB.prepare(
     `SELECT x.*, d.role, k.timezone AS tz FROM (${MATCH_SQL}) x
        JOIN designations d ON d.fixture_id = x.fixture_id
        LEFT JOIN countries k ON k.code = x.country_code
-      WHERE d.official_id = ? ORDER BY x.match_date DESC LIMIT 100`,
+      WHERE d.official_id = ? ORDER BY x.match_date DESC, x.id, d.role LIMIT ? OFFSET ?`,
   )
-    .bind(user.officialId)
+    .bind(user.officialId, q.limit + 1, q.offset)
     .all<MatchRow & { role: string; tz: string | null }>();
   return c.json({
-    matches: results.map((r) => {
+    limit: q.limit,
+    offset: q.offset,
+    hasMore: results.length > q.limit,
+    matches: results.slice(0, q.limit).map((r) => {
       const local = localParts(r.match_date, r.tz ?? "UTC");
       return { ...toMatch(r), date: local.date, kickoff: local.time, kickoffAt: r.match_date, role: r.role };
     }),

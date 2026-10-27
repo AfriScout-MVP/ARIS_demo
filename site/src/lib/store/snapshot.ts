@@ -2,7 +2,7 @@
 // `GET /api/v1/snapshot` and replaces the contents of every collection in place, so every
 // importer keeps working and nothing downstream has to know where the data came from.
 
-import { arpsTrend, decisionsBreakdown } from "./analytics";
+import { arpsTrend, criterionAverages, criterionAveragesByReferee, decisionsBreakdown } from "./analytics";
 import { setToday } from "./clock";
 import { competitionById, competitions, countries, countryByCode } from "./geography";
 import { assistantById, assistants, refereeById, referees } from "./officials";
@@ -43,7 +43,14 @@ export function normalizeFixture(f: ApiFixture): Fixture {
   };
 }
 
-const normalizeCountry = (c: Country): Country => ({ ...c, flagUrl: c.flagUrl ?? null, active: c.active !== false });
+const normalizeCountry = (c: Country): Country => ({
+  ...c,
+  flagUrl: c.flagUrl ?? null,
+  active: c.active !== false,
+  // an older API still sent the seeded "manual" status; only derived freshness is shown now
+  syncHealth: c.syncHealth === "healthy" || c.syncHealth === "stale" ? c.syncHealth : "none",
+  lastSyncHours: typeof c.lastSyncHours === "number" ? c.lastSyncHours : null,
+});
 const normalizeReferee = (r: Referee): Referee => ({ ...r, photoUrl: r.photoUrl ?? null });
 const normalizeAssistant = (a: Assistant): Assistant => ({ ...a, photoUrl: a.photoUrl ?? null });
 
@@ -75,6 +82,7 @@ export function applySnapshot(s: ApiSnapshot) {
       physical: m.physical && "distanceKm" in m.physical ? m.physical : EMPTY_PHYSICAL,
       pressureTimeline: m.pressureTimeline ?? [],
       heatPoints: m.heatPoints ?? [],
+      weather: m.weather ?? null,
     })),
   );
   replaceMap(matchById, matches.map((m) => [m.id, m]));
@@ -91,6 +99,8 @@ export function applySnapshot(s: ApiSnapshot) {
 
   replaceAll(arpsTrend, s.analytics?.arpsTrend ?? []);
   replaceAll(decisionsBreakdown, s.analytics?.decisionsBreakdown ?? []);
+  replaceAll(criterionAverages, s.analytics?.criterionAverages ?? []);
+  replaceMap(criterionAveragesByReferee, criterionAverages.map((r) => [r.refereeId, r]));
 }
 
 const EMPTY_SNAPSHOT: ApiSnapshot = {
@@ -109,7 +119,7 @@ const EMPTY_SNAPSHOT: ApiSnapshot = {
   dossiers: [],
   availability: [],
   criteria: [],
-  analytics: { arpsTrend: [], decisionsBreakdown: [] },
+  analytics: { arpsTrend: [], decisionsBreakdown: [], criterionAverages: [] },
 };
 
 /** Forget everything: used on sign-out, so the next account never sees the previous one's data. */

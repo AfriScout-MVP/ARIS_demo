@@ -1,15 +1,14 @@
 {
-  "title": "AI assistant",
+  "title": "Quick answers",
   "intro": "Ask about the corps, the calendar or a specific official.",
-  "introSub": "Copilot reads the same data as every other screen and shows the rows behind each answer, so you can check it.",
+  "introSub": "Quick answers recognises common questions by their keywords and answers from the same data as every other screen, showing the rows behind each answer so you can check it.",
   "placeholder": "Ask a question…",
   "send": "Ask",
-  "thinking": "Reading the data…",
   "suggestions": "Try one of these",
   "sources": "Rows used",
   "clear": "Clear conversation",
-  "disclaimer": "The copilot answers only from the ARIS data in your scope. It never invents a number.",
-  "cannotAnswer": "That one is outside what ARIS holds. Copilot can answer on referees, fixtures, coverage, licences, fitness and rankings.",
+  "disclaimer": "Keyword lookup over the ARIS data in your scope — not AI. It never invents a number.",
+  "cannotAnswer": "That question does not match any of the questions quick answers knows. It covers referees, fixtures, coverage, licences, fitness and rankings.",
   "s": {
     "reco": "Who should referee {match}?",
     "licences": "Which licences expire in the next 90 days?",
@@ -41,8 +40,8 @@
     "obsFiled": "filed, mark {mark}",
     "obsDraft": "draft",
     "obsOverdue": "overdue",
-    "syncHead": "{bad} of {n} calendar feeds are not current.",
-    "syncRow": "{source} · last sync {hours} h ago",
+    "syncHead": "{bad} of {n} countries have no recent data.",
+    "syncRow": "{source} · last updated {hours} h ago",
     "availHead": "{n} referees are available on {date}.",
     "loadIdleHead": "{n} officials have no appointment across the three-week window.",
     "loadHeavyHead": "{n} officials are carrying {max} or more appointments; {name} has the most.",
@@ -59,6 +58,7 @@
     "refNone": "none",
     "refFitness": "Fitness test",
     "refTrend": "Trend",
-    "refAlt": "Recommended alternative"
+    "refAlt": "Recommended alternative",
+    "syncRowNone": "{source} · no data yet"
   }
 }

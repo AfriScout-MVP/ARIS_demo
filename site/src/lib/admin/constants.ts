@@ -1,6 +1,6 @@
 // Fixed vocabulary of the administration console.
 
-export const ADMIN_ROLES = ["admin", "federation", "referee"] as const;
+export const ADMIN_ROLES = ["admin", "federation", "referee", "tagger"] as const;
 export type AdminRole = (typeof ADMIN_ROLES)[number];
 
 export const ZONES = ["UNAF", "UFOA-A", "UFOA-B", "UNIFFAC", "CECAFA", "COSAFA"] as const;

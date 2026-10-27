@@ -1,8 +1,9 @@
 // Creates an account — the password never leaves your terminal and is never stored in clear.
 //
 //   ARIS_PASSWORD='a long passphrase' npm run user:create -- --email a@b.org --name "Ada" --role admin --apply --remote
-//   … --role federation --federation FRMF            (a seat of the Moroccan federation)
-//   … --role referee --official karim-haddad          (an official's own space)
+//   … --role federation --federation FSF             (a seat of the Senegalese federation)
+//   … --role referee --official souleymane-kebe       (an official's own space)
+//   … --role tagger --federation FSF                  (logs referee decisions for FSF's matches only)
 //
 // Without --apply the SQL is printed instead of run.
 
@@ -24,16 +25,16 @@ const locale = arg("locale");
 const password = process.env.ARIS_PASSWORD;
 
 const usage = () => {
-  console.error("Usage: ARIS_PASSWORD=... npm run user:create -- --email X --name Y --role admin|federation|referee [--federation CODE] [--official ID] [--locale fr|en|es|de] [--apply [--remote]]");
+  console.error("Usage: ARIS_PASSWORD=... npm run user:create -- --email X --name Y --role admin|federation|referee|tagger [--federation CODE] [--official ID] [--locale fr|en|es|de] [--apply [--remote]]");
   process.exit(2);
 };
-if (!email || !name || !role || !["admin", "federation", "referee"].includes(role)) usage();
+if (!email || !name || !role || !["admin", "federation", "referee", "tagger"].includes(role)) usage();
 if (!password || password.length < 12) {
   console.error("Set ARIS_PASSWORD to a passphrase of at least 12 characters (read from the environment so it stays out of shell history and process lists).");
   process.exit(2);
 }
-if (role === "federation" && !federation) {
-  console.error("A federation seat needs --federation <federation code>, e.g. FRMF.");
+if ((role === "federation" || role === "tagger") && !federation) {
+  console.error(`A ${role === "tagger" ? "tagger" : "federation seat"} needs --federation <federation code>, e.g. FSF.`);
   process.exit(2);
 }
 if (role === "referee" && !official) {
@@ -42,7 +43,11 @@ if (role === "referee" && !official) {
 }
 
 const account = (
-  role === "admin" ? { role, email, name, locale } : role === "federation" ? { role, email, name, federation, locale } : { role, email, name, official, locale }
+  role === "admin"
+    ? { role, email, name, locale }
+    : role === "federation" || role === "tagger"
+      ? { role, email, name, federation, locale }
+      : { role, email, name, official, locale }
 ) as NewAccount;
 const sql = await accountSql(account, password);
 

@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { applySnapshot, getSubIndices, kpis, arpsDelta, rankingsFor, refereeById, resetStore, zoneDistribution } from "@/lib/store";
+import { applySnapshot, kpis, arpsDelta, rankingsFor, refereeById, resetStore, zoneDistribution } from "@/lib/store";
 import { referee, snapshot } from "./fixtures";
 
 beforeEach(() => {
@@ -17,21 +17,6 @@ describe("rankingsFor", () => {
   it("is scoped to the countries asked for", () => {
     expect(rankingsFor(["BBB"]).map((r) => r.refereeId)).toEqual(["r3"]);
     expect(rankingsFor([])).toEqual([]);
-  });
-});
-
-describe("getSubIndices", () => {
-  it("stays inside the 55..99 band", () => {
-    const low = getSubIndices(referee("x", "AAA", { varAccuracy: 10, cards: { yellow: 0, red: 80 }, rmcsAvg: 10, fitness: 0, arps: 0, trend: 40 }));
-    Object.values(low).forEach((v) => expect(v).toBe(55));
-    const high = getSubIndices(referee("y", "AAA", { varAccuracy: 100, rmcsAvg: 100, fitness: 100, arps: 100, trend: 0, cards: { yellow: 0, red: 0 } }));
-    expect(high.mds).toBe(99);
-    expect(high.ci).toBe(99);
-  });
-
-  it("derives from the referee's own record", () => {
-    const sub = getSubIndices(refereeById.get("r1")!);
-    expect(sub.ras).toBe(90);
   });
 });
 

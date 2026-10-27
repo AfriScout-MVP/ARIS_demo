@@ -24,6 +24,9 @@ export interface World {
   refA2: Session;
   obsA: Session;
   refB1: Session;
+  /** a tagger of country A, and one of country B */
+  taggerA: Session;
+  taggerB: Session;
   fedA: string;
   fedB: string;
 }
@@ -48,12 +51,16 @@ export async function makeWorld(a: string, b: string): Promise<World> {
   await addUser(`${tag(a)}-ref2@aris.test`, "referee", { officialId: `${a}-ref2` });
   await addUser(`${tag(a)}-obs@aris.test`, "referee", { officialId: `${a}-obs` });
   await addUser(`${tag(b)}-ref1@aris.test`, "referee", { officialId: `${b}-ref1` });
-  const [admin, sA, sB, refA1, refA2, obsA, refB1] = await Promise.all(
-    [`admin-${tag(a)}`, `seat-${tag(a)}`, `seat-${tag(b)}`, `${tag(a)}-ref1`, `${tag(a)}-ref2`, `${tag(a)}-obs`, `${tag(b)}-ref1`].map((n) => login(`${n}@aris.test`)),
+  await addUser(`tagger-${tag(a)}@aris.test`, "tagger", { federationId: seatA.federationId });
+  await addUser(`tagger-${tag(b)}@aris.test`, "tagger", { federationId: seatB.federationId });
+  const [admin, sA, sB, refA1, refA2, obsA, refB1, taggerA, taggerB] = await Promise.all(
+    [`admin-${tag(a)}`, `seat-${tag(a)}`, `seat-${tag(b)}`, `${tag(a)}-ref1`, `${tag(a)}-ref2`, `${tag(a)}-obs`, `${tag(b)}-ref1`, `tagger-${tag(a)}`, `tagger-${tag(b)}`].map((n) =>
+      login(`${n}@aris.test`),
+    ),
   );
   const grid = await api("PUT", "/api/v1/evaluation-criteria", { session: admin, body: { criteria: GRID } });
   if (grid.status !== 200) throw new Error(`grid: ${grid.text}`);
-  return { a, b, admin, seatA: sA, seatB: sB, refA1, refA2, obsA, refB1, fedA: seatA.federationId, fedB: seatB.federationId };
+  return { a, b, admin, seatA: sA, seatB: sB, refA1, refA2, obsA, refB1, taggerA, taggerB, fedA: seatA.federationId, fedB: seatB.federationId };
 }
 
 let n = 0;
@@ -98,3 +105,4 @@ export const get = (s: Session | null, path: string) => api("GET", `/api/v1${pat
 export const post = (s: Session | null, path: string, body?: object) => api("POST", `/api/v1${path}`, { session: s, body });
 export const put = (s: Session | null, path: string, body?: object) => api("PUT", `/api/v1${path}`, { session: s, body });
 export const patch = (s: Session | null, path: string, body?: object) => api("PATCH", `/api/v1${path}`, { session: s, body });
+export const del = (s: Session | null, path: string) => api("DELETE", `/api/v1${path}`, { session: s });

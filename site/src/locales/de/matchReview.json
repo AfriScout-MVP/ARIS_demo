@@ -31,10 +31,35 @@
   "reviewRate": "Zur Überprüfung geschickt",
   "noDecisions": "Für dieses Spiel sind keine Entscheidungen erfasst.",
   "noDecisionsHint": "Entscheidungen erscheinen, sobald die Spielanalyse erfasst ist.",
-  "typePenalty": "Elfmeter",
-  "typeRedCard": "Rote Karte",
-  "typeYellowCard": "Gelbe Karte",
-  "typeOffside": "Abseits",
-  "typeHandball": "Handspiel",
-  "typeFoul": "Foul"
+  "log": {
+    "open": "Entscheidung erfassen",
+    "title": "Neue Entscheidung",
+    "submit": "Entscheidung speichern",
+    "flow": "Art der Entscheidung",
+    "eventType": "Ereignistyp",
+    "subEvent": "Unterereignis",
+    "outcome": "Ergebnis",
+    "description": "Was geschah",
+    "descriptionHint": "Ein oder zwei Sätze, in Ihrer Sprache.",
+    "varHint": "Wenn der VAR die Szene geprüft hat: Wurde die Entscheidung bestätigt oder aufgehoben?",
+    "measures": "Messwerte (optional)",
+    "distance": "Abstand zur Szene (m)",
+    "measuresHint": "Aus Tracking oder Video; leer lassen, wenn nicht vorhanden.",
+    "playersHint": "Durch Kommas getrennt, höchstens 6.",
+    "done": "Entscheidung der {minute}. Minute gespeichert.",
+    "emptyStaff": "Erfassen Sie die wichtigsten Entscheidungen, um den Spielverlauf aufzubauen.",
+    "remove": "Entscheidung löschen",
+    "removeTitle": "Diese Entscheidung löschen?",
+    "removeBody": "Die Entscheidung „{type}“ der {minute}. Minute wird aus dem Verlauf entfernt. Das Prüfprotokoll bewahrt sie auf.",
+    "removed": "Entscheidung gelöscht.",
+    "errors": {
+      "minute": "Eine Minute von 0 bis 130.",
+      "eventType": "Wählen Sie ein gültiges Ereignis, Unterereignis und Ergebnis.",
+      "description": "Beschreiben Sie die Entscheidung.",
+      "descriptionLong": "Höchstens 300 Zeichen.",
+      "percent": "Eine Zahl von 0 bis 100.",
+      "distance": "Eine Zahl von 0 bis 120 Metern.",
+      "players": "Höchstens 6 Spieler, je 80 Zeichen."
+    }
+  }
 }

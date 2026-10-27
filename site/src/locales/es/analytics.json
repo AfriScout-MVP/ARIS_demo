@@ -1,0 +1,116 @@
+{
+  "title": "Cuadros de mando",
+  "csv": "Exportar a CSV",
+  "asOf": "Situación al {date}.",
+  "from": "Del",
+  "to": "Al",
+  "badRange": "Elija dos fechas en orden, con dos años de diferencia como máximo.",
+  "tabs": {
+    "overview": "Resumen",
+    "workload": "Carga",
+    "absences": "Ausencias",
+    "fees": "Honorarios",
+    "reconciliation": "Control de pagos"
+  },
+  "presets": {
+    "last30": "Últimos 30 días",
+    "next30": "Próximos 30 días",
+    "around30": "± 30 días",
+    "season": "Temporada actual",
+    "custom": "Periodo libre"
+  },
+  "fixtureStatus": {
+    "draft": "Borrador",
+    "awaiting_confirmation": "Pendientes de los oficiales",
+    "validated": "Validadas",
+    "published": "Publicadas"
+  },
+  "overview": {
+    "workforce": "Oficiales",
+    "availableToday": "Disponibles hoy",
+    "avgRating": "Nota media (RMCS)",
+    "suspended": "Suspendidos",
+    "byLevel": "Plantilla por nivel",
+    "byLevelHint": "{referees} árbitros, {assistants} asistentes",
+    "designations": "Próximas designaciones",
+    "confirmed": "{n} % de los puestos confirmados por los oficiales",
+    "noSlots": "Ningún puesto por cubrir",
+    "compliance": "Conformidad",
+    "complianceHint": "Lo que impide designar en regla",
+    "licencesExpired": "Licencias caducadas",
+    "licencesExpiring90": "Licencias que caducan en 90 días",
+    "fitnessFailed": "Pruebas físicas suspendidas",
+    "assessmentsOverdue": "Informes de observación atrasados",
+    "budget": "Honorarios",
+    "budgetHint": "Por moneda, sin conversión",
+    "noBudget": "Ningún honorario",
+    "money": {
+      "planned": "Por validar",
+      "committed": "Validado",
+      "paid": "Pagado",
+      "contested": "Impugnado"
+    },
+    "top": "Mejor valorados",
+    "bottom": "A acompañar",
+    "rankHint": "Nota media de los informes y tendencia"
+  },
+  "workload": {
+    "appointments": "Designaciones",
+    "mean": "Media por oficial",
+    "overused": "Sobrecargados",
+    "unused": "Nunca designados",
+    "all": "Todos",
+    "flagged": "Señalados",
+    "asReferee": "Como árbitro principal",
+    "last": "Último partido",
+    "next": "Próximo partido",
+    "flag": "Señal",
+    "flags": {
+      "overused": "Sobrecargado",
+      "unused": "Nunca designado"
+    },
+    "note": "Sobrecargado: al menos 4 designaciones y 1,75 veces la media. Los oficiales suspendidos no se señalan como no utilizados."
+  },
+  "absences": {
+    "incidents": "Comunicaciones",
+    "open": "Aún abiertas",
+    "refusals": "Designaciones rechazadas",
+    "replacements": "Sustituciones",
+    "byKind": "Comunicaciones por tipo",
+    "none": "Ninguna comunicación en el periodo",
+    "sanctions": "Sanciones impuestas",
+    "sanctionsHint": "Decisiones dictadas en el periodo",
+    "noSanctions": "Ninguna decisión",
+    "toDiscipline": "Abrir disciplina →"
+  },
+  "fees": {
+    "by": {
+      "official": "Oficial",
+      "competition": "Competición",
+      "city": "Ciudad",
+      "day": "Día"
+    },
+    "none": "Ningún honorario en el periodo",
+    "noneHint": "Genere las líneas desde Finanzas una vez hechas las designaciones.",
+    "totalIn": "Total en {currency}",
+    "paidShare": "{paid} pagado · {due} pendiente · {lines} líneas",
+    "lines": "Líneas",
+    "total": "Total",
+    "validated": "Validado"
+  },
+  "reconciliation": {
+    "checked": "Puestos controlados",
+    "hint": "Cruza los partidos realmente arbitrados con las sumas pagadas.",
+    "match": "Partido",
+    "role": "Puesto",
+    "payment": "Pago",
+    "issue": "Anomalía",
+    "issues": {
+      "played-not-billed": "Jugado, no facturado",
+      "paid-not-played": "Pagado, no jugado",
+      "paid-unvalidated": "Pagado sin validar el partido"
+    },
+    "clean": "Ninguna anomalía",
+    "cleanHint": "{n} puestos controlados en el periodo."
+  }
+}

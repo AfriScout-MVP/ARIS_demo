@@ -7,6 +7,11 @@ describe("health", () => {
     expect(res.status).toBe(200);
     expect(res.json).toMatchObject({ ok: true, database: "ok" });
   });
+
+  it("reveals nothing about the deployment", async () => {
+    const res = await api("GET", "/api/health");
+    expect(Object.keys(res.json).sort()).toEqual(["database", "ok", "service"]);
+  });
 });
 
 describe("login", () => {

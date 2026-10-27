@@ -1,15 +1,14 @@
 {
-  "title": "Asistente de IA",
+  "title": "Respuestas rápidas",
   "intro": "Consulte sobre el cuerpo arbitral, el calendario o un oficial concreto.",
-  "introSub": "El copiloto lee los mismos datos que el resto de pantallas y muestra las filas que respaldan cada respuesta, para que pueda comprobarla.",
+  "introSub": "Las respuestas rápidas reconocen preguntas habituales por sus palabras clave y responden con los mismos datos que el resto de pantallas, mostrando las filas que respaldan cada respuesta para que pueda comprobarla.",
   "placeholder": "Haga una pregunta…",
   "send": "Preguntar",
-  "thinking": "Leyendo los datos…",
   "suggestions": "Pruebe una de estas preguntas",
   "sources": "Filas utilizadas",
   "clear": "Borrar la conversación",
-  "disclaimer": "El copiloto responde solo con los datos de ARIS de su ámbito. Nunca inventa una cifra.",
-  "cannotAnswer": "Esa pregunta queda fuera de lo que contiene ARIS. El copiloto puede responder sobre árbitros, partidos, cobertura, licencias, condición física y clasificación.",
+  "disclaimer": "Búsqueda por palabras clave en los datos de ARIS de su ámbito; no es una IA. Nunca inventa una cifra.",
+  "cannotAnswer": "Esa pregunta no coincide con ninguna de las preguntas que conocen las respuestas rápidas. Cubren árbitros, partidos, cobertura, licencias, condición física y clasificación.",
   "s": {
     "reco": "¿Quién debería arbitrar {match}?",
     "licences": "¿Qué licencias caducan en los próximos 90 días?",
@@ -41,8 +40,8 @@
     "obsFiled": "presentado, nota {mark}",
     "obsDraft": "borrador",
     "obsOverdue": "con retraso",
-    "syncHead": "{bad} de {n} calendarios no están al día.",
-    "syncRow": "{source} · última sincronización hace {hours} h",
+    "syncHead": "{bad} de {n} países no tienen datos recientes.",
+    "syncRow": "{source} · última actualización hace {hours} h",
     "availHead": "{n} árbitros están disponibles el {date}.",
     "loadIdleHead": "{n} oficiales no tienen ninguna designación en la ventana de tres semanas.",
     "loadHeavyHead": "{n} oficiales acumulan {max} designaciones o más; {name} tiene más.",
@@ -59,6 +58,7 @@
     "refNone": "ninguna",
     "refFitness": "Prueba física",
     "refTrend": "Tendencia",
-    "refAlt": "Alternativa recomendada"
+    "refAlt": "Alternativa recomendada",
+    "syncRowNone": "{source} · aún sin datos"
   }
 }

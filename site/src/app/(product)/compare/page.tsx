@@ -10,7 +10,8 @@ import { PageHeading } from "@/components/layout/PageHeading";
 import { Badge, Card, ChalkRule, EmptyState, ScoreRing, Select } from "@/components/ui";
 import { CompareRadar } from "@/components/charts/CompareRadar";
 import { CountryFlag } from "@/components/ui/CountryFlag";
-import { countryName, getSubIndices, referees, refereeHref, type Referee } from "@/lib/store";
+import { pickLocalized } from "@/lib/i18n/localized";
+import { countryName, RADAR_MIN_AXES, RADAR_MIN_REPORTS, radarFor, referees, refereeHref, sharedAxes, type Referee } from "@/lib/store";
 
 /** A is green, B is sky — the same two colours the radar uses. */
 const SIDE = {
@@ -64,6 +65,7 @@ function Side({
 
 export default function ComparePage() {
   const t = useT();
+  const { locale } = useLocale();
   const { codes } = useScope();
 
   const pool = useMemo(
@@ -88,21 +90,12 @@ export default function ComparePage() {
     );
   }
 
-  const subA = getSubIndices(a);
-  const subB = getSubIndices(b);
-
-  const metrics = [
-    { key: "ras", label: t("referees.ras") },
-    { key: "cei", label: t("referees.cei") },
-    { key: "mds", label: t("referees.mds") },
-    { key: "prs", label: t("referees.prs") },
-    { key: "ci", label: t("referees.ci") },
-  ] as const;
-
-  const radar = metrics.map((m) => ({
-    metric: m.label,
-    [a.name]: subA[m.key],
-    [b.name]: subB[m.key],
+  // the grid criteria both officials have been marked on, from their filed reports — never an estimate
+  const axes = sharedAxes(radarFor(a.id), radarFor(b.id));
+  const radar = axes.map((x) => ({
+    metric: pickLocalized(x.label, locale),
+    [a.name]: x.a,
+    [b.name]: x.b,
   }));
 
   const headToHead = [
@@ -125,8 +118,8 @@ export default function ComparePage() {
     },
   ];
 
-  const gaps = metrics
-    .map((m) => ({ label: m.label, diff: subA[m.key] - subB[m.key] }))
+  const gaps = axes
+    .map((x) => ({ label: pickLocalized(x.label, locale), diff: x.a - x.b }))
     .sort((x, y) => Math.abs(y.diff) - Math.abs(x.diff));
 
   const options = pool.map((r) => ({ value: r.id, label: `${r.name} — ${r.arps.toFixed(1)}` }));
@@ -219,6 +212,7 @@ export default function ComparePage() {
             <p className="mb-2 mt-5 text-xs font-medium text-chalk-faint">
               {t("compare.verdict")} · {t("compare.verdictSub").toLowerCase()}
             </p>
+            {gaps.length === 0 && <p className="text-xs text-chalk-faint">{t("compare.notEnough", { min: RADAR_MIN_REPORTS })}</p>}
             <ul className="space-y-1.5">
               {gaps.map((gap) => {
                 const leader = gap.diff >= 0 ? a : b;
@@ -247,7 +241,11 @@ export default function ComparePage() {
               {t("compare.profile")}
             </p>
             <p className="mb-2 text-xs text-chalk-faint">{t("compare.profileSub")}</p>
-            <CompareRadar data={radar} seriesNames={[a.name, b.name]} />
+            {radar.length >= RADAR_MIN_AXES ? (
+              <CompareRadar data={radar} seriesNames={[a.name, b.name]} />
+            ) : (
+              <EmptyState title={t("compare.notEnough", { min: RADAR_MIN_REPORTS })} />
+            )}
           </div>
         </div>
       </Card>

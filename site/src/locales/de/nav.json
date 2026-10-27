@@ -6,7 +6,7 @@
   "overview": "Übersicht",
   "calendar": "Ansetzungskalender",
   "arae": "Assistierte Ansetzung",
-  "copilot": "KI-Assistent",
+  "copilot": "Schnellantworten",
   "referees": "Schiedsrichter",
   "matchReview": "Spielanalyse",
   "assessments": "Beobachterberichte",
@@ -26,5 +26,11 @@
   "adminFederations": "Verbände",
   "adminCountries": "Unterstützte Länder",
   "adminTeams": "Teams und Stadien",
-  "adminAudit": "Prüfprotokoll"
+  "adminAudit": "Prüfprotokoll",
+  "adminPartnerships": "Partnerschaften",
+  "finance": "Honorare",
+  "discipline": "Disziplin",
+  "adminCompetitions": "Wettbewerbe",
+  "analytics": "Dashboards",
+  "adminGrid": "Bewertungsraster"
 }

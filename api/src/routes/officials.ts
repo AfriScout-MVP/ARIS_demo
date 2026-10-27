@@ -414,9 +414,13 @@ officials.delete("/:id/availability/:date", async (c) => {
   const access = await assertActFor(db, user, id);
   const date = c.req.param("date");
   if (!DATE.safeParse(date).success) throw new ApiError(422, "validation_failed", "date must be YYYY-MM-DD");
+  // an official withdraws their own days off from today on; a past day is the record of what happened (staff may still correct it)
+  if (!isStaff(user) && date < today()) throw new ApiError(409, "past_date", "A day that has passed can no longer be withdrawn");
+  const declared = await db.prepare("SELECT state FROM availability WHERE official_id = ? AND date = ?").bind(id, date).first<{ state: string }>();
+  if (!declared) throw notFound("Declared day");
   await db.batch([
     db.prepare("DELETE FROM availability WHERE official_id = ? AND date = ?").bind(id, date),
-    auditStmt(db, user, { action: "availability.clear", entity: "official", entityId: id, after: { date }, countryCode: access.countryCode, ip: c.get("ip") }),
+    auditStmt(db, user, { action: "availability.clear", entity: "official", entityId: id, before: { date, state: declared.state }, after: { date }, countryCode: access.countryCode, ip: c.get("ip") }),
   ]);
   return c.json({ ok: true });
 });
@@ -431,6 +435,10 @@ officials.post("/:id/conflicts", async (c) => {
   const b = await readJson(c, conflictSchema);
   const cid = uuid();
   const subject = b.kind === "country" ? b.subject.toUpperCase() : b.subject;
+  // the engine matches a country by its code: free text there would be stored and never block anything
+  if (b.kind === "country" && !(await db.prepare("SELECT 1 AS x FROM countries WHERE code = ?").bind(subject).first())) {
+    throw new ApiError(422, "unknown_country", "A country conflict names a country by its code");
+  }
   try {
     await db.batch([
       db.prepare("INSERT INTO conflicts_of_interest (id, official_id, kind, subject, note) VALUES (?, ?, ?, ?, ?)").bind(cid, id, b.kind, subject, b.note ?? null),
@@ -443,7 +451,8 @@ officials.post("/:id/conflicts", async (c) => {
   return c.json({ conflict: { id: cid, kind: b.kind, subject } }, 201);
 });
 
-officials.delete("/:id/conflicts/:conflictId", staff, async (c) => {
+// The official withdraws their own declaration; their federation (or an admin) may remove one too.
+officials.delete("/:id/conflicts/:conflictId", async (c) => {
   const user = currentUser(c);
   const db = c.env.DB;
   const id = c.req.param("id");

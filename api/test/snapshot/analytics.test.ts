@@ -39,7 +39,7 @@ describe("analytics.decisionsBreakdown", () => {
   it("counts only the visible matches", async () => {
     // add 3 more VAR-confirmed decisions to MAR: MAR's mix changes, EGY's does not
     for (let i = 0; i < 3; i++) {
-      await sql("INSERT INTO match_decisions (id, match_id, minute, type, description, initial_call, var_review, final_call, confidence, pressure_index, distance) VALUES (?, 'm-MAR', ?, 'Foul', '{\"en\":\"x\",\"fr\":\"x\"}', 'given', 1, 'confirmed', 0.9, 1, 10)", `extra-${i}`, 60 + i).run();
+      await sql("INSERT INTO match_decisions (id, match_id, minute, type, description, initial_call, var_review, final_call, confidence, pressure_index, distance) VALUES (?, 'm-MAR', ?, 'foul_advantage', '{\"en\":\"x\",\"fr\":\"x\"}', 'given', 1, 'confirmed', 0.9, 1, 10)", `extra-${i}`, 60 + i).run();
     }
     const egy = (await analytics(w.egy)).decisionsBreakdown;
     const mar = (await analytics(w.mar)).decisionsBreakdown;

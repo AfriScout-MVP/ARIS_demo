@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { ChevronDown, ChevronRight, RefreshCcw } from "@/components/icons/glyphs";
+import { ChevronDown, ChevronRight, Download, RefreshCcw } from "@/components/icons/glyphs";
 import { Badge, Button, Card, EmptyState } from "@/components/ui";
 import { listAudit, type AuditEntry, type AuditPage } from "@/lib/api/admin";
 import { isAdmin, type Actor } from "@/lib/admin/actor";
@@ -11,6 +11,8 @@ import { formatDateTime } from "@/lib/admin/format";
 import { useActor, useResource } from "@/lib/admin/hooks";
 import { translateOr } from "@/lib/admin/labels";
 import { useDataset } from "@/lib/dataset/DatasetProvider";
+import { downloadText } from "@/lib/finance/download";
+import { toCsv } from "@/lib/finance/rules";
 import { useLocale, useT } from "@/lib/i18n/LocaleProvider";
 import { useToast } from "@/lib/toast/ToastProvider";
 import { localeTags } from "@/locales";
@@ -68,6 +70,16 @@ export function AuditView() {
     }
   }
 
+  // what is loaded and matches the filters, as on screen — "load more" first to take older entries with it
+  function exportCsv() {
+    const header = ["id", "at", "action", "entity", "entityId", "actor", "actorRole", "country", "reason", ...(admin ? ["ip"] : []), "before", "after"];
+    const body = rows.map((e) => [
+      e.id, e.at, e.action, e.entity, e.entityId, e.actorName ?? e.actorId, e.actorRole, e.countryCode, e.reason,
+      ...(admin ? [e.ip] : []), e.before == null ? "" : JSON.stringify(e.before), e.after == null ? "" : JSON.stringify(e.after),
+    ]);
+    downloadText(`aris-audit-${new Date().toISOString().slice(0, 10)}.csv`, toCsv(header, body), "text/csv;charset=utf-8");
+  }
+
   const stamp = (e: AuditEntry) => formatDateTime(e.at, localeTags[locale]);
   const entityLabel = (e: AuditEntry) => translateOr(t, `admin.audit.entities.${e.entity}`, e.entity);
 
@@ -76,10 +88,16 @@ export function AuditView() {
       titleKey="admin.audit.title"
       subtitleKey={admin ? "admin.audit.subtitleAdmin" : "admin.audit.subtitleFederation"}
       action={
-        <Button onClick={first.reload} disabled={first.loading || first.refreshing}>
-          <RefreshCcw size={14} />
-          {t("admin.audit.refresh")}
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button onClick={exportCsv} disabled={rows.length === 0}>
+            <Download size={14} />
+            {t("admin.audit.export")}
+          </Button>
+          <Button onClick={first.reload} disabled={first.loading || first.refreshing}>
+            <RefreshCcw size={14} />
+            {t("admin.audit.refresh")}
+          </Button>
+        </div>
       }
     >
       {!admin && (

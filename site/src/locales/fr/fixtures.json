@@ -1,0 +1,150 @@
+{
+  "new": "Nouvelle rencontre",
+  "newTitle": "Nouvelle rencontre",
+  "newHint": "Les postes de l'équipe arbitrale sont créés selon la compétition (VAR, observateur).",
+  "editTitle": "Modifier la rencontre",
+  "create": "Créer la rencontre",
+  "created": "{home} — {away} est au calendrier.",
+  "saved": "Rencontre mise à jour.",
+  "rescheduledWarn": "Rencontre déplacée : {n} officiels ne remplissent plus les conditions, voyez la grille.",
+  "chooseTeam": "Choisir une équipe…",
+  "chooseCompetition": "Choisir une compétition…",
+  "noStadium": "Stade à préciser",
+  "fields": {
+    "competition": "Compétition",
+    "homeCountry": "Pays de l'équipe recevante",
+    "awayCountry": "Pays de l'équipe visiteuse",
+    "home": "Équipe recevante",
+    "away": "Équipe visiteuse",
+    "date": "Date",
+    "time": "Coup d'envoi",
+    "stadium": "Stade",
+    "round": "Journée",
+    "roundLabel": "Intitulé du tour",
+    "importance": "Importance",
+    "reason": "Motif"
+  },
+  "hints": {
+    "localTime": "Heure locale du stade.",
+    "roundLabel": "Facultatif : « Quart de finale »…",
+    "importance": "0 à 100 : pèse sur le choix des officiels.",
+    "reason": "Les officiels déjà désignés sont prévenus avec ce motif.",
+    "reasonNotified": "Obligatoire : les officiels désignés sont prévenus avec ce motif."
+  },
+  "errors": {
+    "competition": "Choisissez la compétition.",
+    "team": "Choisissez l'équipe.",
+    "sameTeam": "Une équipe ne peut pas jouer contre elle-même.",
+    "round": "Une journée de 1 à 100.",
+    "roundLabel": "60 caractères au plus.",
+    "date": "Date invalide.",
+    "time": "Heure au format HH:MM.",
+    "importance": "Un nombre de 0 à 100.",
+    "reason": "Donnez le motif (3 caractères au moins).",
+    "score": "Un score de 0 à 99 pour chaque équipe.",
+    "attendance": "Un nombre entier, 300 000 au plus.",
+    "duplicate": "Ces équipes se rencontrent déjà lors de cette journée.",
+    "invalid_local_time": "Cette heure n'existe pas ce jour-là (changement d'heure).",
+    "team_outside_country": "Une rencontre nationale oppose des équipes du pays de la compétition.",
+    "stadium_outside_country": "Le stade doit être dans le pays de la compétition.",
+    "competition_inactive": "Cette compétition est close.",
+    "not_yet_played": "La rencontre n'a pas encore eu lieu.",
+    "no_referee": "Il faut un arbitre désigné pour enregistrer le résultat.",
+    "duplicate_match": "Un match entre ces équipes est déjà enregistré ce jour-là.",
+    "not_scheduled": "Cette rencontre n'est pas programmée.",
+    "not_validated": "L'équipe arbitrale doit d'abord être validée.",
+    "not_published": "Les convocations ne sont pas encore publiées.",
+    "unknown": "Cette équipe, ce stade ou cette compétition n'existe plus : rechargez la page."
+  },
+  "blocked": {
+    "incomplete": "Chaque poste obligatoire doit avoir un officiel avant l'envoi pour confirmation.",
+    "unconfirmed": "Chaque officiel doit avoir confirmé avant la validation."
+  },
+  "pipeline": {
+    "draft": "Brouillon",
+    "awaiting_confirmation": "En attente des officiels",
+    "validated": "Validée",
+    "published": "Publiée"
+  },
+  "steps": {
+    "submit": "Envoyer pour confirmation",
+    "validate": "Valider l'équipe",
+    "publish": "Publier les convocations",
+    "done": {
+      "submit": "Équipe envoyée aux officiels pour confirmation.",
+      "validate": "Équipe arbitrale validée.",
+      "publish": "Convocations publiées : chaque officiel est prévenu."
+    }
+  },
+  "status": {
+    "title": {
+      "postponed": "Reporter la rencontre",
+      "cancelled": "Annuler la rencontre",
+      "scheduled": "Reprogrammer la rencontre"
+    },
+    "body": {
+      "postponed": "La rencontre sort du calendrier actif ; l'équipe arbitrale est conservée.",
+      "cancelled": "La rencontre est annulée ; les officiels désignés sont prévenus.",
+      "scheduled": "La rencontre revient au calendrier. Vérifiez ensuite la date et l'équipe arbitrale."
+    },
+    "confirm": {
+      "postponed": "Reporter",
+      "cancelled": "Annuler la rencontre",
+      "scheduled": "Reprogrammer"
+    },
+    "done": {
+      "postponed": "Rencontre reportée.",
+      "cancelled": "Rencontre annulée.",
+      "scheduled": "Rencontre reprogrammée."
+    }
+  },
+  "result": {
+    "title": "Résultat",
+    "submit": "Enregistrer le résultat",
+    "attendance": "Affluence (facultatif)",
+    "hint": "Le match devient évaluable et facturable ; il ne peut plus être modifié.",
+    "done": "{home} {score} {away} enregistré."
+  },
+  "convocations": {
+    "title": "Convocations",
+    "emailAll": "Écrire aux {n} officiels"
+  },
+  "history": {
+    "title": "Historique de la rencontre",
+    "engine": "Moteur ARIS",
+    "empty": "Aucun événement",
+    "actions": {
+      "assign": "désigné",
+      "clear": "poste libéré",
+      "confirm": "confirmé",
+      "accept": "accepté par l'officiel",
+      "decline": "refusé par l'officiel",
+      "replace": "remplacé",
+      "autofill": "proposé par le moteur",
+      "validate": "validé",
+      "publish": "publié",
+      "revert": "annulation du moteur"
+    },
+    "events": {
+      "create": "Rencontre créée",
+      "update": "Rencontre modifiée",
+      "postponed": "Rencontre reportée",
+      "cancelled": "Rencontre annulée",
+      "submit": "Envoyée pour confirmation",
+      "validate": "Équipe validée",
+      "publish": "Convocations publiées",
+      "result": "Résultat enregistré",
+      "billed": "Indemnités générées"
+    }
+  },
+  "menu": {
+    "label": "Actions pour {home} — {away}",
+    "edit": "Modifier, déplacer",
+    "result": "Enregistrer le résultat",
+    "convocations": "Voir les convocations",
+    "postpone": "Reporter",
+    "cancel": "Annuler",
+    "reinstate": "Reprogrammer",
+    "history": "Historique"
+  }
+}

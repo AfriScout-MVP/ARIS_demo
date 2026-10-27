@@ -35,7 +35,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
-      <body className="min-h-full bg-ink-0 text-chalk">
+      <body className="min-h-full text-chalk">
         <ThemeProvider>
           <LocaleProvider>
             <ToastProvider>

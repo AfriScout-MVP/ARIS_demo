@@ -102,8 +102,8 @@ export async function addFixture(
   }
 }
 
-/** An account. Federation seats need `federationId` (see addFederation); referees need `officialId`. */
-export async function addUser(email: string, role: "admin" | "federation" | "referee", o: { officialId?: string; federationId?: string; locale?: string } = {}) {
+/** An account. Federation seats and taggers need `federationId` (see addFederation); referees need `officialId`. */
+export async function addUser(email: string, role: "admin" | "federation" | "referee" | "tagger", o: { officialId?: string; federationId?: string; locale?: string } = {}) {
   const id = uid("user");
   await db()
     .prepare("INSERT INTO users (id, email, name, role, official_id, federation_id, locale, password_hash) VALUES (?, ?, ?, ?, ?, ?, ?, ?)")

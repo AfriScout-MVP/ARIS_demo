@@ -22,7 +22,7 @@
     {
       "binding": "DB",
       "database_name": "ARIS_DB",
-      "database_id": "00000000-0000-0000-0000-000000000000",
+      "database_id": "c56a681b-2af6-4211-acdc-37dc6e426163",
       "migrations_dir": "migrations"
     }
   ],
@@ -38,9 +38,11 @@
   // Licence expiry, overdue reports, notification delivery.
   "triggers": { "crons": ["*/15 * * * *", "0 5 * * *"] },
 
-  "vars": { "ENVIRONMENT": "production" },
+  // PUBLIC_ORIGIN: the site's address for links in e-mails (password reset); empty = the request's own origin.
+  // MAIL_FROM: sender for e-mail sent through Resend (RESEND_API_KEY secret), e.g. "ARIS <no-reply@your-domain>".
+  "vars": { "ENVIRONMENT": "production", "PUBLIC_ORIGIN": "", "MAIL_FROM": "" },
   "observability": { "enabled": true }
 
-  // Secrets (never in this file): JWT_SECRET, and optionally MAIL_WEBHOOK_URL / MAIL_WEBHOOK_TOKEN.
+  // Secrets (never in this file): JWT_SECRET, and optionally RESEND_API_KEY, MAIL_WEBHOOK_URL / MAIL_WEBHOOK_TOKEN.
   // Set them with `wrangler secret put <NAME>` — the deploy workflow does this from GitHub secrets.
 }

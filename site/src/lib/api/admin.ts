@@ -69,6 +69,9 @@ export const patchUser = (id: string, body: PatchUserBody) =>
 export const resetUserPassword = (id: string, password: string) =>
   api<unknown>(`/users/${encodeURIComponent(id)}/reset-password`, { method: "POST", body: { password } });
 
+/** Ends every session of the account (its password is unchanged). */
+export const signOutUser = (id: string) => api<{ ok: true; self: boolean }>(`/users/${encodeURIComponent(id)}/sign-out`, { method: "POST" });
+
 // ------------------------------------------------------------------ officials
 
 /** What the account form needs from `GET /officials` (the register entry has more). */
@@ -148,7 +151,7 @@ export interface CountryRow {
   capital: string;
   timezone: string;
   currency: string;
-  /** Federation code ("FRMF"), or null when the country has none yet. */
+  /** Federation code ("FSF"), or null when the country has none yet. */
   federation: string | null;
   federationName: string | null;
   active: boolean;
@@ -235,6 +238,13 @@ export type StadiumPatch = Partial<Pick<StadiumBody, "name" | "city">> & { capac
 
 export const patchTeam = (id: string, body: TeamPatch) =>
   api<{ team: TeamRow }>(`/teams/${encodeURIComponent(id)}`, { method: "PATCH", body }).then((r) => r.team);
+
+/** Only a team without fixtures or matches can go (409 `in_use` otherwise). */
+export const deleteTeam = (id: string) => api<{ ok: true }>(`/teams/${encodeURIComponent(id)}`, { method: "DELETE" });
+
+/** Only a stadium no fixture is played at can go (409 `in_use`); teams that had it as home ground lose the link. */
+export const deleteStadium = (id: string) =>
+  api<{ ok: true; homeGroundCleared: number }>(`/stadiums/${encodeURIComponent(id)}`, { method: "DELETE" });
 
 export const uploadTeamLogo = (id: string, file: File) =>
   uploadFile(`/teams/${encodeURIComponent(id)}/logo`, file);

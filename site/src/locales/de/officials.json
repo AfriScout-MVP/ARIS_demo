@@ -1,0 +1,202 @@
+{
+  "views": {
+    "performance": "Leistung",
+    "registry": "Register"
+  },
+  "register": "Offiziellen eintragen",
+  "searchPlaceholder": "Name oder Registernummer…",
+  "count": "{n} Offizielle",
+  "truncated": "Nur die ersten 500 werden angezeigt: Suche verfeinern.",
+  "empty": "Keine Offiziellen",
+  "emptyHint": "Tragen Sie den ersten Schiedsrichter oder Schiedsrichterassistenten des Verbands ein.",
+  "edit": "Bearbeiten",
+  "editFile": "Akte bearbeiten",
+  "openFile": "Akte öffnen",
+  "allKinds": "Alle",
+  "allStatuses": "Alle Status",
+  "kinds": {
+    "referee": "Schiedsrichter",
+    "assistant": "Schiedsrichterassistent"
+  },
+  "status": {
+    "active": "Aktiv",
+    "training": "In Ausbildung",
+    "elite-pool": "Elitekader",
+    "unavailable": "Nicht verfügbar",
+    "retired": "Im Ruhestand",
+    "suspended": "Gesperrt"
+  },
+  "disciplines": {
+    "football": "Fußball",
+    "futsal": "Futsal",
+    "football7": "7er-Fußball"
+  },
+  "fields": {
+    "kind": "Funktion",
+    "name": "Vollständiger Name",
+    "country": "Land",
+    "level": "Stufe",
+    "status": "Status",
+    "matricule": "Registernummer",
+    "licenceNo": "Lizenznummer",
+    "nationality": "Staatsangehörigkeit",
+    "birthDate": "Geburtsdatum",
+    "city": "Stadt",
+    "region": "Region",
+    "league": "Liga",
+    "email": "E-Mail",
+    "phone": "Telefon",
+    "disciplines": "Disziplinen",
+    "zones": "Einsatzgebiete",
+    "varQualified": "VAR-qualifiziert",
+    "yearsActive": "Jahre als Schiedsrichter",
+    "bio": "Vorstellung",
+    "bioFr": "Auf Französisch",
+    "bioEn": "Auf Englisch",
+    "bioEs": "Auf Spanisch (optional)",
+    "bioDe": "Auf Deutsch (optional)",
+    "updatedAt": "Aktualisiert"
+  },
+  "sections": {
+    "identity": "Identität",
+    "career": "Laufbahn",
+    "contact": "Kontaktdaten",
+    "bio": "Öffentliche Vorstellung"
+  },
+  "hints": {
+    "matricule": "Leer lassen: ARIS vergibt die nächste des Landes (ARIS-SEN-R0001…).",
+    "matriculeAuto": "Wird bei der Eintragung automatisch vergeben.",
+    "zones": "Ländercodes oder Regionen, durch Kommas getrennt.",
+    "var": "Wird automatisch gepflegt, sobald ein VAR-Zertifikat in der Akte liegt.",
+    "suspended": "Durch eine Disziplinarentscheidung gesperrt: Der Status ändert sich mit dem Verfahren, nicht hier.",
+    "retired": "Ein Offizieller im Ruhestand verschwindet aus Ansetzungen und Ranglisten; die Akte bleibt im Register."
+  },
+  "dialog": {
+    "newTitle": "Offiziellen eintragen",
+    "newHint": "Die Akte kommt ins Register des Verbands. Der Offizielle erhält sofort seine Registernummer.",
+    "editTitle": "Akte von {name}",
+    "create": "Eintragen",
+    "created": "{name} ist eingetragen: Nummer {matricule}.",
+    "saved": "Akte aktualisiert.",
+    "unchanged": "Nichts geändert."
+  },
+  "registry": {
+    "title": "Register",
+    "subtitle": "Nur für den Verband und den Offiziellen selbst sichtbar.",
+    "none": "—"
+  },
+  "fileOnly": "Dieser Offizielle erscheint nicht in den Ranglisten (Assistent oder im Ruhestand): Hier ist seine Registerakte.",
+  "documents": {
+    "title": "Dokumente",
+    "staffHint": "Lizenzen, ärztliche Atteste, Ausweise: Prüfen Sie jedes eingereichte Dokument.",
+    "selfHint": "Reichen Sie Ihre Unterlagen hier ein; der Verband prüft sie und benachrichtigt Sie.",
+    "kind": "Art des Dokuments",
+    "expiresOn": "Gültig bis (optional)",
+    "file": "Datei",
+    "fileHint": "PDF, PNG, JPEG oder WebP, höchstens 8 MB.",
+    "upload": "Einreichen",
+    "uploaded": "Dokument eingereicht.",
+    "photoNote": "Ein Foto ersetzt das bisherige in der Akte.",
+    "kinds": {
+      "licence": "Lizenz",
+      "identity": "Ausweisdokument",
+      "medical": "Ärztliches Attest",
+      "certificate": "Zertifikat",
+      "attestation": "Bescheinigung",
+      "receipt": "Kostenbeleg",
+      "photo": "Foto",
+      "other": "Sonstiges"
+    },
+    "statuses": {
+      "pending": "Zu prüfen",
+      "verified": "Geprüft",
+      "rejected": "Abgelehnt"
+    },
+    "expired": "Abgelaufen am {date}",
+    "expiring": "Läuft ab am {date}",
+    "valid": "Gültig bis {date}",
+    "uploadedOn": "Eingereicht am {date}",
+    "download": "Herunterladen",
+    "verify": "Bestätigen",
+    "reject": "Ablehnen",
+    "reopen": "Erneut prüfen",
+    "delete": "Löschen",
+    "deleteTitle": "Dieses Dokument löschen?",
+    "deleteBody": "„{name}“ wird endgültig aus der Akte gelöscht.",
+    "toast": {
+      "verified": "Dokument bestätigt; der Offizielle wurde benachrichtigt.",
+      "rejected": "Dokument abgelehnt; der Offizielle wurde benachrichtigt.",
+      "pending": "Dokument wieder zur Prüfung gestellt.",
+      "deleted": "Dokument gelöscht."
+    },
+    "empty": "Keine Dokumente",
+    "emptyHint": "Vom Offiziellen oder vom Verband eingereichte Dokumente erscheinen hier.",
+    "toReview": "{n} zu prüfen",
+    "lapsed": "{n} abgelaufen",
+    "lapsing": "{n} laufen bald ab",
+    "lockedSelf": "Ein bereits geprüftes Dokument kann nur der Verband entfernen.",
+    "errors": {
+      "type": "Nur PDF, PNG, JPEG und WebP werden angenommen (ein Foto muss ein Bild sein).",
+      "size": "Höchstens 8 MB.",
+      "empty": "Diese Datei ist leer.",
+      "missing": "Wählen Sie eine Datei.",
+      "date": "Ungültiges Datum."
+    }
+  },
+  "mine": {
+    "title": "Meine Akte",
+    "hint": "Ihre Kontaktdaten und Einsatzgebiete. Den Rest der Akte führt Ihr Verband.",
+    "save": "Speichern",
+    "saved": "Kontaktdaten gespeichert."
+  },
+  "errors": {
+    "name": "Zwischen 2 und 120 Zeichen.",
+    "country": "Wählen Sie das Land des Offiziellen.",
+    "code": "Zwischen 3 und 40 Zeichen.",
+    "birthDate": "Ungültiges Datum (der Offizielle muss mindestens 16 sein).",
+    "years": "Eine Zahl zwischen 0 und 60.",
+    "disciplines": "Mindestens eine Disziplin.",
+    "zones": "Höchstens 30 Gebiete mit je 20 Zeichen.",
+    "duplicate": "Ein Offizieller hat bereits diese Register- oder Lizenznummer.",
+    "suspended": "Dieser Offizielle ist gesperrt: Der Status ändert sich mit dem Disziplinarverfahren."
+  },
+  "chooseCountry": "Land wählen…",
+  "conflicts": {
+    "title": "Interessenkonflikte",
+    "selfHint": "Melden Sie jede Verbindung zu einem Verein, einer Mannschaft oder einem Land: Sie werden für deren Spiele nicht angesetzt.",
+    "staffHint": "Gemeldete Verbindungen: Die Engine setzt den Offiziellen für betroffene Spiele nicht an.",
+    "add": "Melden",
+    "declare": "Verbindung melden",
+    "declared": "Verbindung gemeldet: Die Engine berücksichtigt sie.",
+    "empty": "Keine Verbindung gemeldet",
+    "emptyHint": "Ein früherer Verein, ein Verwandter als Trainer, eine zweite Staatsangehörigkeit: melden Sie es vor einer Ansetzung.",
+    "declaredOn": "Gemeldet am {date}",
+    "remove": "Entfernen",
+    "removeTitle": "Diese Verbindung entfernen?",
+    "removeBody": "„{subject}“ zählt nicht mehr: Der Offizielle kann wieder für diese Spiele angesetzt werden.",
+    "removed": "Verbindung entfernt.",
+    "kinds": {
+      "club": "Verein",
+      "team": "Mannschaft",
+      "country": "Land"
+    },
+    "fields": {
+      "kind": "Art der Verbindung",
+      "club": "Verein",
+      "team": "Mannschaft",
+      "country": "Land",
+      "note": "Angabe (optional)"
+    },
+    "hints": {
+      "name": "Der Name, wie er im Kalender steht.",
+      "note": "Z. B. „Spieler 2015–2019“, „Bruder ist Co-Trainer“.",
+      "permanent": "Nur der Verband kann eine gemeldete Verbindung entfernen."
+    },
+    "errors": {
+      "subject": "2 bis 80 Zeichen.",
+      "country": "Wählen Sie das Land.",
+      "duplicate": "Diese Verbindung ist bereits gemeldet.",
+      "note": "Höchstens 300 Zeichen."
+    }
+  }
+}

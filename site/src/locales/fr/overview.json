@@ -31,7 +31,7 @@
   "alertSlots": "Postes vides cette semaine",
   "alertReports": "Rapports d'observateur en attente",
   "alertLicences": "Licences à renouveler",
-  "alertSync": "Calendriers non synchronisés",
+  "alertSync": "Pays sans données récentes",
   "alertSuspended": "Officiels suspendus",
   "daysShort": "{n} j",
   "decisionCorrect": "Correcte sur le terrain",

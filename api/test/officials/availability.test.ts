@@ -72,7 +72,7 @@ describe("availability and conflicts of interest", async () => {
     expect((await sql("SELECT COUNT(*) AS n FROM availability WHERE official_id = 'oa-1' AND date = '2036-06-01'").first<{ n: number }>())!.n).toBe(1);
   });
 
-  it("records conflicts of interest: declared by the official, removed by the federation of the country", async () => {
+  it("records conflicts of interest: declared by the official, removed by them or the federation of the country", async () => {
     const decl = await api("POST", "/api/v1/officials/oa-1/conflicts", { session: ref1, body: { kind: "country", subject: "oab", note: "Born there" } });
     expect(decl.status).toBe(201);
     expect(decl.json.conflict).toMatchObject({ kind: "country", subject: "OAB" });
@@ -80,11 +80,39 @@ describe("availability and conflicts of interest", async () => {
     expect((await api("POST", "/api/v1/officials/oa-1/conflicts", { session: ref2, body: { kind: "club", subject: "Some FC" } })).status).toBe(403);
     expect((await api("POST", "/api/v1/officials/oa-1/conflicts", { session: fedB, body: { kind: "club", subject: "Some FC" } })).status).toBe(404);
     expect((await api("POST", "/api/v1/officials/oa-1/conflicts", { session: ref1, body: { kind: "club", subject: "x" } })).status).toBe(422);
+    const named = await api("POST", "/api/v1/officials/oa-1/conflicts", { session: ref1, body: { kind: "country", subject: "Senegal" } });
+    expect([named.status, named.json.error.code]).toEqual([422, "unknown_country"]);
     const id = decl.json.conflict.id as string;
-    expect((await api("DELETE", `/api/v1/officials/oa-1/conflicts/${id}`, { session: ref1 })).status).toBe(403);
+    // another referee may not touch it (403), another country does not see it (404)
+    expect((await api("DELETE", `/api/v1/officials/oa-1/conflicts/${id}`, { session: ref2 })).status).toBe(403);
     expect((await api("DELETE", `/api/v1/officials/oa-1/conflicts/${id}`, { session: fedB })).status).toBe(404);
     expect((await api("DELETE", `/api/v1/officials/oa-1/conflicts/nope`, { session: fedA })).status).toBe(404);
     expect((await api("DELETE", `/api/v1/officials/oa-1/conflicts/${id}`, { session: fedA })).status).toBe(200);
     expect((await sql("SELECT COUNT(*) AS n FROM conflicts_of_interest WHERE official_id = 'oa-1'").first<{ n: number }>())!.n).toBe(0);
+    // the official withdraws their own declaration
+    const own = (await api("POST", "/api/v1/officials/oa-1/conflicts", { session: ref1, body: { kind: "club", subject: "Former Club" } })).json.conflict.id as string;
+    expect((await api("DELETE", `/api/v1/officials/oa-1/conflicts/${own}`, { session: ref1 })).status).toBe(200);
+    expect((await api("DELETE", `/api/v1/officials/oa-1/conflicts/${own}`, { session: ref1 })).status).toBe(404);
+    const audit = await sql("SELECT actor_role AS role FROM audit_log WHERE action = 'conflict.remove' AND entity_id = 'oa-1' ORDER BY id DESC LIMIT 1").first<{ role: string }>();
+    expect(audit?.role).toBe("referee");
+  });
+
+  it("lets an official withdraw their own declared days, today or later, never another's", async () => {
+    const day = new Date(Date.now() + 10 * 86_400_000).toISOString().slice(0, 10);
+    const past = new Date(Date.now() - 10 * 86_400_000).toISOString().slice(0, 10);
+    expect((await put(ref1, "oa-1", { dates: [day], state: "resting" })).status).toBe(200);
+    await sql("INSERT INTO availability (official_id, date, state) VALUES ('oa-1', ?, 'resting')", past).run();
+    expect((await api("GET", `/api/v1/officials/oa-1/availability?from=${past}&to=${day}`, { session: ref1 })).json.declared.map((d: { date: string }) => d.date)).toEqual([past, day]);
+    expect((await api("DELETE", `/api/v1/officials/oa-1/availability/${day}`, { session: ref2 })).status).toBe(403);
+    expect((await api("DELETE", `/api/v1/officials/oa-1/availability/${day}`, { session: fedB })).status).toBe(404);
+    expect((await api("DELETE", `/api/v1/officials/oa-1/availability/${day}`, { session: null })).status).toBe(401);
+    const old = await api("DELETE", `/api/v1/officials/oa-1/availability/${past}`, { session: ref1 });
+    expect([old.status, old.json.error.code]).toEqual([409, "past_date"]);
+    expect((await api("DELETE", `/api/v1/officials/oa-1/availability/${day}`, { session: ref1 })).status).toBe(200);
+    expect((await api("DELETE", `/api/v1/officials/oa-1/availability/${day}`, { session: ref1 })).status).toBe(404);
+    // staff may still correct the record of a past day
+    expect((await api("DELETE", `/api/v1/officials/oa-1/availability/${past}`, { session: fedA })).status).toBe(200);
+    const audit = await sql("SELECT before FROM audit_log WHERE action = 'availability.clear' AND entity_id = 'oa-1' ORDER BY id DESC LIMIT 1").first<{ before: string }>();
+    expect(JSON.parse(audit!.before)).toMatchObject({ date: past, state: "resting" });
   });
 });

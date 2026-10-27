@@ -1,0 +1,73 @@
+{
+  "title": "Competitions",
+  "subtitleAdmin": "Every country's leagues and cups, and CAF's continental competitions: season, matchdays, VAR, weight in designations.",
+  "subtitleFederation": "Your federation's leagues and cups: season, matchdays, VAR, weight in designations.",
+  "new": "New competition",
+  "newTitle": "New competition",
+  "newHint": "It shows up at once in the calendar, designations and fee scales.",
+  "editTitle": "Edit the competition",
+  "create": "Create",
+  "created": "{name} has been created.",
+  "saved": "Competition updated.",
+  "search": "Name, short name or season…",
+  "continental": "CAF: continental competitions",
+  "views": {
+    "active": "Running",
+    "all": "All"
+  },
+  "fields": {
+    "name": "Name",
+    "shortName": "Short name",
+    "tier": "Tier",
+    "gender": "Category",
+    "season": "Season",
+    "matchdays": "Matchdays",
+    "currentMatchday": "Current matchday",
+    "weight": "Weight",
+    "varEnabled": "VAR in use",
+    "isActive": "Competition running",
+    "progress": "Progress",
+    "status": "State"
+  },
+  "gender": {
+    "M": "Men",
+    "W": "Women"
+  },
+  "hints": {
+    "season": "YYYY/YYYY, for example 2026/2027.",
+    "seasonFixed": "Season and category no longer change once created.",
+    "weight": "0 to 10: weighs on match importance in designations.",
+    "var": "Designations then include a VAR and an AVAR.",
+    "active": "A closed competition can still be viewed but takes no more matches."
+  },
+  "active": "Running",
+  "inactive": "Closed",
+  "edit": "Edit",
+  "advance": "Move to the next matchday",
+  "advanced": "{name}: matchday {n}.",
+  "close": "Close the competition",
+  "reopen": "Reopen the competition",
+  "closed": "{name} is closed.",
+  "reopened": "{name} is reopened.",
+  "actionsFor": "Actions for {name}",
+  "rollover": {
+    "action": "Prepare the {season} season",
+    "title": "Prepare the {season} season?",
+    "body": "{name} is carried over as it is from {from} to {to}, starting at matchday 0.",
+    "closeOld": "Close the {season} season",
+    "confirm": "Create the season",
+    "done": "{name} {season} is ready."
+  },
+  "empty": "No competitions",
+  "emptyHint": "Create the league or cup the federation appoints referees for.",
+  "errors": {
+    "name": "Between 2 and 120 characters.",
+    "shortName": "30 characters at most.",
+    "tier": "CAF runs only continental competitions, and only CAF does.",
+    "season": "YYYY/YYYY, the second year following the first (2026/2027).",
+    "matchdays": "A number between 1 and 100.",
+    "currentMatchday": "A number between 0 and 100.",
+    "beyondLast": "Cannot exceed the number of matchdays.",
+    "weight": "A number between 0 and 10."
+  }
+}

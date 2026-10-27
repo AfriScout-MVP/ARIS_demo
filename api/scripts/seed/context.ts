@@ -36,15 +36,15 @@ export interface SeedContext {
 /** Hands out stable ids for teams and stadiums and writes each row once. */
 export class TeamBook {
   private ids = new Map<string, string>();
-  readonly rows: Array<{ id: string; name: string; kind: "club" | "national"; country: string; city: string | null; stadiumId: string | null }> = [];
+  readonly rows: Array<{ id: string; name: string; shortName: string | null; kind: "club" | "national"; country: string; city: string | null; stadiumId: string | null }> = [];
 
-  get(name: string, country: string, kind: "club" | "national" = "club", city: string | null = null): string {
+  get(name: string, country: string, kind: "club" | "national" = "club", city: string | null = null, extra: { shortName?: string | null; stadiumId?: string | null } = {}): string {
     const key = `${kind}|${country}|${name.toLowerCase()}`;
     let id = this.ids.get(key);
     if (!id) {
       id = `tm-${country.toLowerCase()}-${kind === "national" ? "nt-" : ""}${slug(name)}`;
       this.ids.set(key, id);
-      this.rows.push({ id, name, kind, country, city, stadiumId: null });
+      this.rows.push({ id, name, shortName: extra.shortName ?? null, kind, country, city, stadiumId: extra.stadiumId ?? null });
     }
     return id;
   }
@@ -56,15 +56,15 @@ export class TeamBook {
 
 export class StadiumBook {
   private ids = new Map<string, string>();
-  readonly rows: Array<{ id: string; name: string; city: string; country: string }> = [];
+  readonly rows: Array<{ id: string; name: string; city: string; country: string; capacity: number | null }> = [];
 
-  get(name: string, city: string, country: string): string {
+  get(name: string, city: string, country: string, capacity: number | null = null): string {
     const key = `${country}|${name.toLowerCase()}|${city.toLowerCase()}`;
     let id = this.ids.get(key);
     if (!id) {
       id = `st-${country.toLowerCase()}-${slug(name)}-${slug(city)}`;
       this.ids.set(key, id);
-      this.rows.push({ id, name, city, country });
+      this.rows.push({ id, name, city, country, capacity });
     }
     return id;
   }

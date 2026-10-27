@@ -1,0 +1,24 @@
+# Weekly dependency updates, one grouped pull request per ecosystem so CI (ci.yml) checks each batch as a whole.
+# Major versions arrive one by one: they are the ones that break (Next.js, Hono, Zod and Vitest all have).
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /api
+    schedule: { interval: weekly, day: monday }
+    open-pull-requests-limit: 5
+    groups:
+      api-minor:
+        update-types: [minor, patch]
+  - package-ecosystem: npm
+    directory: /site
+    schedule: { interval: weekly, day: monday }
+    open-pull-requests-limit: 5
+    groups:
+      site-minor:
+        update-types: [minor, patch]
+  - package-ecosystem: github-actions
+    directory: /
+    schedule: { interval: monthly }
+    groups:
+      actions:
+        patterns: ["*"]

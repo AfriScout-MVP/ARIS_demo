@@ -4,13 +4,17 @@
     "accounts": "Comptes",
     "federations": "Fédérations",
     "countries": "Pays",
+    "competitions": "Compétitions",
     "teams": "Équipes et stades",
-    "audit": "Journal d'audit"
+    "audit": "Journal d'audit",
+    "partnerships": "Partenariats",
+    "grid": "Grille d'évaluation"
   },
   "roles": {
     "admin": "Super-admin",
     "federation": "Fédération",
-    "referee": "Arbitre"
+    "referee": "Arbitre",
+    "tagger": "Taggeur"
   },
   "zones": {
     "UNAF": "Afrique du Nord",
@@ -53,7 +57,7 @@
     "pickOfficial": "Choisissez l'arbitre concerné.",
     "pickCountry": "Choisissez un pays.",
     "pickZone": "Choisissez une zone.",
-    "federationCode": "2 à 20 caractères : majuscules, chiffres ou tirets (ex. FRMF, FAF-AGO).",
+    "federationCode": "2 à 20 caractères : majuscules, chiffres ou tirets (ex. FSF, FECOFOOT).",
     "alpha3": "Code ISO alpha-3 : trois lettres majuscules (ex. MAR).",
     "iso2": "Code ISO alpha-2 : deux lettres majuscules (ex. MA).",
     "currency": "Code monnaie ISO 4217 : trois lettres (ex. MAD).",
@@ -84,7 +88,8 @@
     "stadium_exists": "Cette ville a déjà un stade de ce nom.",
     "file_type": "Format d'image non accepté : utilisez PNG, JPEG ou WebP.",
     "file_size": "Image trop lourde : 8 Mo au maximum.",
-    "file_empty": "Le fichier est vide."
+    "file_empty": "Le fichier est vide.",
+    "in_use": "Encore utilisé par des rencontres : impossible de supprimer. Modifiez-le plutôt."
   },
   "password": {
     "show": "Afficher le mot de passe",
@@ -134,7 +139,8 @@
     "roleHint": {
       "admin": "Accès à tous les pays et à toute l'administration.",
       "federation": "Un siège de fédération nationale, limité à son pays.",
-      "referee": "L'espace personnel d'un arbitre : désignations, disponibilités, paiements."
+      "referee": "L'espace personnel d'un arbitre : désignations, disponibilités, paiements.",
+      "tagger": "Tague les décisions arbitrales d'un pays. Aucun autre accès au produit."
     },
     "federation": "Fédération",
     "chooseFederation": "Choisir une fédération…",
@@ -153,6 +159,10 @@
     "deactivateTitle": "Désactiver ce compte ?",
     "deactivateBody": "{name} ne pourra plus se connecter et sera déconnecté(e) immédiatement. Vous pourrez réactiver le compte à tout moment.",
     "deactivated": "Compte de {name} désactivé.",
+    "signOutAll": "Déconnecter partout",
+    "signOutAllTitle": "Déconnecter tous les appareils ?",
+    "signOutAllBody": "Toutes les sessions ouvertes de {name} prennent fin immédiatement, sur chaque appareil. Le mot de passe ne change pas : {name} pourra se reconnecter.",
+    "signedOutAll": "{name} est déconnecté(e) de tous les appareils.",
     "resetPassword": "Réinitialiser le mot de passe",
     "resetTitle": "Réinitialiser le mot de passe",
     "resetHint": "Définissez un nouveau mot de passe pour {name}. Ses sessions ouvertes seront fermées.",
@@ -174,7 +184,7 @@
     "search": "Rechercher une fédération",
     "searchPlaceholder": "Code, nom, pays…",
     "code": "Code",
-    "codeHint": "Sigle officiel, par exemple FRMF.",
+    "codeHint": "Sigle officiel, par exemple FSF.",
     "name": "Nom",
     "country": "Pays",
     "status": "Statut",
@@ -301,7 +311,14 @@
     "editStadium": "Modifier le stade",
     "createStadium": "Créer le stade",
     "stadiumCreated": "Stade {name} créé.",
-    "stadiumUpdated": "Stade {name} mis à jour."
+    "stadiumUpdated": "Stade {name} mis à jour.",
+    "delete": "Supprimer",
+    "deleteTeamTitle": "Supprimer cette équipe ?",
+    "deleteTeamBody": "{name} et son logo seront supprimés. Une équipe qui a déjà des rencontres ne peut pas l'être : renommez-la plutôt.",
+    "teamDeleted": "{name} supprimée.",
+    "deleteStadiumTitle": "Supprimer ce stade ?",
+    "deleteStadiumBody": "{name} sera supprimé et retiré des équipes qui le déclarent comme stade. Un stade où des rencontres sont prévues ou jouées ne peut pas l'être.",
+    "stadiumDeleted": "{name} supprimé."
   },
   "audit": {
     "title": "Journal d'audit",
@@ -339,6 +356,7 @@
       "document": "Document",
       "course": "Formation",
       "case": "Dossier disciplinaire"
-    }
+    },
+    "export": "Exporter (CSV)"
   }
 }

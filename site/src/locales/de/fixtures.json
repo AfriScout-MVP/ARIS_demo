@@ -1,0 +1,150 @@
+{
+  "new": "Neue Partie",
+  "newTitle": "Neue Partie",
+  "newHint": "Die Positionen des Schiedsrichterteams werden nach dem Wettbewerb angelegt (VAR, Beobachter).",
+  "editTitle": "Partie bearbeiten",
+  "create": "Partie anlegen",
+  "created": "{home} — {away} steht im Kalender.",
+  "saved": "Partie aktualisiert.",
+  "rescheduledWarn": "Partie verlegt: {n} Offizielle erfüllen die Bedingungen nicht mehr, siehe Übersicht.",
+  "chooseTeam": "Mannschaft wählen…",
+  "chooseCompetition": "Wettbewerb wählen…",
+  "noStadium": "Stadion noch offen",
+  "fields": {
+    "competition": "Wettbewerb",
+    "homeCountry": "Land der Heimmannschaft",
+    "awayCountry": "Land der Gastmannschaft",
+    "home": "Heimmannschaft",
+    "away": "Gastmannschaft",
+    "date": "Datum",
+    "time": "Anstoß",
+    "stadium": "Stadion",
+    "round": "Spieltag",
+    "roundLabel": "Rundenname",
+    "importance": "Bedeutung",
+    "reason": "Grund"
+  },
+  "hints": {
+    "localTime": "Ortszeit am Stadion.",
+    "roundLabel": "Optional: „Viertelfinale“…",
+    "importance": "0 bis 100: beeinflusst die Auswahl der Offiziellen.",
+    "reason": "Bereits angesetzte Offizielle werden mit diesem Grund benachrichtigt.",
+    "reasonNotified": "Pflicht: Angesetzte Offizielle werden mit diesem Grund benachrichtigt."
+  },
+  "errors": {
+    "competition": "Wählen Sie den Wettbewerb.",
+    "team": "Wählen Sie die Mannschaft.",
+    "sameTeam": "Eine Mannschaft kann nicht gegen sich selbst spielen.",
+    "round": "Ein Spieltag von 1 bis 100.",
+    "roundLabel": "Höchstens 60 Zeichen.",
+    "date": "Ungültiges Datum.",
+    "time": "Uhrzeit im Format HH:MM.",
+    "importance": "Eine Zahl von 0 bis 100.",
+    "reason": "Geben Sie den Grund an (mindestens 3 Zeichen).",
+    "score": "Ein Ergebnis von 0 bis 99 für jede Mannschaft.",
+    "attendance": "Eine ganze Zahl, höchstens 300.000.",
+    "duplicate": "Diese Mannschaften treffen an diesem Spieltag bereits aufeinander.",
+    "invalid_local_time": "Diese Uhrzeit gibt es an diesem Tag nicht (Zeitumstellung).",
+    "team_outside_country": "Eine nationale Partie wird zwischen Mannschaften des Wettbewerbslandes ausgetragen.",
+    "stadium_outside_country": "Das Stadion muss im Land des Wettbewerbs liegen.",
+    "competition_inactive": "Dieser Wettbewerb ist abgeschlossen.",
+    "not_yet_played": "Die Partie wurde noch nicht gespielt.",
+    "no_referee": "Für das Ergebnis braucht es einen angesetzten Schiedsrichter.",
+    "duplicate_match": "Ein Spiel zwischen diesen Mannschaften ist an diesem Tag bereits erfasst.",
+    "not_scheduled": "Diese Partie ist nicht angesetzt.",
+    "not_validated": "Das Schiedsrichterteam muss zuerst bestätigt werden.",
+    "not_published": "Die Einberufungen sind noch nicht veröffentlicht.",
+    "unknown": "Diese Mannschaft, dieses Stadion oder dieser Wettbewerb existiert nicht mehr: Seite neu laden."
+  },
+  "blocked": {
+    "incomplete": "Jede Pflichtposition braucht einen Offiziellen, bevor das Team zur Bestätigung geht.",
+    "unconfirmed": "Jeder Offizielle muss vor der Bestätigung zugesagt haben."
+  },
+  "pipeline": {
+    "draft": "Entwurf",
+    "awaiting_confirmation": "Warten auf die Offiziellen",
+    "validated": "Bestätigt",
+    "published": "Veröffentlicht"
+  },
+  "steps": {
+    "submit": "Zur Bestätigung senden",
+    "validate": "Team bestätigen",
+    "publish": "Einberufungen veröffentlichen",
+    "done": {
+      "submit": "Team zur Bestätigung an die Offiziellen gesendet.",
+      "validate": "Schiedsrichterteam bestätigt.",
+      "publish": "Einberufungen veröffentlicht: Jeder Offizielle wurde benachrichtigt."
+    }
+  },
+  "status": {
+    "title": {
+      "postponed": "Partie verlegen",
+      "cancelled": "Partie absagen",
+      "scheduled": "Partie wieder ansetzen"
+    },
+    "body": {
+      "postponed": "Die Partie verlässt den aktiven Kalender; das Team bleibt erhalten.",
+      "cancelled": "Die Partie wird abgesagt; angesetzte Offizielle werden benachrichtigt.",
+      "scheduled": "Die Partie kehrt in den Kalender zurück. Prüfen Sie danach Datum und Team."
+    },
+    "confirm": {
+      "postponed": "Verlegen",
+      "cancelled": "Partie absagen",
+      "scheduled": "Wieder ansetzen"
+    },
+    "done": {
+      "postponed": "Partie verlegt.",
+      "cancelled": "Partie abgesagt.",
+      "scheduled": "Partie wieder angesetzt."
+    }
+  },
+  "result": {
+    "title": "Ergebnis",
+    "submit": "Ergebnis erfassen",
+    "attendance": "Zuschauer (optional)",
+    "hint": "Das Spiel kann dann bewertet und abgerechnet werden; es lässt sich nicht mehr ändern.",
+    "done": "{home} {score} {away} erfasst."
+  },
+  "convocations": {
+    "title": "Einberufungen",
+    "emailAll": "An die {n} Offiziellen schreiben"
+  },
+  "history": {
+    "title": "Verlauf der Partie",
+    "engine": "ARIS-Engine",
+    "empty": "Noch nichts",
+    "actions": {
+      "assign": "angesetzt",
+      "clear": "Position frei",
+      "confirm": "bestätigt",
+      "accept": "vom Offiziellen angenommen",
+      "decline": "vom Offiziellen abgelehnt",
+      "replace": "ersetzt",
+      "autofill": "von der Engine vorgeschlagen",
+      "validate": "bestätigt",
+      "publish": "veröffentlicht",
+      "revert": "Engine-Lauf rückgängig"
+    },
+    "events": {
+      "create": "Partie angelegt",
+      "update": "Partie geändert",
+      "postponed": "Partie verlegt",
+      "cancelled": "Partie abgesagt",
+      "submit": "Zur Bestätigung gesendet",
+      "validate": "Team bestätigt",
+      "publish": "Einberufungen veröffentlicht",
+      "result": "Ergebnis erfasst",
+      "billed": "Entschädigungen erzeugt"
+    }
+  },
+  "menu": {
+    "label": "Aktionen für {home} — {away}",
+    "edit": "Bearbeiten, verlegen",
+    "result": "Ergebnis erfassen",
+    "convocations": "Einberufungen ansehen",
+    "postpone": "Verlegen",
+    "cancel": "Absagen",
+    "reinstate": "Wieder ansetzen",
+    "history": "Verlauf"
+  }
+}

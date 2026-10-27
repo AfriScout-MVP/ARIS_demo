@@ -65,8 +65,9 @@ export function DatasetProvider({ children }: { children: React.ReactNode }) {
     try {
       const me = await api<{ user: SessionUser }>("/auth/me");
       if (mine !== loadId.current) return;
-      // referees have a personal space and no access to the staff snapshot
-      if (isStaff(me.user)) {
+      // a staff-set password blocks every route but /auth (see api/src/index.ts): fetching the snapshot
+      // would only 403. DataGate shows the forced change-password screen instead until it is cleared.
+      if (isStaff(me.user) && !me.user.mustChangePassword) {
         const snapshot = await api<ApiSnapshot>("/snapshot");
         if (mine !== loadId.current) return;
         applySnapshot(snapshot);
@@ -74,7 +75,7 @@ export function DatasetProvider({ children }: { children: React.ReactNode }) {
       setUser(me.user);
       setVersion((v) => v + 1);
       setStatus("ready");
-      void loadNotifications();
+      if (!me.user.mustChangePassword) void loadNotifications();
     } catch (err) {
       if (mine !== loadId.current) return;
       if (err instanceof ApiError && err.status === 401) {

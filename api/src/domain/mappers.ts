@@ -102,6 +102,12 @@ export function toOfficialFile(r: OfficialRow, full: boolean) {
   const base = {
     ...(r.kind === "referee" ? toReferee(r) : toAssistant(r)),
     kind: r.kind,
+    // what the register edits, for an assistant as much as for a referee
+    status: r.status,
+    city: r.city ?? "",
+    yearsActive: r.years_active,
+    varQualified: r.var_qualified === 1,
+    bio: json<Localized>(r.bio, { fr: "", en: "" }),
     region: r.region,
     league: r.league,
     nationality: r.nationality,

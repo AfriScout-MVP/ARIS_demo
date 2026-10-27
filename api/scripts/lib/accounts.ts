@@ -16,11 +16,12 @@ const q = (v: string | null) => (v === null ? "NULL" : `'${v.replace(/'/g, "''")
 export type NewAccount =
   | { role: "admin"; email: string; name: string; locale?: string }
   | { role: "federation"; email: string; name: string; federation: string; locale?: string }
-  | { role: "referee"; email: string; name: string; official: string; locale?: string };
+  | { role: "referee"; email: string; name: string; official: string; locale?: string }
+  | { role: "tagger"; email: string; name: string; federation: string; locale?: string };
 
 export async function accountSql(a: NewAccount, password: string) {
   if (password.length < 12) throw new Error("The password must have at least 12 characters");
-  const federation = a.role === "federation" ? `(SELECT id FROM federations WHERE code = ${q(a.federation)} COLLATE NOCASE)` : "NULL";
+  const federation = a.role === "federation" || a.role === "tagger" ? `(SELECT id FROM federations WHERE code = ${q(a.federation)} COLLATE NOCASE)` : "NULL";
   const official = a.role === "referee" ? q(a.official) : "NULL";
   return (
     `INSERT INTO users (id, email, name, role, official_id, federation_id, locale, password_hash) ` +

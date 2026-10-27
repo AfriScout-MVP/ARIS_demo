@@ -31,5 +31,72 @@
   "requirementOpen": "Pendiente",
   "complianceRisk": "Riesgo de incumplimiento",
   "complianceOk": "Todos los oficiales del ámbito están en regla.",
-  "renewed": "Licencia renovada por un año."
+  "renewed": "Licencia renovada por un año.",
+  "addLicence": "Añadir una licencia",
+  "editDatesFor": "Modificar las fechas de la licencia de {name}",
+  "searchLicences": "Oficial o tipo de licencia…",
+  "noLicences": "Ninguna licencia en el ámbito.",
+  "licenceSaved": "Licencia guardada.",
+  "varNote": "Una certificación VAR válida incluye al árbitro en la lista VAR; al caducar, se le retira automáticamente.",
+  "licenceForm": {
+    "title": "Nueva licencia",
+    "editTitle": "Fechas de la licencia",
+    "kind": "Tipo de licencia"
+  },
+  "recordTest": "Registrar una prueba",
+  "updateTestFor": "Actualizar la prueba de {name}",
+  "fitnessSaved": "Prueba física guardada.",
+  "fitnessForm": {
+    "title": "Prueba física",
+    "result": "Resultado",
+    "sprint": "Mejor sprint (s)",
+    "laps": "Vueltas completadas",
+    "retestHint": "Obligatoria tras un suspenso: se convoca al oficial en esa fecha."
+  },
+  "newCourse": "Nueva formación",
+  "courseCreated": "Formación creada.",
+  "platformWide": "Todas las federaciones",
+  "ownCourse": "Federación",
+  "officialsCount": "{n} oficiales inscritos",
+  "enrol": "Inscribir",
+  "complete": "Registrar la superación",
+  "enrolledToast": "{n} oficiales inscritos.",
+  "completedToast": "{n} superaciones registradas.",
+  "courseForm": {
+    "title": "Nueva formación",
+    "kind": "Tipo",
+    "kinds": {
+      "course": "Curso",
+      "exam": "Examen",
+      "camp": "Concentración"
+    },
+    "scope": "Dirigida a",
+    "nameFr": "Título (francés)",
+    "nameEn": "Título (inglés)",
+    "nameEs": "Título (español)",
+    "nameDe": "Título (alemán)",
+    "provider": "Entidad",
+    "hours": "Duración (horas)",
+    "submit": "Crear la formación"
+  },
+  "enrolForm": {
+    "title": "Inscribir oficiales",
+    "hint": "Elija uno o varios oficiales; los ya inscritos se omiten.",
+    "chosen": "Oficiales elegidos",
+    "remove": "Quitar a {name}",
+    "submit": "Inscribir ({n})"
+  },
+  "completeForm": {
+    "title": "Registrar la superación",
+    "hint": "Marque a los oficiales que han terminado. La formación se cierra cuando todos terminan.",
+    "submit": "Registrar ({n})"
+  },
+  "errors": {
+    "dates": "La fecha de caducidad debe ser posterior a la de expedición.",
+    "sprint": "Entre 3 y 15 segundos.",
+    "laps": "Un número entero de 0 a 100.",
+    "hours": "Entre 1 y 400 horas.",
+    "retest_required": "Una prueba suspendida necesita una fecha de repetición.",
+    "official_not_eligible": "Esta formación es para los oficiales de otra federación."
+  }
 }

@@ -31,7 +31,7 @@
   "alertSlots": "Empty slots this week",
   "alertReports": "Observer reports outstanding",
   "alertLicences": "Licences to renew",
-  "alertSync": "Calendar feeds out of date",
+  "alertSync": "Countries without recent data",
   "alertSuspended": "Officials suspended",
   "daysShort": "{n} d",
   "decisionCorrect": "Correct on the field",

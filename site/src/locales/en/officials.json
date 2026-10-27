@@ -1,0 +1,202 @@
+{
+  "views": {
+    "performance": "Performance",
+    "registry": "Register"
+  },
+  "register": "Register an official",
+  "searchPlaceholder": "Name or registration no.…",
+  "count": "{n} officials",
+  "truncated": "Only the first 500 are shown: narrow the search.",
+  "empty": "No officials",
+  "emptyHint": "Register the federation's first referee or assistant referee.",
+  "edit": "Edit",
+  "editFile": "Edit the file",
+  "openFile": "Open the file",
+  "allKinds": "All",
+  "allStatuses": "All statuses",
+  "kinds": {
+    "referee": "Referee",
+    "assistant": "Assistant referee"
+  },
+  "status": {
+    "active": "Active",
+    "training": "In training",
+    "elite-pool": "Elite pool",
+    "unavailable": "Unavailable",
+    "retired": "Retired",
+    "suspended": "Suspended"
+  },
+  "disciplines": {
+    "football": "Football",
+    "futsal": "Futsal",
+    "football7": "7-a-side"
+  },
+  "fields": {
+    "kind": "Role",
+    "name": "Full name",
+    "country": "Country",
+    "level": "Level",
+    "status": "Status",
+    "matricule": "Registration no.",
+    "licenceNo": "Licence no.",
+    "nationality": "Nationality",
+    "birthDate": "Date of birth",
+    "city": "City",
+    "region": "Region",
+    "league": "League",
+    "email": "Email",
+    "phone": "Phone",
+    "disciplines": "Disciplines",
+    "zones": "Areas covered",
+    "varQualified": "VAR qualified",
+    "yearsActive": "Years refereeing",
+    "bio": "Profile",
+    "bioFr": "In French",
+    "bioEn": "In English",
+    "bioEs": "In Spanish (optional)",
+    "bioDe": "In German (optional)",
+    "updatedAt": "Updated"
+  },
+  "sections": {
+    "identity": "Identity",
+    "career": "Career",
+    "contact": "Contact details",
+    "bio": "Public profile"
+  },
+  "hints": {
+    "matricule": "Leave empty: ARIS gives the country's next one (ARIS-SEN-R0001…).",
+    "matriculeAuto": "Given automatically on registration.",
+    "zones": "Country codes or regions, separated by commas.",
+    "var": "Kept up to date automatically once a VAR certificate is on file.",
+    "suspended": "Suspended by a disciplinary decision: the status changes with the case, not here.",
+    "retired": "A retired official leaves designations and rankings; the file stays in the register."
+  },
+  "dialog": {
+    "newTitle": "Register an official",
+    "newHint": "The file enters the federation's register. The official gets a registration number at once.",
+    "editTitle": "File of {name}",
+    "create": "Register",
+    "created": "{name} is registered: number {matricule}.",
+    "saved": "File updated.",
+    "unchanged": "Nothing changed."
+  },
+  "registry": {
+    "title": "Register",
+    "subtitle": "Seen only by the federation and the official.",
+    "none": "—"
+  },
+  "fileOnly": "This official does not appear in the rankings (an assistant referee, or retired): here is their register file.",
+  "documents": {
+    "title": "Documents",
+    "staffHint": "Licences, medical certificates, identity papers: check every document filed.",
+    "selfHint": "File your documents here; the federation checks them and lets you know.",
+    "kind": "Document type",
+    "expiresOn": "Expires on (optional)",
+    "file": "File",
+    "fileHint": "PDF, PNG, JPEG or WebP, 8 MB at most.",
+    "upload": "File it",
+    "uploaded": "Document filed.",
+    "photoNote": "A photo replaces the previous one on the file.",
+    "kinds": {
+      "licence": "Licence",
+      "identity": "Identity document",
+      "medical": "Medical certificate",
+      "certificate": "Certificate",
+      "attestation": "Attestation",
+      "receipt": "Expense receipt",
+      "photo": "Photo",
+      "other": "Other"
+    },
+    "statuses": {
+      "pending": "To check",
+      "verified": "Verified",
+      "rejected": "Rejected"
+    },
+    "expired": "Expired on {date}",
+    "expiring": "Expires on {date}",
+    "valid": "Valid until {date}",
+    "uploadedOn": "Filed on {date}",
+    "download": "Download",
+    "verify": "Verify",
+    "reject": "Reject",
+    "reopen": "Back to checking",
+    "delete": "Delete",
+    "deleteTitle": "Delete this document?",
+    "deleteBody": "\"{name}\" will be erased from the file for good.",
+    "toast": {
+      "verified": "Document verified; the official has been told.",
+      "rejected": "Document rejected; the official has been told.",
+      "pending": "Document back to checking.",
+      "deleted": "Document deleted."
+    },
+    "empty": "No documents",
+    "emptyHint": "Documents filed by the official or the federation appear here.",
+    "toReview": "{n} to check",
+    "lapsed": "{n} expired",
+    "lapsing": "{n} expiring soon",
+    "lockedSelf": "A document already checked can only be removed by the federation.",
+    "errors": {
+      "type": "Only PDF, PNG, JPEG and WebP files are accepted (a photo must be an image).",
+      "size": "8 MB at most.",
+      "empty": "This file is empty.",
+      "missing": "Choose a file.",
+      "date": "Invalid date."
+    }
+  },
+  "mine": {
+    "title": "My file",
+    "hint": "Your contact details and areas covered. The rest of the file is kept by your federation.",
+    "save": "Save",
+    "saved": "Contact details saved."
+  },
+  "errors": {
+    "name": "Between 2 and 120 characters.",
+    "country": "Choose the official's country.",
+    "code": "Between 3 and 40 characters.",
+    "birthDate": "Invalid date (the official must be at least 16).",
+    "years": "A number between 0 and 60.",
+    "disciplines": "At least one discipline.",
+    "zones": "30 areas at most, 20 characters each.",
+    "duplicate": "An official already has this registration or licence number.",
+    "suspended": "This official is suspended: the status changes with the disciplinary case."
+  },
+  "chooseCountry": "Choose a country…",
+  "conflicts": {
+    "title": "Conflicts of interest",
+    "selfHint": "Declare any link with a club, team or country: you will not be designated on their matches.",
+    "staffHint": "Declared links: the engine keeps the official off the matches concerned.",
+    "add": "Declare",
+    "declare": "Declare the link",
+    "declared": "Link declared: the engine will take it into account.",
+    "empty": "No link declared",
+    "emptyHint": "A former club, a relative who coaches, a second nationality: declare it before you are designated.",
+    "declaredOn": "Declared on {date}",
+    "remove": "Remove",
+    "removeTitle": "Remove this link?",
+    "removeBody": "\"{subject}\" will no longer count: the official may be designated on those matches again.",
+    "removed": "Link removed.",
+    "kinds": {
+      "club": "Club",
+      "team": "Team",
+      "country": "Country"
+    },
+    "fields": {
+      "kind": "Kind of link",
+      "club": "Club",
+      "team": "Team",
+      "country": "Country",
+      "note": "Detail (optional)"
+    },
+    "hints": {
+      "name": "The name as it appears in the calendar.",
+      "note": "E.g. \"played there 2015–2019\", \"brother is assistant coach\".",
+      "permanent": "Only the federation can remove a declared link."
+    },
+    "errors": {
+      "subject": "2 to 80 characters.",
+      "country": "Choose the country.",
+      "duplicate": "This link is already declared.",
+      "note": "300 characters at most."
+    }
+  }
+}

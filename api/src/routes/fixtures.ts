@@ -3,13 +3,14 @@ import { z } from "zod";
 import { candidatesForSlot } from "@core/engine";
 import type { CrewRole } from "@core/types";
 import type { AppEnv, AuthUser } from "../env";
-import { ApiError, forbidden, notFound, nowIso, parse, parseQuery, readJson, today, uuid } from "../lib/http";
+import { ApiError, forbidden, notFound, nowIso, parse, parseQuery, readJson, today, uuid, type Ctx } from "../lib/http";
+
 import { auditStmt } from "../lib/audit";
 import { CONTINENTAL, assertCountry, scopeCountry } from "../lib/access";
 import { notifyOfficialStmts, type Bilingual } from "../lib/notify";
 import { localParts, toUtcIso } from "../lib/time";
 import { currentUser, staff } from "../middleware/auth";
-import { DbEngineContext, loadFixtures, type LoadedFixture } from "../domain/engine-ctx";
+import { DbEngineContext, loadFixturePage, loadFixtures, type FixtureCursor, type LoadedFixture } from "../domain/engine-ctx";
 import { assertEligible, requiredSlots, slotChangeStmts, slotOf, slotsFor, staffNoticeStmts } from "../domain/designations";
 
 export const fixtures = new Hono<AppEnv>();
@@ -93,6 +94,48 @@ async function venueZone(db: D1Database, p: { stadiumId: string | null; countryC
 const LIVE = ["validated", "published"];
 const riskFor = (importance: number) => (importance >= 85 ? "high" : importance >= 65 ? "medium" : "low");
 
+/** The list cursor is opaque to clients: base64url of [kickoffAt, importance, id]. */
+const encodeCursor = (k: FixtureCursor) => btoa(JSON.stringify([k.kickoffAt, k.importance, k.id])).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+function decodeCursor(raw: string): FixtureCursor {
+  try {
+    const [kickoffAt, importance, id] = JSON.parse(atob(raw.replace(/-/g, "+").replace(/_/g, "/")));
+    if (typeof kickoffAt === "string" && typeof importance === "number" && typeof id === "string") return { kickoffAt, importance, id };
+  } catch {
+    /* fall through */
+  }
+  throw new ApiError(422, "invalid_cursor", "This cursor is not one the list returned");
+}
+
+/**
+ * What stopping a fixture does besides its own status: a linked `matches` row follows it, and a cancellation frees
+ * the crew (each slot cleared, with its history and audit) and cancels every unpaid line — nothing is owed for a match
+ * nobody works. A postponed match keeps its crew; its date is set again later with PATCH.
+ */
+function stopStmts(db: D1Database, fixture: LoadedFixture, status: "postponed" | "cancelled", reason: string | undefined, user: AuthUser, ip?: string) {
+  const stmts: D1PreparedStatement[] = [
+    db
+      .prepare("UPDATE matches SET status = ?, updated_at = strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE fixture_id = ? AND status IN ('scheduled', 'live')")
+      .bind(status, fixture.id),
+  ];
+  if (status === "cancelled") {
+    for (const slot of fixture.crew.filter((s) => s.officialId)) {
+      stmts.push(...slotChangeStmts(db, { fixture, role: slot.role, toOfficialId: null, toState: "empty", action: "clear", reason: reason ?? "Match cancelled", actor: user, ip }, slot));
+    }
+    stmts.push(
+      db.prepare("UPDATE advances SET status = 'paid', payment_id = NULL WHERE payment_id IN (SELECT id FROM payments WHERE fixture_id = ? AND status IN ('due', 'validated', 'contested'))").bind(fixture.id),
+      db
+        .prepare(
+          `INSERT INTO audit_log (actor_user_id, actor_role, action, entity, entity_id, country_code, before, after, reason, ip)
+           SELECT ?, ?, 'payment.cancel', 'payment', id, ?, json_object('status', status), json_object('status', 'cancelled'), 'Match cancelled', ?
+             FROM payments WHERE fixture_id = ? AND status IN ('due', 'validated', 'contested')`,
+        )
+        .bind(user.id, user.role, fixture.countryCode, ip ?? null, fixture.id),
+      db.prepare("UPDATE payments SET status = 'cancelled' WHERE fixture_id = ? AND status IN ('due', 'validated', 'contested')").bind(fixture.id),
+    );
+  }
+  return stmts;
+}
+
 /* ------------------------------------------------------------------ *
  * Listing & creating
  * ------------------------------------------------------------------ */
@@ -105,25 +148,33 @@ const listQuery = z.object({
   // a designation status (draft … published) or a fixture status (scheduled … cancelled)
   status: z.enum(["draft", "awaiting_confirmation", "validated", "published", "scheduled", "played", "postponed", "cancelled"]).optional(),
   limit: z.coerce.number().int().min(1).max(500).default(300),
+  /** `nextCursor` of the previous page. */
+  cursor: z.string().min(1).max(400).optional(),
 });
 
 // Staff see their scope; a referee sees only the fixtures they are designated to.
+// Paged in SQL (limit + cursor); `total` is every fixture the filter matches, `nextCursor` is null on the last page.
 fixtures.get("/", async (c) => {
   const user = currentUser(c);
   const q = parseQuery(c, listQuery);
   const country = q.country?.toUpperCase();
-  if (user.role === "federation" && country && country !== user.country) return c.json({ fixtures: [], total: 0 });
+  if (user.role === "federation" && country && country !== user.country) return c.json({ fixtures: [], total: 0, nextCursor: null });
   const isDesignation = q.status && ["draft", "awaiting_confirmation", "validated", "published"].includes(q.status);
-  const list = await loadFixtures(c.env.DB, {
-    from: q.from,
-    to: q.to,
-    country: scopeCountry(user, country) ?? undefined,
-    competition: q.competition,
-    designationStatus: isDesignation ? q.status : undefined,
-    status: q.status && !isDesignation ? (q.status as LoadedFixture["status"]) : undefined,
-    scope: user,
-  });
-  return c.json({ fixtures: list.slice(0, q.limit).map(fixtureDto), total: list.length });
+  const page = await loadFixturePage(
+    c.env.DB,
+    {
+      from: q.from,
+      to: q.to,
+      country: scopeCountry(user, country) ?? undefined,
+      competition: q.competition,
+      designationStatus: isDesignation ? q.status : undefined,
+      status: q.status && !isDesignation ? (q.status as LoadedFixture["status"]) : undefined,
+      scope: user,
+    },
+    q.limit,
+    q.cursor ? decodeCursor(q.cursor) : null,
+  );
+  return c.json({ fixtures: page.fixtures.map(fixtureDto), total: page.total, nextCursor: page.next ? encodeCursor(page.next) : null });
 });
 
 const createSchema = z
@@ -445,8 +496,11 @@ fixtures.patch("/:id", staff, async (c) => {
   };
   const stmts: D1PreparedStatement[] = [
     db.prepare(`UPDATE fixtures SET ${sets.join(", ")} WHERE id = ?`).bind(...args, id),
+    // a postponement or cancellation made here has the same effects as POST /postpone and /cancel
+    ...(closing ? stopStmts(db, fixture, newStatus as "postponed" | "cancelled", b.reason, user, c.get("ip")) : []),
     auditStmt(db, user, {
       action: closing ? `fixture.${newStatus}` : "fixture.update",
+
       entity: "fixture",
       entityId: id,
       before: { kickoffAt: fixture.kickoffAt, stadiumId: fixture.stadiumId, status: fixture.status, importance: fixture.importance },
@@ -496,7 +550,146 @@ fixtures.patch("/:id", staff, async (c) => {
   return c.json({ fixture: fixtureDto(await loadOne(db, user, id)), warnings });
 });
 
+const reasonSchema = z.object({ reason: z.string().trim().min(3).max(300) });
+
+/** Postpone (crew kept, told) or cancel (crew released, unpaid lines cancelled) a match still to be played. */
+async function stopFixture(c: Ctx, status: "postponed" | "cancelled") {
+  const user = currentUser(c);
+  const { reason } = await readJson(c, reasonSchema);
+  const db = c.env.DB;
+  const fixture = await loadOne(db, user, c.req.param("id")!);
+  if (fixture.played) throw new ApiError(409, "match_played", "This match has been played");
+  if (fixture.status === status) return c.json({ fixture: fixtureDto(fixture), changed: false });
+  // a cancelled match stays cancelled; a postponed one may still be cancelled
+  if (fixture.status === "cancelled" || (status === "postponed" && fixture.status !== "scheduled")) {
+    throw new ApiError(409, "fixture_not_scheduled", `This match is ${fixture.status}`);
+  }
+
+  const crew = fixture.crew.filter((s) => s.officialId);
+  const updated = { ...fixture, status };
+  const stmts: D1PreparedStatement[] = [
+    db.prepare("UPDATE fixtures SET status = ? WHERE id = ? AND status = ?").bind(status, fixture.id, fixture.status),
+    ...stopStmts(db, fixture, status, reason, user, c.get("ip")),
+    auditStmt(db, user, {
+      action: `fixture.${status}`,
+      entity: "fixture",
+      entityId: fixture.id,
+      before: { status: fixture.status, crew: crew.map((s) => ({ role: s.role, officialId: s.officialId, state: s.state })) },
+      after: { status, crewReleased: status === "cancelled" },
+      reason,
+      countryCode: fixture.countryCode,
+      ip: c.get("ip"),
+    }),
+  ];
+  const notice =
+    status === "cancelled"
+      ? { title: { en: "Match cancelled", fr: "Rencontre annulée" }, lead: { en: "Cancelled", fr: "Annulée" }, tone: "red" as const, after: { en: " Your designation is released.", fr: " Votre désignation est levée." } }
+      : { title: { en: "Match postponed", fr: "Rencontre reportée" }, lead: { en: "Postponed", fr: "Reportée" }, tone: "amber" as const, after: { en: " Your designation stands until the new date.", fr: " Votre désignation est maintenue jusqu'à la nouvelle date." } };
+  for (const officialId of new Set(crew.map((s) => s.officialId!))) {
+    stmts.push(
+      ...(await notifyOfficialStmts(db, officialId, {
+        title: notice.title,
+        detail: {
+          en: `${notice.lead.en}: ${matchLine(updated)}. Reason: ${reason}.${notice.after.en}`,
+          fr: `${notice.lead.fr} : ${matchLine(updated)}. Motif : ${reason}.${notice.after.fr}`,
+        },
+        tone: notice.tone,
+        href: "/me",
+      })),
+    );
+  }
+  await db.batch(stmts);
+  return c.json({ fixture: fixtureDto(await loadOne(db, user, fixture.id)), changed: true, released: status === "cancelled" ? crew.length : 0 });
+}
+
+fixtures.post("/:id/postpone", staff, (c) => stopFixture(c, "postponed"));
+fixtures.post("/:id/cancel", staff, (c) => stopFixture(c, "cancelled"));
+
+// Back to draft: the crew stays as it is, but the convocation no longer stands and the pipeline starts again.
+fixtures.post("/:id/unpublish", staff, async (c) => {
+  const user = currentUser(c);
+  const { reason } = await readJson(c, reasonSchema);
+  const db = c.env.DB;
+  const fixture = await loadOne(db, user, c.req.param("id"));
+  assertOpen(fixture);
+  if (fixture.designationStatus === "draft") return c.json({ fixture: fixtureDto(fixture), changed: false });
+  const stmts: D1PreparedStatement[] = [
+    db
+      .prepare("UPDATE fixtures SET designation_status = 'draft', validated_by = NULL, validated_at = NULL, published_at = NULL WHERE id = ? AND designation_status = ?")
+      .bind(fixture.id, fixture.designationStatus),
+    auditStmt(db, user, {
+      action: "fixture.unpublish",
+      entity: "fixture",
+      entityId: fixture.id,
+      before: { designationStatus: fixture.designationStatus },
+      after: { designationStatus: "draft" },
+      reason,
+      countryCode: fixture.countryCode,
+      ip: c.get("ip"),
+    }),
+  ];
+  for (const slot of fixture.crew.filter((s) => s.officialId)) {
+    stmts.push(
+      ...(await notifyOfficialStmts(db, slot.officialId!, {
+        title: { en: "Convocation withdrawn", fr: "Convocation retirée" },
+        detail: {
+          en: `${ROLE_LABEL[slot.role].en}: ${matchLine(fixture)}. The crew is being reviewed. Reason: ${reason}`,
+          fr: `${ROLE_LABEL[slot.role].fr} : ${matchLine(fixture)}. Le trio est en cours de révision. Motif : ${reason}`,
+        },
+        tone: "amber",
+        href: "/me",
+      })),
+    );
+  }
+  await db.batch(stmts);
+  return c.json({ fixture: fixtureDto(await loadOne(db, user, fixture.id)), changed: true });
+});
+
+// Removing a fixture entered by mistake: only while it is a draft, or if it never went out as a convocation, and only
+// if nothing hangs on it (a result, money, an advance). The crew's designation history stays as evidence.
+fixtures.delete("/:id", staff, async (c) => {
+  const user = currentUser(c);
+  const db = c.env.DB;
+  const b = parse(z.object({ reason: z.string().trim().min(3).max(300).optional() }).default({}), await c.req.json().catch(() => ({})));
+  const fixture = await loadOne(db, user, c.req.param("id"));
+  const use = (await db
+    .prepare(
+      `SELECT (SELECT COUNT(*) FROM matches WHERE fixture_id = ?1) AS matches,
+              (SELECT COUNT(*) FROM payments WHERE fixture_id = ?1) AS payments,
+              (SELECT COUNT(*) FROM advances WHERE fixture_id = ?1) AS advances,
+              (SELECT COUNT(*) FROM audit_log WHERE entity = 'fixture' AND entity_id = ?1 AND action = 'fixture.publish') AS published`,
+    )
+    .bind(fixture.id)
+    .first<{ matches: number; payments: number; advances: number; published: number }>())!;
+  if (fixture.played || use.matches) throw new ApiError(409, "match_played", "A played match is the record; it cannot be deleted");
+  if (fixture.designationStatus !== "draft" && use.published) {
+    throw new ApiError(409, "published", "This crew was published; take it back to draft (with a reason) before deleting the fixture");
+  }
+  if (use.payments || use.advances) throw new ApiError(409, "in_use", "Payments or advances refer to this fixture", { payments: use.payments, advances: use.advances });
+
+  const crew = fixture.crew.filter((s) => s.officialId);
+  const stmts: D1PreparedStatement[] = [];
+  for (const slot of crew) {
+    stmts.push(
+      ...(await notifyOfficialStmts(db, slot.officialId!, {
+        title: { en: "Designation withdrawn", fr: "Désignation retirée" },
+        detail: { en: `${ROLE_LABEL[slot.role].en}: ${matchLine(fixture)}. The fixture was removed.`, fr: `${ROLE_LABEL[slot.role].fr} : ${matchLine(fixture)}. La rencontre a été supprimée.` },
+        tone: "amber",
+        href: "/me",
+      })),
+    );
+  }
+  await db.batch([
+    // the designations go with it (ON DELETE CASCADE); designation_history is append-only and stays
+    db.prepare("DELETE FROM fixtures WHERE id = ?").bind(fixture.id),
+    auditStmt(db, user, { action: "fixture.delete", entity: "fixture", entityId: fixture.id, before: fixtureDto(fixture), reason: b.reason, countryCode: fixture.countryCode, ip: c.get("ip") }),
+    ...stmts,
+  ]);
+  return c.json({ ok: true });
+});
+
 fixtures.get("/:id/candidates", staff, async (c) => {
+
   const user = currentUser(c);
   const q = parseQuery(c, z.object({ role: roleSchema, limit: z.coerce.number().int().min(1).max(300).default(60) }));
   const fixture = await loadOne(c.env.DB, user, c.req.param("id"));
@@ -843,4 +1036,53 @@ fixtures.post("/:id/result", staff, async (c) => {
     throw err;
   }
   return c.json({ matchId, fixture: fixtureDto(await loadOne(db, user, fixture.id)) }, 201);
+});
+
+const correctSchema = z
+  .object({
+    score: z.string().regex(/^\d{1,2}\s?[-–:]\s?\d{1,2}$/, "Use a score like 2-1").optional(),
+    homeScore: z.number().int().min(0).max(99).optional(),
+    awayScore: z.number().int().min(0).max(99).optional(),
+    attendance: z.number().int().min(0).max(300_000).nullable().optional(),
+    reason: z.string().trim().min(3).max(300),
+  })
+  .refine((v) => v.score !== undefined || (v.homeScore !== undefined && v.awayScore !== undefined), { message: "Give the score (score, or homeScore and awayScore)", path: ["score"] });
+
+// Correcting a result already recorded (a typing error, a decision of the competition body). The previous value stays
+// in the audit row; the match keeps its id, its assessments and its payments.
+fixtures.patch("/:id/result", staff, async (c) => {
+  const user = currentUser(c);
+  const b = await readJson(c, correctSchema);
+  const db = c.env.DB;
+  const fixture = await loadOne(db, user, c.req.param("id"));
+  if (!fixture.played) throw new ApiError(409, "not_played", "This match has no result to correct yet");
+  const match = await db
+    .prepare("SELECT id, home_score AS homeScore, away_score AS awayScore, attendance FROM matches WHERE fixture_id = ?")
+    .bind(fixture.id)
+    .first<{ id: string; homeScore: number | null; awayScore: number | null; attendance: number | null }>();
+  if (!match) throw new ApiError(409, "not_played", "This match has no result to correct yet");
+
+  let homeScore = b.homeScore;
+  let awayScore = b.awayScore;
+  if (b.score) [homeScore, awayScore] = b.score.split(/[-–:]/).map((n) => Number(n.trim()));
+  const attendance = b.attendance === undefined ? match.attendance : b.attendance;
+  if (homeScore === match.homeScore && awayScore === match.awayScore && attendance === match.attendance) {
+    return c.json({ matchId: match.id, changed: false, result: { homeScore, awayScore, attendance } });
+  }
+  await db.batch([
+    db
+      .prepare("UPDATE matches SET home_score = ?, away_score = ?, attendance = ?, updated_at = strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE id = ?")
+      .bind(homeScore!, awayScore!, attendance, match.id),
+    auditStmt(db, user, {
+      action: "fixture.result_correct",
+      entity: "fixture",
+      entityId: fixture.id,
+      before: { homeScore: match.homeScore, awayScore: match.awayScore, attendance: match.attendance, matchId: match.id },
+      after: { homeScore, awayScore, attendance, matchId: match.id },
+      reason: b.reason,
+      countryCode: fixture.countryCode,
+      ip: c.get("ip"),
+    }),
+  ]);
+  return c.json({ matchId: match.id, changed: true, result: { homeScore, awayScore, attendance } });
 });

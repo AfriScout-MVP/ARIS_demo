@@ -8,5 +8,14 @@
   "played": "Este partido ya se ha jugado.",
   "autoFillFailed": "La asignación automática no se ha completado. Inténtelo de nuevo.",
   "reasonPrompt": "Motivo de este cambio (obligatorio):",
-  "overridePrompt": "{why}. Para continuar de todos modos, indique un motivo por escrito:"
+  "overridePrompt": "{why}. Para continuar de todos modos, indique un motivo por escrito:",
+  "reasonDialog": {
+    "title": "Motivo del cambio",
+    "overrideTitle": "¿Forzar la designación?",
+    "label": "Motivo",
+    "hint": "Queda en el historial de la designación y se envía a los oficiales afectados.",
+    "short": "Al menos 3 caracteres.",
+    "confirm": "Continuar",
+    "override": "Forzar y designar"
+  }
 }

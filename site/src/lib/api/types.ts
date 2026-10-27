@@ -3,8 +3,8 @@ import type { AvailabilityState, CrewRole, Localized } from "@/lib/store/types";
 
 export type { ApiFixture } from "@/lib/store/types";
 
-/** Exactly three roles: see api/docs/api-contract.md. */
-export type Role = "admin" | "federation" | "referee";
+/** Four roles: see api/docs/api-contract.md. A tagger is country-scoped like a federation seat, confined to logging referee decisions. */
+export type Role = "admin" | "federation" | "referee" | "tagger";
 
 export interface SessionUser {
   id: string;
@@ -15,11 +15,13 @@ export interface SessionUser {
   officialId: string | null;
   /** Federation seats: the federation they sit for. */
   federationId: string | null;
-  /** Federation seats: e.g. "FRMF". */
+  /** Federation seats: e.g. "FSF". */
   federationCode: string | null;
   /** Federation seats: ISO alpha-3 of the one country they are confined to, e.g. "MAR". */
   country: string | null;
   locale: Locale;
+  /** The password was set by someone else (account created or reset by staff): it must be changed before anything else. */
+  mustChangePassword?: boolean;
 }
 
 export interface ApiNotification {

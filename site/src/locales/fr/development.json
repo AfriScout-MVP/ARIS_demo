@@ -31,5 +31,72 @@
   "requirementOpen": "À faire",
   "complianceRisk": "Risque de conformité",
   "complianceOk": "Tous les officiels du périmètre sont en règle.",
-  "renewed": "Licence renouvelée pour un an."
+  "renewed": "Licence renouvelée pour un an.",
+  "addLicence": "Ajouter une licence",
+  "editDatesFor": "Modifier les dates de la licence de {name}",
+  "searchLicences": "Officiel ou type de licence…",
+  "noLicences": "Aucune licence dans le périmètre.",
+  "licenceSaved": "Licence enregistrée.",
+  "varNote": "Une certification VAR valide inscrit l'arbitre sur la liste VAR ; à son expiration, il en est retiré automatiquement.",
+  "licenceForm": {
+    "title": "Nouvelle licence",
+    "editTitle": "Dates de la licence",
+    "kind": "Type de licence"
+  },
+  "recordTest": "Enregistrer un test",
+  "updateTestFor": "Mettre à jour le test de {name}",
+  "fitnessSaved": "Test physique enregistré.",
+  "fitnessForm": {
+    "title": "Test physique",
+    "result": "Résultat",
+    "sprint": "Meilleur sprint (s)",
+    "laps": "Tours réalisés",
+    "retestHint": "Obligatoire après un échec : l'officiel est convoqué à cette date."
+  },
+  "newCourse": "Nouvelle formation",
+  "courseCreated": "Formation créée.",
+  "platformWide": "Toutes les fédérations",
+  "ownCourse": "Fédération",
+  "officialsCount": "{n} officiels inscrits",
+  "enrol": "Inscrire",
+  "complete": "Valider la réussite",
+  "enrolledToast": "{n} officiels inscrits.",
+  "completedToast": "{n} réussites enregistrées.",
+  "courseForm": {
+    "title": "Nouvelle formation",
+    "kind": "Type",
+    "kinds": {
+      "course": "Formation",
+      "exam": "Examen",
+      "camp": "Stage"
+    },
+    "scope": "Proposée à",
+    "nameFr": "Intitulé (français)",
+    "nameEn": "Intitulé (anglais)",
+    "nameEs": "Intitulé (espagnol)",
+    "nameDe": "Intitulé (allemand)",
+    "provider": "Organisme",
+    "hours": "Durée (heures)",
+    "submit": "Créer la formation"
+  },
+  "enrolForm": {
+    "title": "Inscrire des officiels",
+    "hint": "Choisissez un ou plusieurs officiels ; ceux déjà inscrits sont ignorés.",
+    "chosen": "Officiels choisis",
+    "remove": "Retirer {name}",
+    "submit": "Inscrire ({n})"
+  },
+  "completeForm": {
+    "title": "Valider la réussite",
+    "hint": "Cochez les officiels qui ont terminé. La formation est close quand tous l'ont terminée.",
+    "submit": "Valider ({n})"
+  },
+  "errors": {
+    "dates": "La date d'expiration doit suivre la date de délivrance.",
+    "sprint": "Entre 3 et 15 secondes.",
+    "laps": "Un nombre entier entre 0 et 100.",
+    "hours": "Entre 1 et 400 heures.",
+    "retest_required": "Un test échoué demande une date de contre-test.",
+    "official_not_eligible": "Cette formation est réservée aux officiels d'une autre fédération."
+  }
 }

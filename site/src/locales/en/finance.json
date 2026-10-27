@@ -1,0 +1,285 @@
+{
+  "title": "Fees and advances",
+  "subtitle": "From validated designations to bank transfers: fee scales, checks, payments and advances, with every step on record.",
+  "tabs": {
+    "payments": "Fees",
+    "advances": "Advances",
+    "scales": "Fee scales"
+  },
+  "status": {
+    "due": "To validate",
+    "validated": "Validated",
+    "paid": "Paid",
+    "contested": "Contested",
+    "cancelled": "Cancelled"
+  },
+  "views": {
+    "open": "Open",
+    "all": "All",
+    "label": "Show"
+  },
+  "checks": {
+    "presenceConfirmed": "Attendance confirmed",
+    "matchValidated": "Match validated",
+    "expensesVerified": "Expenses verified",
+    "title": "Checks",
+    "hint": "All three checks are required before validation. Each one is set separately.",
+    "done": "{n}/3 checks"
+  },
+  "money": {
+    "base": "Match fee",
+    "transport": "Travel",
+    "lodging": "Lodging",
+    "meals": "Meals",
+    "bonus": "Bonus",
+    "deduction": "Deduction",
+    "total": "Total"
+  },
+  "tiers": {
+    "d1": "First division",
+    "d2": "Second division",
+    "cup": "Cup",
+    "continental": "Continental"
+  },
+  "kpi": {
+    "outstanding": "Still to pay",
+    "outstandingHint": "{n} lines to validate, validated or contested",
+    "toPay": "Ready to transfer",
+    "toPayHint": "Validated lines waiting for the transfer",
+    "paid": "Paid",
+    "paidHint": "In the period",
+    "contested": "Disputes",
+    "contestedHint": "For the federation to settle",
+    "otherCurrencies": "Other currencies"
+  },
+  "range": {
+    "from": "From",
+    "to": "To",
+    "label": "Match period"
+  },
+  "searchPlaceholder": "Referee, team, city, reference…",
+  "export": "Export (CSV)",
+  "exportName": "fees",
+  "fields": {
+    "date": "Date",
+    "match": "Match",
+    "role": "Role",
+    "official": "Official",
+    "total": "Total",
+    "status": "Status",
+    "checks": "Checks",
+    "reference": "Reference",
+    "city": "City",
+    "competition": "Competition",
+    "currency": "Currency"
+  },
+  "ready": {
+    "title": "To bill",
+    "hint": "Matches whose crew is validated but whose fees have not been worked out yet.",
+    "count": "{n} matches",
+    "roles": "No line: {roles}",
+    "generate": "Work out",
+    "generateAll": "Work out all",
+    "generating": "Working… {done}/{total}",
+    "empty": "Everything in the period is billed."
+  },
+  "report": {
+    "title": "Last calculation",
+    "created": "{n} lines created",
+    "nothing": "No new line.",
+    "missingScale": "No fee scale for: {roles}",
+    "currencyMismatch": "Fee scale only in another currency for: {roles}. ARIS applies no exchange rate.",
+    "defaultScaleUsed": "Priced from the platform default scale: {roles}",
+    "heldByPrevious": "Line still in the name of the replaced official: {roles}. Cancel or correct it, then work it out again.",
+    "reissued": "Re-issued to the new official: {roles}",
+    "openScales": "Open the fee scales",
+    "dismiss": "Dismiss"
+  },
+  "bulk": {
+    "selected": "{n} selected",
+    "check": "Tick the checks",
+    "validate": "Validate",
+    "pay": "Pay…",
+    "clear": "Clear selection",
+    "done": "{ok} done · {failed} failed · {skipped} skipped",
+    "selectAll": "Select all",
+    "selectRow": "Select the line for {name}",
+    "running": "Working… {done}/{total}"
+  },
+  "panel": {
+    "breakdown": "Breakdown",
+    "receipts": "Receipts",
+    "noReceipts": "No receipt uploaded.",
+    "contestNote": "Reason for the dispute",
+    "paidOn": "Paid on {date} · ref. {ref}",
+    "validatedOn": "Validated on {date}",
+    "closed": "This line is closed and can no longer be changed."
+  },
+  "actions": {
+    "adjust": "Adjust",
+    "validate": "Validate",
+    "pay": "Mark as paid",
+    "resolve": "Settle",
+    "cancel": "Cancel the line",
+    "open": "Open the line for {name}"
+  },
+  "adjust": {
+    "title": "Adjust the amounts",
+    "hint": "Every change to an amount needs a reason and is written to the audit log.",
+    "reason": "Reason",
+    "reasonHint": "For example: flight dearer than the scale, kick-off 45 minutes late.",
+    "newTotal": "New total: {total}",
+    "negative": "The deduction is larger than the amount due.",
+    "noChange": "No amount has changed.",
+    "sendsBack": "A validated line goes back to “to validate” for another check."
+  },
+  "pay": {
+    "title": "Record the payment",
+    "hint": "The money moves outside ARIS; give the transfer reference so it can be reconciled.",
+    "bulkTitle": "{n} lines, one transfer",
+    "bulkHint": "Total: {total}. The same reference is written on every line.",
+    "reference": "Transfer reference",
+    "referenceHint": "At least 3 characters, for example TRF-2026-0142.",
+    "submit": "Record"
+  },
+  "resolve": {
+    "title": "Settle the dispute",
+    "hint": "The official disputes this amount. Adjust it first if needed, then settle.",
+    "outcome": "Decision",
+    "keep": "Keep the line (back to “to validate”)",
+    "drop": "Cancel the line",
+    "note": "Answer to the official",
+    "submit": "Settle"
+  },
+  "cancel": {
+    "title": "Cancel this line?",
+    "hint": "A cancelled line is no longer owed. A paid line cannot be cancelled.",
+    "note": "Reason",
+    "submit": "Cancel the line"
+  },
+  "toast": {
+    "generated": "{n} lines created",
+    "adjusted": "Amounts saved",
+    "validated": "Line validated",
+    "paid": "Payment recorded",
+    "resolved": "Dispute settled",
+    "cancelled": "Line cancelled",
+    "checked": "Check saved",
+    "exported": "{n} lines exported"
+  },
+  "empty": "No fees in the period",
+  "emptyHint": "Lines appear once the fees of a validated match have been worked out.",
+  "errors": {
+    "closed": "This line is paid or cancelled and can no longer be changed.",
+    "bad_state": "That is no longer possible in its current state. Reload to see where it stands.",
+    "checks_missing": "All three checks must be ticked before validation.",
+    "not_validated": "This needs to be validated first.",
+    "negative_total": "The deduction is larger than the amount due.",
+    "currency_mismatch": "This federation's fee scales are in its country's currency.",
+    "competition_mismatch": "That competition belongs to another federation.",
+    "amount": "A whole amount, 0 or more.",
+    "amountPositive": "A whole amount above 0.",
+    "short": "At least 3 characters.",
+    "justification": "At least 5 characters."
+  },
+  "advances": {
+    "new": "New advance",
+    "status": {
+      "requested": "Requested",
+      "approved": "Approved",
+      "paid": "Paid out",
+      "settled": "Settled",
+      "rejected": "Rejected"
+    },
+    "decide": {
+      "approved": "Approve",
+      "paid": "Mark as paid out",
+      "settled": "Mark as settled",
+      "rejected": "Reject"
+    },
+    "confirm": {
+      "approved": "Approve the {amount} advance for {name}?",
+      "paid": "Confirm that {amount} was paid out to {name}?",
+      "settled": "Do {name}'s receipts cover the {amount}?",
+      "rejected": "Reject the {amount} advance requested by {name}?",
+      "hint": "The official is told in their space. The decision is written to the audit log."
+    },
+    "kpi": {
+      "requested": "Awaiting a decision",
+      "outstanding": "To settle",
+      "outstandingHint": "Approved or paid out, no receipts yet"
+    },
+    "fields": {
+      "official": "Official",
+      "amount": "Amount",
+      "justification": "Justification",
+      "requestedAt": "Requested on",
+      "status": "Status"
+    },
+    "form": {
+      "title": "Advance for an official",
+      "hint": "For travel that has to be paid before the match. The amount is in the currency of the official's country.",
+      "official": "Official",
+      "amount": "Amount",
+      "justification": "Justification",
+      "justificationHint": "What the advance covers: ticket, lodging, visa…",
+      "submit": "Record the request"
+    },
+    "empty": "No advances",
+    "emptyHint": "Requests from officials and those entered by the federation appear here.",
+    "toast": {
+      "requested": "Advance request recorded",
+      "decided": "Advance: {status}"
+    }
+  },
+  "scales": {
+    "whose": "Fee scales of",
+    "defaults": "Platform (default)",
+    "defaultsHint": "Used when a federation has no scale of its own, and only when they are in its country's currency.",
+    "readonlyHint": "The platform's default scales: read only, used where you have none of your own.",
+    "add": "New fee scale",
+    "editCell": "Edit {role}, {tier}",
+    "addCell": "Add {role}, {tier}",
+    "grid": "Fee scales by division and role",
+    "specific": "Competition-specific scales",
+    "specificHint": "These take precedence over the division's scale.",
+    "noSpecific": "No competition-specific scale.",
+    "expenses": "+{n} expenses",
+    "empty": "No fee scales",
+    "emptyHint": "Without a fee scale, ARIS cannot work out a match's fees.",
+    "coverage": {
+      "title": "Coverage",
+      "hint": "What working out the fees would find for each competition and each role.",
+      "ok": "Every role of every competition has a scale in the right currency.",
+      "missing": "{competition}: no scale for {roles}",
+      "currency": "{competition}: scale only in another currency for {roles}"
+    },
+    "form": {
+      "newTitle": "New fee scale",
+      "editTitle": "Edit the fee scale",
+      "hint": "One scale per division (or competition) and role. Saving replaces the previous one for future calculations; lines already worked out do not change.",
+      "tier": "Division",
+      "competition": "Competition",
+      "anyCompetition": "Every competition in the division",
+      "role": "Role",
+      "amount": "Match fee",
+      "transport": "Travel",
+      "lodging": "Lodging",
+      "meals": "Meals",
+      "currency": "Currency",
+      "currencyHint": "3-letter ISO code. A federation is always paid in its country's currency.",
+      "submit": "Save"
+    },
+    "toast": {
+      "saved": "Fee scale saved"
+    }
+  },
+  "mine": {
+    "title": "My advances",
+    "request": "Request an advance",
+    "hint": "For travel that has to be paid before a match. The federation decides and you are told here.",
+    "empty": "No advance requests.",
+    "submit": "Send the request"
+  },
+  "truncated": "Only the {n} most recent lines are shown: narrow the period."
+}

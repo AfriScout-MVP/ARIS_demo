@@ -14,9 +14,12 @@ interface Section {
 
 const SECTIONS: Section[] = [
   { href: "/admin/accounts", label: "admin.nav.accounts", roles: ["admin", "federation"] },
+  { href: "/admin/partnerships", label: "admin.nav.partnerships", roles: ["admin"] },
   { href: "/admin/federations", label: "admin.nav.federations", roles: ["admin"] },
   { href: "/admin/countries", label: "admin.nav.countries", roles: ["admin"] },
+  { href: "/admin/competitions", label: "admin.nav.competitions", roles: ["admin", "federation"] },
   { href: "/admin/teams", label: "admin.nav.teams", roles: ["admin", "federation"] },
+  { href: "/admin/grid", label: "admin.nav.grid", roles: ["admin"] },
   { href: "/admin/audit", label: "admin.nav.audit", roles: ["admin", "federation"] },
 ];
 

@@ -16,7 +16,8 @@ Officials & registry · availability · **designations** (draft → awaiting con
 accept / decline and a written *motif* for every replacement) · fees & payments (scales, expenses, advances, a payment is
 only `paid` after presence, match validation and expense checks) · assessments (weighted grid, confidential until
 published) · discipline (incidents, cases, suspensions that block designation) · training (licences, fitness tests,
-courses) · reports (CSV, workload, absences, reconciliation) · notifications · append-only audit log.
+courses) · reports (CSV, workload, absences, reconciliation) · notifications · append-only audit log · the
+**partnership pipeline** (admin only: federations ARIS is in contact with, from first contact to onboarding).
 
 Business rules are enforced **in the database** as well as in code (CHECK constraints, unique indexes, append-only
 triggers), so a bug in a route cannot write an illegal state.
@@ -39,8 +40,8 @@ The full HTTP contract is in [`docs/api-contract.md`](docs/api-contract.md), the
 
 ## Data, images and translations
 
-* `migrations/0001`–`0010` (identity, media, geography, officials, fixtures, matches, payments, evaluation, discipline &
-  training, notifications & audit). `matches` mirrors the AfriScout-Backend table (plus `fixture_id` / `referee_id`).
+* `migrations/0001`–`0011` (identity, media, geography, officials, fixtures, matches, payments, evaluation, discipline &
+  training, notifications & audit, partnerships). `matches` mirrors the AfriScout-Backend table (plus `fixture_id` / `referee_id`).
 * Images live in **R2** (`aris-media`) with one `media_assets` row each; the API streams them at `GET /api/v1/media/:id`
   (flags, crests and logos are public and cacheable; photos and documents need a session with access).
 * User-facing stored copy is `Localized` JSON (`fr`, `en`, `es`, `de`); French is the default.
@@ -55,7 +56,7 @@ npm ci
 cp .dev.vars.example .dev.vars        # then put a long random JWT_SECRET in it
 npm run db:reset:local                # wipes .wrangler/state, applies migrations
 npm run db:seed                       # demo data into local D1, images into local R2 — never run against production
-ARIS_PASSWORD='a long passphrase' npm run user:demo      # admin@aris.local, frmf@aris.local, fif@aris.local, gfa@aris.local, karim@aris.local, amina@aris.local
+ARIS_PASSWORD='a long passphrase' npm run user:demo      # admin@, fsf@, fif@, fecofoot@, souleymane.sen@, lassina.civ@ (all @aris.local)
 (cd ../site && npm ci && npm run build:cloudflare)
 npm run dev                           # http://localhost:8787 — app and API together
 ```
@@ -116,6 +117,8 @@ ARIS_PASSWORD='a long passphrase' npm run user:create -- --email you@example.org
 * Sessions: HS256 JWT in an `HttpOnly; SameSite=Lax` cookie (`Secure` over HTTPS); a `token_version` on the user revokes every
   session when a password, role, scope or active flag changes; the user is re-read from D1 on every request.
 * Sign-in throttle (5 failures per e-mail / 30 per IP per 15 min); identical error for unknown account and wrong password.
+  Changing a password goes through the same per-e-mail counter, so a stolen session cannot be used to guess it.
+* `/api/health` is public and says only that the service and its database answer.
 * CSRF: unsafe methods must be same-origin (`Origin` / `Sec-Fetch-Site`).
 * Uploads: type sniffed from magic bytes (PDF / PNG / JPEG / WebP, 8 MB), stored in R2 under server-generated keys.
 * CSV exports neutralise spreadsheet formulas. Audit and designation history cannot be edited or deleted.
@@ -125,4 +128,5 @@ ARIS_PASSWORD='a long passphrase' npm run user:create -- --email you@example.org
 * E-mail / SMS / WhatsApp are queued in `notification_outbox`; nothing is delivered until `MAIL_WEBHOOK_URL` points at a sender.
 * Analytics are computed from `performance_history`, `match_decisions` and `match_officiating`; nothing is invented, so an empty database shows empty charts.
 * The referee profile is one static page, `/referees/profile?id=…`, fed by the API — a new official needs no rebuild.
+* The demo seed gives non-FCFA federations fee scales at **illustrative** exchange rates — replace them before paying anyone.
 * The seed is **demo data**. Production starts empty (the 20 reference countries can be added from the admin console).

@@ -1,0 +1,38 @@
+{
+  "availability": {
+    "hint": "Melden Sie Ihre freien Tage im Voraus; die Kommission wird informiert.",
+    "onFile": "Gemeldete Tage",
+    "none": "Keine Tage für das kommende Jahr gemeldet.",
+    "rangeBad": "Das Ende muss nach dem Beginn liegen.",
+    "withdrawn": "{date} zurückgezogen.",
+    "withdrawFor": "{date} zurückziehen",
+    "withdraw": "Zurückziehen"
+  },
+  "designations": {
+    "title": "Meine Ansetzungen",
+    "hint": "Was ansteht, was abgelehnt wurde, oder alles",
+    "calendar": "Exportieren (.ics)",
+    "none": "Keine Ansetzungen in diesem Zeitraum.",
+    "noneDeclined": "Keine abgelehnten Ansetzungen.",
+    "played": "Gespielt",
+    "views": {
+      "upcoming": "Anstehend ({n})",
+      "declined": "Abgelehnt ({n})",
+      "all": "Alle ({n})"
+    }
+  },
+  "convocation": {
+    "open": "Einladung öffnen",
+    "title": "Einladung",
+    "notFound": "Keine Einladung für dieses Spiel gefunden.",
+    "back": "Zurück zu meinen Ansetzungen",
+    "issuedBy": "Herausgegeben von",
+    "official": "Schiedsrichter",
+    "matricule": "Matrikel",
+    "licenceNo": "Lizenznummer",
+    "crew": "Schiedsrichterteam",
+    "you": "Sie",
+    "published": "Veröffentlicht am {date}",
+    "round": "Spieltag {round}"
+  }
+}

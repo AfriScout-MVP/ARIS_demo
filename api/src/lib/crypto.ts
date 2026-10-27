@@ -51,6 +51,8 @@ export interface TokenPayload {
   sub: string;
   /** token_version of the account when issued — bumped to revoke everything. */
   tv: number;
+  /** this token's own id — listed in `revoked_tokens` when its session signs out. */
+  jti: string;
   iat: number;
   exp: number;
 }
@@ -60,9 +62,9 @@ async function hmacKey(secret: string) {
   return crypto.subtle.importKey("raw", enc.encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["sign", "verify"]);
 }
 
-export async function signToken(payload: Omit<TokenPayload, "iat" | "exp">, secret: string, ttlSeconds: number) {
+export async function signToken(payload: Omit<TokenPayload, "iat" | "exp" | "jti">, secret: string, ttlSeconds: number) {
   const now = Math.floor(Date.now() / 1000);
-  const body: TokenPayload = { ...payload, iat: now, exp: now + ttlSeconds };
+  const body: TokenPayload = { ...payload, jti: crypto.randomUUID(), iat: now, exp: now + ttlSeconds };
   const head = b64url(enc.encode(JSON.stringify({ alg: "HS256", typ: "JWT" })));
   const data = `${head}.${b64url(enc.encode(JSON.stringify(body)))}`;
   const sig = await crypto.subtle.sign("HMAC", await hmacKey(secret), enc.encode(data));
@@ -81,8 +83,23 @@ export async function verifyToken(token: string, secret: string): Promise<TokenP
     if (!ok) return null;
     const payload = JSON.parse(new TextDecoder().decode(fromB64url(body))) as TokenPayload;
     if (typeof payload.exp !== "number" || payload.exp < Math.floor(Date.now() / 1000)) return null;
+    // a token without an id cannot be signed out, so it is not accepted at all
+    if (typeof payload.jti !== "string" || !payload.jti) return null;
     return payload;
   } catch {
     return null;
   }
+}
+
+/* ------------------------------ one-time tokens ------------------------------ */
+
+/** A random, URL-safe token of `bytes` random bytes (a password-reset link). */
+export function randomToken(bytes = 32) {
+  return b64url(crypto.getRandomValues(new Uint8Array(bytes)));
+}
+
+/** Hex SHA-256 — what is stored in place of a one-time token, so a database copy cannot be used to reset anything. */
+export async function sha256Hex(text: string) {
+  const digest = new Uint8Array(await crypto.subtle.digest("SHA-256", enc.encode(text)));
+  return Array.from(digest, (b) => b.toString(16).padStart(2, "0")).join("");
 }

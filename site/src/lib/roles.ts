@@ -1,4 +1,4 @@
-// What each of the three roles may see and do. The API enforces all of it; these helpers
+// What each role may see and do. The API enforces all of it; these helpers
 // only decide what the interface offers, so nobody is shown a button that will answer 403/404.
 
 import type { TKey } from "@/locales";
@@ -11,13 +11,16 @@ type MaybeUser = Pick<SessionUser, "role"> | null | undefined;
 export const isAdmin = (user: MaybeUser) => user?.role === "admin";
 export const isFederation = (user: MaybeUser) => user?.role === "federation";
 export const isReferee = (user: MaybeUser) => user?.role === "referee";
-/** Staff = admin + federation: everyone who works in the product shell. */
+/** A tagger: country-scoped like a federation seat, but reaches only the tagging screen (see `/decision-engine`). */
+export const isTagger = (user: MaybeUser) => user?.role === "tagger";
+/** Staff = admin + federation: everyone who works in the full product shell. A tagger is deliberately not staff. */
 export const isStaff = (user: MaybeUser) => isAdmin(user) || isFederation(user);
 
 const ROLE_LABEL: Record<Role, TKey> = {
   admin: "auth.role.admin",
   federation: "auth.role.federation",
   referee: "auth.role.referee",
+  tagger: "auth.role.tagger",
 };
 
 /** Translation key of the role's label: Super-admin / Federation / Referee. */
@@ -25,9 +28,9 @@ export function roleLabelKey(role: Role): TKey {
   return ROLE_LABEL[role];
 }
 
-/** The one country a federation seat is confined to; null for every other role. */
+/** The one country a federation seat (or a tagger) is confined to; null for every other role. */
 export function lockedCountry(user: Pick<SessionUser, "role" | "country"> | null | undefined): string | null {
-  return user?.role === "federation" ? (user.country ?? null) : null;
+  return user?.role === "federation" || user?.role === "tagger" ? (user.country ?? null) : null;
 }
 
 /**
@@ -45,7 +48,9 @@ export function canDesignate(
   return false;
 }
 
-/** Where a signed-in user lands: referees in their personal space, staff in the product. */
+/** Where a signed-in user lands: referees in their personal space, a tagger on its one screen, staff in the product. */
 export function homePathFor(role: Role) {
-  return role === "referee" ? "/me" : "/";
+  if (role === "referee") return "/me";
+  if (role === "tagger") return "/decision-engine";
+  return "/";
 }

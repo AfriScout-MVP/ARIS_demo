@@ -2,7 +2,7 @@
 //
 //   ARIS_PASSWORD='a long passphrase' npm run user:demo
 //
-// These are six well-known e-mail addresses sharing one password, so they belong on a demo
+// These are well-known e-mail addresses sharing one password, so they belong on a demo
 // deployment and nowhere else. Writing them to a remote database therefore needs a deliberate
 // second step — the --remote flag alone is not enough:
 //
@@ -13,12 +13,13 @@
 import { execFileSync } from "node:child_process";
 import { accountSql, type NewAccount } from "./lib/accounts";
 import { d1DatabaseName } from "./lib/resources";
+import { countries, referees, slug } from "../seed/demo-data";
 
 const remote = process.argv.includes("--remote");
 if (remote && process.env.ARIS_ALLOW_REMOTE_DEMO !== "1") {
   console.error(
     "Refusing to write demo accounts to the remote database.\n" +
-      "These are six publicly known logins sharing one password. If this really is a demo\n" +
+      "These are publicly known logins sharing one password. If this really is a demo\n" +
       "deployment, repeat the command with ARIS_ALLOW_REMOTE_DEMO=1.",
   );
   process.exit(2);
@@ -29,13 +30,19 @@ if (!password || password.length < 12) {
   process.exit(2);
 }
 
+// one seat per federation, and a referee login for the senior referee of the two federations with continental clubs
+const topReferee = (code: string) => referees.find((r) => r.countryCode === code && r.status !== "suspended")!;
+const refereeAccount = (code: string, locale: "fr" | "en"): NewAccount => {
+  const r = topReferee(code);
+  return { role: "referee", email: `${slug(r.name.split(" ")[0])}.${code.toLowerCase()}@aris.local`, name: r.name, official: r.id, locale };
+};
+
 const accounts: NewAccount[] = [
   { role: "admin", email: "admin@aris.local", name: "Super Admin", locale: "fr" },
-  { role: "federation", email: "frmf@aris.local", name: "Fédération Marocaine (FRMF)", federation: "FRMF", locale: "fr" },
-  { role: "federation", email: "fif@aris.local", name: "Fédération Ivoirienne (FIF)", federation: "FIF", locale: "fr" },
-  { role: "federation", email: "gfa@aris.local", name: "Ghana FA (GFA)", federation: "GFA", locale: "en" },
-  { role: "referee", email: "karim@aris.local", name: "Karim Haddad", official: "karim-haddad", locale: "fr" },
-  { role: "referee", email: "amina@aris.local", name: "Amina Koné", official: "amina-kone", locale: "fr" },
+  ...countries.map<NewAccount>((c) => ({ role: "federation", email: `${c.federation.toLowerCase()}@aris.local`, name: `${c.fact.federation.name} (${c.federation})`, federation: c.federation, locale: "fr" })),
+  refereeAccount("SEN", "fr"),
+  refereeAccount("CIV", "fr"),
+  { role: "tagger", email: "tagger.sen@aris.local", name: "Match Tagger (SEN)", federation: countries.find((c) => c.code === "SEN")!.federation, locale: "fr" },
 ];
 
 const target = remote ? "--remote" : "--local";

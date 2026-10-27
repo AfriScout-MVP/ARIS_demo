@@ -1,0 +1,285 @@
+{
+  "title": "Honorare und Vorschüsse",
+  "subtitle": "Von bestätigten Ansetzungen bis zur Überweisung: Sätze, Prüfungen, Zahlungen und Vorschüsse, jeder Schritt protokolliert.",
+  "tabs": {
+    "payments": "Honorare",
+    "advances": "Vorschüsse",
+    "scales": "Honorarsätze"
+  },
+  "status": {
+    "due": "Zu prüfen",
+    "validated": "Freigegeben",
+    "paid": "Bezahlt",
+    "contested": "Beanstandet",
+    "cancelled": "Storniert"
+  },
+  "views": {
+    "open": "Offen",
+    "all": "Alle",
+    "label": "Anzeigen"
+  },
+  "checks": {
+    "presenceConfirmed": "Anwesenheit bestätigt",
+    "matchValidated": "Spiel bestätigt",
+    "expensesVerified": "Spesen geprüft",
+    "title": "Prüfungen",
+    "hint": "Alle drei Prüfungen sind vor der Freigabe nötig. Sie werden einzeln gesetzt.",
+    "done": "{n}/3 Prüfungen"
+  },
+  "money": {
+    "base": "Spielhonorar",
+    "transport": "Reise",
+    "lodging": "Unterkunft",
+    "meals": "Verpflegung",
+    "bonus": "Prämie",
+    "deduction": "Abzug",
+    "total": "Summe"
+  },
+  "tiers": {
+    "d1": "Erste Liga",
+    "d2": "Zweite Liga",
+    "cup": "Pokal",
+    "continental": "Kontinental"
+  },
+  "kpi": {
+    "outstanding": "Noch zu zahlen",
+    "outstandingHint": "{n} Posten zu prüfen, freigegeben oder beanstandet",
+    "toPay": "Bereit zur Überweisung",
+    "toPayHint": "Freigegebene Posten, die auf die Überweisung warten",
+    "paid": "Bezahlt",
+    "paidHint": "Im Zeitraum",
+    "contested": "Beanstandungen",
+    "contestedHint": "Vom Verband zu entscheiden",
+    "otherCurrencies": "Andere Währungen"
+  },
+  "range": {
+    "from": "Von",
+    "to": "Bis",
+    "label": "Zeitraum der Spiele"
+  },
+  "searchPlaceholder": "Schiedsrichter, Team, Stadt, Referenz…",
+  "export": "Exportieren (CSV)",
+  "exportName": "honorare",
+  "fields": {
+    "date": "Datum",
+    "match": "Spiel",
+    "role": "Rolle",
+    "official": "Offizieller",
+    "total": "Summe",
+    "status": "Status",
+    "checks": "Prüfungen",
+    "reference": "Referenz",
+    "city": "Stadt",
+    "competition": "Wettbewerb",
+    "currency": "Währung"
+  },
+  "ready": {
+    "title": "Abzurechnen",
+    "hint": "Spiele mit bestätigtem Gespann, deren Honorare noch nicht berechnet sind.",
+    "count": "{n} Spiele",
+    "roles": "Ohne Posten: {roles}",
+    "generate": "Berechnen",
+    "generateAll": "Alle berechnen",
+    "generating": "Berechne… {done}/{total}",
+    "empty": "Im Zeitraum ist alles abgerechnet."
+  },
+  "report": {
+    "title": "Letzte Berechnung",
+    "created": "{n} Posten angelegt",
+    "nothing": "Kein neuer Posten.",
+    "missingScale": "Kein Honorarsatz für: {roles}",
+    "currencyMismatch": "Honorarsatz nur in einer anderen Währung für: {roles}. ARIS rechnet keine Wechselkurse um.",
+    "defaultScaleUsed": "Mit dem Standardsatz der Plattform berechnet: {roles}",
+    "heldByPrevious": "Posten noch auf den ersetzten Offiziellen: {roles}. Stornieren oder korrigieren Sie ihn vor einer neuen Berechnung.",
+    "reissued": "Neu ausgestellt auf den neuen Offiziellen: {roles}",
+    "openScales": "Honorarsätze öffnen",
+    "dismiss": "Ausblenden"
+  },
+  "bulk": {
+    "selected": "{n} ausgewählt",
+    "check": "Prüfungen setzen",
+    "validate": "Freigeben",
+    "pay": "Bezahlen…",
+    "clear": "Auswahl aufheben",
+    "done": "{ok} erledigt · {failed} fehlgeschlagen · {skipped} übersprungen",
+    "selectAll": "Alle auswählen",
+    "selectRow": "Posten von {name} auswählen",
+    "running": "Verarbeite… {done}/{total}"
+  },
+  "panel": {
+    "breakdown": "Aufschlüsselung",
+    "receipts": "Belege",
+    "noReceipts": "Kein Beleg hochgeladen.",
+    "contestNote": "Grund der Beanstandung",
+    "paidOn": "Bezahlt am {date} · Ref. {ref}",
+    "validatedOn": "Freigegeben am {date}",
+    "closed": "Dieser Posten ist abgeschlossen und kann nicht mehr geändert werden."
+  },
+  "actions": {
+    "adjust": "Anpassen",
+    "validate": "Freigeben",
+    "pay": "Als bezahlt markieren",
+    "resolve": "Entscheiden",
+    "cancel": "Posten stornieren",
+    "open": "Posten von {name} öffnen"
+  },
+  "adjust": {
+    "title": "Beträge anpassen",
+    "hint": "Jede Betragsänderung braucht einen Grund und wird im Prüfprotokoll festgehalten.",
+    "reason": "Grund",
+    "reasonHint": "Zum Beispiel: Flug teurer als der Satz, Anstoß 45 Minuten später.",
+    "newTotal": "Neue Summe: {total}",
+    "negative": "Der Abzug ist größer als der geschuldete Betrag.",
+    "noChange": "Kein Betrag hat sich geändert.",
+    "sendsBack": "Ein freigegebener Posten geht zur erneuten Prüfung auf „zu prüfen“ zurück."
+  },
+  "pay": {
+    "title": "Zahlung erfassen",
+    "hint": "Die Zahlung erfolgt außerhalb von ARIS; geben Sie die Überweisungsreferenz für den Abgleich an.",
+    "bulkTitle": "{n} Posten, eine Überweisung",
+    "bulkHint": "Summe: {total}. Dieselbe Referenz wird auf jedem Posten eingetragen.",
+    "reference": "Überweisungsreferenz",
+    "referenceHint": "Mindestens 3 Zeichen, zum Beispiel UEB-2026-0142.",
+    "submit": "Erfassen"
+  },
+  "resolve": {
+    "title": "Beanstandung entscheiden",
+    "hint": "Der Offizielle beanstandet diesen Betrag. Passen Sie ihn bei Bedarf zuerst an, dann entscheiden Sie.",
+    "outcome": "Entscheidung",
+    "keep": "Posten beibehalten (zurück auf „zu prüfen“)",
+    "drop": "Posten stornieren",
+    "note": "Antwort an den Offiziellen",
+    "submit": "Entscheiden"
+  },
+  "cancel": {
+    "title": "Diesen Posten stornieren?",
+    "hint": "Ein stornierter Posten ist nicht mehr geschuldet. Ein bezahlter Posten kann nicht storniert werden.",
+    "note": "Grund",
+    "submit": "Posten stornieren"
+  },
+  "toast": {
+    "generated": "{n} Posten angelegt",
+    "adjusted": "Beträge gespeichert",
+    "validated": "Posten freigegeben",
+    "paid": "Zahlung erfasst",
+    "resolved": "Beanstandung entschieden",
+    "cancelled": "Posten storniert",
+    "checked": "Prüfung gespeichert",
+    "exported": "{n} Posten exportiert"
+  },
+  "empty": "Keine Honorare im Zeitraum",
+  "emptyHint": "Posten erscheinen, sobald die Honorare eines bestätigten Spiels berechnet sind.",
+  "errors": {
+    "closed": "Dieser Posten ist bezahlt oder storniert und kann nicht mehr geändert werden.",
+    "bad_state": "Im aktuellen Zustand ist das nicht mehr möglich. Laden Sie neu, um den Stand zu sehen.",
+    "checks_missing": "Alle drei Prüfungen müssen vor der Freigabe gesetzt sein.",
+    "not_validated": "Das muss zuerst freigegeben werden.",
+    "negative_total": "Der Abzug ist größer als der geschuldete Betrag.",
+    "currency_mismatch": "Die Honorarsätze dieses Verbands sind in der Währung seines Landes.",
+    "competition_mismatch": "Dieser Wettbewerb gehört zu einem anderen Verband.",
+    "amount": "Ein ganzer Betrag, 0 oder mehr.",
+    "amountPositive": "Ein ganzer Betrag über 0.",
+    "short": "Mindestens 3 Zeichen.",
+    "justification": "Mindestens 5 Zeichen."
+  },
+  "advances": {
+    "new": "Neuer Vorschuss",
+    "status": {
+      "requested": "Beantragt",
+      "approved": "Genehmigt",
+      "paid": "Ausgezahlt",
+      "settled": "Abgerechnet",
+      "rejected": "Abgelehnt"
+    },
+    "decide": {
+      "approved": "Genehmigen",
+      "paid": "Als ausgezahlt markieren",
+      "settled": "Als abgerechnet markieren",
+      "rejected": "Ablehnen"
+    },
+    "confirm": {
+      "approved": "Den Vorschuss von {amount} für {name} genehmigen?",
+      "paid": "Bestätigen, dass {amount} an {name} ausgezahlt wurden?",
+      "settled": "Decken die Belege von {name} die {amount}?",
+      "rejected": "Den von {name} beantragten Vorschuss von {amount} ablehnen?",
+      "hint": "Der Offizielle wird in seinem Bereich informiert. Die Entscheidung wird im Prüfprotokoll festgehalten."
+    },
+    "kpi": {
+      "requested": "Warten auf Entscheidung",
+      "outstanding": "Abzurechnen",
+      "outstandingHint": "Genehmigt oder ausgezahlt, noch ohne Belege"
+    },
+    "fields": {
+      "official": "Offizieller",
+      "amount": "Betrag",
+      "justification": "Begründung",
+      "requestedAt": "Beantragt am",
+      "status": "Status"
+    },
+    "form": {
+      "title": "Vorschuss für einen Offiziellen",
+      "hint": "Für eine Reise, die vor dem Spiel bezahlt werden muss. Der Betrag ist in der Währung des Landes des Offiziellen.",
+      "official": "Offizieller",
+      "amount": "Betrag",
+      "justification": "Begründung",
+      "justificationHint": "Was der Vorschuss abdeckt: Ticket, Unterkunft, Visum…",
+      "submit": "Antrag erfassen"
+    },
+    "empty": "Keine Vorschüsse",
+    "emptyHint": "Anträge der Offiziellen und vom Verband erfasste Anträge erscheinen hier.",
+    "toast": {
+      "requested": "Vorschussantrag erfasst",
+      "decided": "Vorschuss: {status}"
+    }
+  },
+  "scales": {
+    "whose": "Honorarsätze von",
+    "defaults": "Plattform (Standard)",
+    "defaultsHint": "Gelten, wenn ein Verband keinen eigenen Satz hat, und nur, wenn sie in der Währung seines Landes sind.",
+    "readonlyHint": "Standardsätze der Plattform: nur lesbar, gelten, wo Sie keine eigenen haben.",
+    "add": "Neuer Honorarsatz",
+    "editCell": "{role}, {tier} bearbeiten",
+    "addCell": "{role}, {tier} hinzufügen",
+    "grid": "Honorarsätze nach Liga und Rolle",
+    "specific": "Sätze für einen bestimmten Wettbewerb",
+    "specificHint": "Sie haben Vorrang vor dem Satz der Liga.",
+    "noSpecific": "Kein wettbewerbsspezifischer Satz.",
+    "expenses": "+{n} Spesen",
+    "empty": "Keine Honorarsätze",
+    "emptyHint": "Ohne Honorarsatz kann ARIS die Honorare eines Spiels nicht berechnen.",
+    "coverage": {
+      "title": "Abdeckung",
+      "hint": "Was die Honorarberechnung für jeden Wettbewerb und jede Rolle fände.",
+      "ok": "Jede Rolle jedes Wettbewerbs hat einen Satz in der richtigen Währung.",
+      "missing": "{competition}: kein Satz für {roles}",
+      "currency": "{competition}: Satz nur in einer anderen Währung für {roles}"
+    },
+    "form": {
+      "newTitle": "Neuer Honorarsatz",
+      "editTitle": "Honorarsatz bearbeiten",
+      "hint": "Ein Satz pro Liga (oder Wettbewerb) und Rolle. Speichern ersetzt den vorigen für künftige Berechnungen; bereits berechnete Posten ändern sich nicht.",
+      "tier": "Liga",
+      "competition": "Wettbewerb",
+      "anyCompetition": "Alle Wettbewerbe der Liga",
+      "role": "Rolle",
+      "amount": "Spielhonorar",
+      "transport": "Reise",
+      "lodging": "Unterkunft",
+      "meals": "Verpflegung",
+      "currency": "Währung",
+      "currencyHint": "ISO-Code mit 3 Buchstaben. Ein Verband wird immer in der Währung seines Landes bezahlt.",
+      "submit": "Speichern"
+    },
+    "toast": {
+      "saved": "Honorarsatz gespeichert"
+    }
+  },
+  "mine": {
+    "title": "Meine Vorschüsse",
+    "request": "Vorschuss beantragen",
+    "hint": "Für eine Reise, die vor einem Spiel bezahlt werden muss. Der Verband entscheidet, und Sie werden hier informiert.",
+    "empty": "Keine Vorschussanträge.",
+    "submit": "Antrag senden"
+  },
+  "truncated": "Nur die {n} neuesten Posten werden angezeigt: Verkürzen Sie den Zeitraum."
+}

@@ -7,7 +7,7 @@ import type { Localized } from "../lib/localized";
 /** Select the AfriScout-shaped row plus the team names, the competition's country and the ARIS analytics. */
 export const MATCH_SQL = `
   SELECT m.id, m.fixture_id, m.league_id AS competition_id, c.country_code, m.season, m.matchday, m.match_date, m.venue, m.status,
-         m.home_score, m.away_score, m.attendance, m.referee_id,
+         m.home_score, m.away_score, m.attendance, m.weather_conditions, m.referee_id,
          ht.name AS home, at.name AS away,
          o.arps_for_match, o.rmcs, o.pressure_avg, o.physical, o.pressure_timeline, o.heat_points
     FROM matches m
@@ -29,6 +29,7 @@ export interface MatchRow {
   home_score: number | null;
   away_score: number | null;
   attendance: number | null;
+  weather_conditions: string | null;
   referee_id: string | null;
   home: string;
   away: string;
@@ -45,6 +46,8 @@ export interface DecisionRow {
   match_id: string;
   minute: number;
   type: string;
+  sub_event: string | null;
+  outcome: string | null;
   description: string;
   initial_call: string;
   var_review: number;
@@ -53,6 +56,7 @@ export interface DecisionRow {
   pressure_index: number;
   distance: number;
   players: string;
+  tagged_by: string | null;
 }
 
 /** "2–1", or "" until the score is known. */
@@ -62,7 +66,9 @@ export function toDecision(d: DecisionRow) {
   return {
     id: d.id,
     minute: d.minute,
-    type: d.type,
+    eventType: d.type,
+    subEvent: d.sub_event,
+    outcome: d.outcome,
     description: json<Localized>(d.description, { fr: "", en: "" }),
     initialCall: d.initial_call,
     varReview: d.var_review === 1,
@@ -91,6 +97,8 @@ export function toMatch(m: MatchRow, decisions: DecisionRow[] = [], opts: { with
     awayScore: m.away_score,
     score: scoreText(m.home_score, m.away_score),
     attendance: m.attendance,
+    // as recorded ({condition, temperatureC, humidity}); null when nobody entered it
+    weather: json<Record<string, unknown> | null>(m.weather_conditions, null),
     refereeId: m.referee_id,
     arpsForMatch: m.arps_for_match ?? 0,
     rmcs: m.rmcs ?? 0,

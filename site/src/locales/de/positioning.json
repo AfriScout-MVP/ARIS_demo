@@ -23,5 +23,16 @@
   "legendYellow": "Gelb / Handspiel",
   "sightLineNote": "Die gestrichelte Linie verbindet die Position des Schiedsrichters mit der Entscheidung — ihre Länge ist die gemessene Distanz. {n} Entscheidungen fielen aus mehr als 20 m.",
   "diagonalNote": "Die Diagonale ist der Korridor, den der Schiedsrichter halten soll. Jede Entscheidung außerhalb kostet Blickwinkel — das ist die direkte Verbindung zwischen Stellungsspiel und Genauigkeit.",
-  "amberNote": "Bernsteinfarbene Balken sind nach Prüfung revidierte Entscheidungen."
+  "amberNote": "Bernsteinfarbene Balken sind nach Prüfung revidierte Entscheidungen.",
+  "form": {
+    "errors": {
+      "number": "Eine gültige Zahl im erwarteten Bereich.",
+      "partial": "Geben Sie alle fünf körperlichen Werte ein, oder keinen.",
+      "lines": "Eine Zeile pro Punkt, mit den richtigen Werten.",
+      "tooMany": "Zu viele Zeilen.",
+      "duplicateMinute": "Jede Minute darf nur einmal vorkommen.",
+      "condition": "Buchstaben, Zahlen und gängige Satzzeichen, höchstens 40 Zeichen.",
+      "conditionRequired": "Geben Sie die Wetterbedingung an, um eine Temperatur oder Luftfeuchtigkeit zu speichern."
+    }
+  }
 }

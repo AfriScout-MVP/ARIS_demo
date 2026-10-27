@@ -1,0 +1,38 @@
+{
+  "availability": {
+    "hint": "Declare your days off ahead of time; the commission is told.",
+    "onFile": "Days on file",
+    "none": "No days declared for the year ahead.",
+    "rangeBad": "The end must come after the start.",
+    "withdrawn": "{date} withdrawn.",
+    "withdrawFor": "Withdraw {date}",
+    "withdraw": "Withdraw"
+  },
+  "designations": {
+    "title": "My designations",
+    "hint": "What is coming up, what was declined, or everything",
+    "calendar": "Export (.ics)",
+    "none": "No designations in this period.",
+    "noneDeclined": "No declined designations.",
+    "played": "Played",
+    "views": {
+      "upcoming": "Upcoming ({n})",
+      "declined": "Declined ({n})",
+      "all": "All ({n})"
+    }
+  },
+  "convocation": {
+    "open": "Open the convocation",
+    "title": "Convocation",
+    "notFound": "No convocation found for this fixture.",
+    "back": "Back to my designations",
+    "issuedBy": "Issued by",
+    "official": "Official",
+    "matricule": "Matricule",
+    "licenceNo": "Licence no.",
+    "crew": "Match crew",
+    "you": "You",
+    "published": "Published {date}",
+    "round": "Round {round}"
+  }
+}

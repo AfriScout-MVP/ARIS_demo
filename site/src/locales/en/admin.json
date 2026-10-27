@@ -4,13 +4,17 @@
     "accounts": "Accounts",
     "federations": "Federations",
     "countries": "Countries",
+    "competitions": "Competitions",
     "teams": "Teams and stadiums",
-    "audit": "Audit trail"
+    "audit": "Audit trail",
+    "partnerships": "Partnerships",
+    "grid": "Evaluation grid"
   },
   "roles": {
     "admin": "Super-admin",
     "federation": "Federation",
-    "referee": "Referee"
+    "referee": "Referee",
+    "tagger": "Tagger"
   },
   "zones": {
     "UNAF": "North Africa",
@@ -53,7 +57,7 @@
     "pickOfficial": "Choose the official concerned.",
     "pickCountry": "Choose a country.",
     "pickZone": "Choose a zone.",
-    "federationCode": "2 to 20 characters: capitals, digits or dashes (e.g. FRMF, FAF-AGO).",
+    "federationCode": "2 to 20 characters: capitals, digits or dashes (e.g. FSF, FECOFOOT).",
     "alpha3": "ISO alpha-3 code: three capital letters (e.g. MAR).",
     "iso2": "ISO alpha-2 code: two capital letters (e.g. MA).",
     "currency": "ISO 4217 currency code: three letters (e.g. MAD).",
@@ -84,7 +88,8 @@
     "stadium_exists": "This city already has a stadium with that name.",
     "file_type": "Image format not accepted: use PNG, JPEG or WebP.",
     "file_size": "Image too large: 8 MB at most.",
-    "file_empty": "The file is empty."
+    "file_empty": "The file is empty.",
+    "in_use": "Still used by fixtures, so it cannot be deleted. Edit it instead."
   },
   "password": {
     "show": "Show password",
@@ -134,7 +139,8 @@
     "roleHint": {
       "admin": "Access to every country and to all administration.",
       "federation": "A seat of one national federation, confined to its country.",
-      "referee": "A referee's personal space: designations, availability, payments."
+      "referee": "A referee's personal space: designations, availability, payments.",
+      "tagger": "Tags referee decisions for one country. No other access to the product."
     },
     "federation": "Federation",
     "chooseFederation": "Choose a federation…",
@@ -153,6 +159,10 @@
     "deactivateTitle": "Deactivate this account?",
     "deactivateBody": "{name} will no longer be able to sign in and is signed out immediately. You can reactivate the account at any time.",
     "deactivated": "{name}'s account is deactivated.",
+    "signOutAll": "Sign out everywhere",
+    "signOutAllTitle": "Sign out every device?",
+    "signOutAllBody": "Every open session of {name} ends at once, on every device. The password does not change: {name} can sign in again.",
+    "signedOutAll": "{name} is signed out of every device.",
     "resetPassword": "Reset password",
     "resetTitle": "Reset password",
     "resetHint": "Set a new password for {name}. Their open sessions will be closed.",
@@ -174,7 +184,7 @@
     "search": "Search federations",
     "searchPlaceholder": "Code, name, country…",
     "code": "Code",
-    "codeHint": "Official acronym, for example FRMF.",
+    "codeHint": "Official acronym, for example FSF.",
     "name": "Name",
     "country": "Country",
     "status": "Status",
@@ -301,7 +311,14 @@
     "editStadium": "Edit stadium",
     "createStadium": "Create stadium",
     "stadiumCreated": "Stadium {name} created.",
-    "stadiumUpdated": "Stadium {name} updated."
+    "stadiumUpdated": "Stadium {name} updated.",
+    "delete": "Delete",
+    "deleteTeamTitle": "Delete this team?",
+    "deleteTeamBody": "{name} and its crest will be deleted. A team that already has fixtures cannot be: rename it instead.",
+    "teamDeleted": "{name} deleted.",
+    "deleteStadiumTitle": "Delete this stadium?",
+    "deleteStadiumBody": "{name} will be deleted and removed from teams that list it as home ground. A stadium with scheduled or played fixtures cannot be.",
+    "stadiumDeleted": "{name} deleted."
   },
   "audit": {
     "title": "Audit trail",
@@ -339,6 +356,7 @@
       "document": "Document",
       "course": "Course",
       "case": "Case"
-    }
+    },
+    "export": "Export (CSV)"
   }
 }

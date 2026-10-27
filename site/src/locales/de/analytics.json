@@ -1,0 +1,116 @@
+{
+  "title": "Dashboards",
+  "csv": "Als CSV exportieren",
+  "asOf": "Stand {date}.",
+  "from": "Von",
+  "to": "Bis",
+  "badRange": "Wählen Sie zwei Daten in der richtigen Reihenfolge, höchstens zwei Jahre auseinander.",
+  "tabs": {
+    "overview": "Überblick",
+    "workload": "Auslastung",
+    "absences": "Ausfälle",
+    "fees": "Entschädigungen",
+    "reconciliation": "Zahlungskontrolle"
+  },
+  "presets": {
+    "last30": "Letzte 30 Tage",
+    "next30": "Nächste 30 Tage",
+    "around30": "± 30 Tage",
+    "season": "Laufende Saison",
+    "custom": "Freier Zeitraum"
+  },
+  "fixtureStatus": {
+    "draft": "Entwurf",
+    "awaiting_confirmation": "Warten auf die Offiziellen",
+    "validated": "Bestätigt",
+    "published": "Veröffentlicht"
+  },
+  "overview": {
+    "workforce": "Offizielle",
+    "availableToday": "Heute verfügbar",
+    "avgRating": "Durchschnittsnote (RMCS)",
+    "suspended": "Gesperrt",
+    "byLevel": "Bestand nach Stufe",
+    "byLevelHint": "{referees} Schiedsrichter, {assistants} Assistenten",
+    "designations": "Anstehende Ansetzungen",
+    "confirmed": "{n} % der Positionen von den Offiziellen bestätigt",
+    "noSlots": "Keine offenen Positionen",
+    "compliance": "Konformität",
+    "complianceHint": "Was einer regelkonformen Ansetzung im Weg steht",
+    "licencesExpired": "Abgelaufene Lizenzen",
+    "licencesExpiring90": "Lizenzen, die in 90 Tagen ablaufen",
+    "fitnessFailed": "Nicht bestandene Fitnesstests",
+    "assessmentsOverdue": "Überfällige Beobachterberichte",
+    "budget": "Entschädigungen",
+    "budgetHint": "Je Währung, nie umgerechnet",
+    "noBudget": "Keine Entschädigungen",
+    "money": {
+      "planned": "Zu bestätigen",
+      "committed": "Bestätigt",
+      "paid": "Bezahlt",
+      "contested": "Beanstandet"
+    },
+    "top": "Am besten bewertet",
+    "bottom": "Zu begleiten",
+    "rankHint": "Durchschnittsnote der Berichte und Trend"
+  },
+  "workload": {
+    "appointments": "Ansetzungen",
+    "mean": "Durchschnitt je Offiziellen",
+    "overused": "Überlastet",
+    "unused": "Nie angesetzt",
+    "all": "Alle",
+    "flagged": "Markiert",
+    "asReferee": "Als Hauptschiedsrichter",
+    "last": "Letztes Spiel",
+    "next": "Nächstes Spiel",
+    "flag": "Hinweis",
+    "flags": {
+      "overused": "Überlastet",
+      "unused": "Nie angesetzt"
+    },
+    "note": "Überlastet: mindestens 4 Ansetzungen und das 1,75-Fache des Durchschnitts. Gesperrte Offizielle werden nicht als ungenutzt markiert."
+  },
+  "absences": {
+    "incidents": "Meldungen",
+    "open": "Noch offen",
+    "refusals": "Abgelehnte Ansetzungen",
+    "replacements": "Ersetzungen",
+    "byKind": "Meldungen nach Art",
+    "none": "Keine Meldungen im Zeitraum",
+    "sanctions": "Verhängte Sanktionen",
+    "sanctionsHint": "Im Zeitraum getroffene Entscheidungen",
+    "noSanctions": "Keine Entscheidungen",
+    "toDiscipline": "Disziplin öffnen →"
+  },
+  "fees": {
+    "by": {
+      "official": "Offizieller",
+      "competition": "Wettbewerb",
+      "city": "Stadt",
+      "day": "Tag"
+    },
+    "none": "Keine Entschädigungen im Zeitraum",
+    "noneHint": "Erzeugen Sie die Posten unter Finanzen, sobald die Ansetzungen stehen.",
+    "totalIn": "Summe in {currency}",
+    "paidShare": "{paid} bezahlt · {due} offen · {lines} Posten",
+    "lines": "Posten",
+    "total": "Summe",
+    "validated": "Bestätigt"
+  },
+  "reconciliation": {
+    "checked": "Geprüfte Positionen",
+    "hint": "Gleicht tatsächlich geleitete Spiele mit den gezahlten Beträgen ab.",
+    "match": "Spiel",
+    "role": "Position",
+    "payment": "Zahlung",
+    "issue": "Auffälligkeit",
+    "issues": {
+      "played-not-billed": "Gespielt, nicht abgerechnet",
+      "paid-not-played": "Bezahlt, nicht gespielt",
+      "paid-unvalidated": "Bezahlt ohne Spielbestätigung"
+    },
+    "clean": "Keine Auffälligkeiten",
+    "cleanHint": "{n} Positionen im Zeitraum geprüft."
+  }
+}

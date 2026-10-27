@@ -93,6 +93,42 @@ export function TextField({
   );
 }
 
+export function TextAreaField({
+  label,
+  value,
+  onChange,
+  error,
+  hint,
+  required,
+  className,
+  rows = 3,
+  ...rest
+}: Omit<React.TextareaHTMLAttributes<HTMLTextAreaElement>, "onChange" | "value" | "id"> & {
+  label: string;
+  value: string;
+  onChange: (next: string) => void;
+  error?: string;
+  hint?: string;
+  className?: string;
+}) {
+  const id = useId();
+  return (
+    <Labelled id={id} label={label} hint={hint} error={error} required={required} className={className}>
+      <textarea
+        {...rest}
+        id={id}
+        rows={rows}
+        value={value}
+        required={required}
+        onChange={(e) => onChange(e.target.value)}
+        aria-invalid={error ? true : undefined}
+        aria-describedby={describedBy(id, hint, error)}
+        className={cn(controlClass(Boolean(error)), "resize-y leading-relaxed")}
+      />
+    </Labelled>
+  );
+}
+
 export function SelectField({
   label,
   value,

@@ -7,6 +7,7 @@ import type { ApiFixture, AutofillResult } from "@/lib/api/types";
 import { useDataset } from "@/lib/dataset/DatasetProvider";
 import { useT } from "@/lib/i18n/LocaleProvider";
 import { useToast } from "@/lib/toast/ToastProvider";
+import { ReasonDialog } from "@/components/appointments/ReasonDialog";
 import { fixtureById, normalizeFixture, patchFixtureCrew, type CrewRole, type CrewSlot, type Fixture } from "@/lib/store";
 import type { BlockerId } from "@/lib/core/types";
 
@@ -114,11 +115,20 @@ export function AppointmentsProvider({ children }: { children: React.ReactNode }
   );
 
   /** Ask for the written reason the Worker requires; null when the visitor backs out. */
+  const [asking, setAsking] = useState<{ message: string; override: boolean; answer: (reason: string | null) => void } | null>(null);
   const askReason = useCallback(
-    (blockers?: BlockerId[]) => {
-      const text = window.prompt(blockers?.length ? t("live.overridePrompt", { why: blockerText(blockers) }) : t("live.reasonPrompt"));
-      return text && text.trim().length >= 3 ? text.trim() : null;
-    },
+    (blockers?: BlockerId[]) =>
+      new Promise<string | null>((resolve) => {
+        const override = Boolean(blockers?.length);
+        setAsking({
+          message: override ? t("live.overridePrompt", { why: blockerText(blockers!) }) : t("live.reasonPrompt"),
+          override,
+          answer: (reason) => {
+            setAsking(null);
+            resolve(reason);
+          },
+        });
+      }),
     [t, blockerText],
   );
 
@@ -148,7 +158,7 @@ export function AppointmentsProvider({ children }: { children: React.ReactNode }
             toast.push("error", explain(err, fixtureId));
             return;
           }
-          const text = askReason(details?.blockers);
+          const text = await askReason(details?.blockers);
           if (!text) return;
           reason = text;
           override = Boolean(details?.blockers?.length);
@@ -176,7 +186,7 @@ export function AppointmentsProvider({ children }: { children: React.ReactNode }
             toast.push("error", explain(err, fixtureId));
             return;
           }
-          const text = askReason();
+          const text = await askReason();
           if (!text) return;
           reason = text;
         }
@@ -291,7 +301,12 @@ export function AppointmentsProvider({ children }: { children: React.ReactNode }
     [crewFor, assign, clear, confirmAll, autoFill, undoAutoFill, trace, overrides],
   );
 
-  return <AppointmentsContext.Provider value={value}>{children}</AppointmentsContext.Provider>;
+  return (
+    <AppointmentsContext.Provider value={value}>
+      {children}
+      {asking && <ReasonDialog message={asking.message} override={asking.override} onAnswer={asking.answer} />}
+    </AppointmentsContext.Provider>
+  );
 }
 
 export function useAppointments() {

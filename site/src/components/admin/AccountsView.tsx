@@ -1,9 +1,9 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { LockKeyhole, Plus, User as UserIcon, Users, Wand2 } from "@/components/icons/glyphs";
+import { LockKeyhole, LogOut, Plus, User as UserIcon, Users, Wand2 } from "@/components/icons/glyphs";
 import { Avatar, Badge, Button, Card, EmptyState, Segmented, Td, Th } from "@/components/ui";
-import { listCountries, listUsers, patchUser, type UserRow } from "@/lib/api/admin";
+import { listCountries, listUsers, patchUser, signOutUser, type UserRow } from "@/lib/api/admin";
 import { canManageUser, isAdmin, isSelf, type Actor } from "@/lib/admin/actor";
 import { describeError } from "@/lib/admin/errors";
 import { filterUsers } from "@/lib/admin/filters";
@@ -28,7 +28,8 @@ type DialogState =
   | { kind: "reset"; user: UserRow }
   | { kind: "language"; user: UserRow }
   | { kind: "role"; user: UserRow }
-  | { kind: "deactivate"; user: UserRow };
+  | { kind: "deactivate"; user: UserRow }
+  | { kind: "signOut"; user: UserRow };
 
 export function AccountsView() {
   const t = useT();
@@ -74,6 +75,8 @@ export function AccountsView() {
       items.push({ key: "activate", label: t("admin.accounts.activate"), icon: UserIcon, onSelect: () => void activate(user) });
     }
     items.push({ key: "reset", label: t("admin.accounts.resetPassword"), icon: Wand2, onSelect: () => setDialog({ kind: "reset", user }) });
+    // your own sessions end from the avatar menu (sign out) or by changing your password
+    if (user.active) items.push({ key: "signOut", label: t("admin.accounts.signOutAll"), icon: LogOut, disabled: self, onSelect: () => setDialog({ kind: "signOut", user }) });
     items.push({ key: "language", label: t("admin.accounts.changeLanguage"), icon: Users, onSelect: () => setDialog({ kind: "language", user }) });
     if (admin) {
       items.push({ key: "role", label: t("admin.accounts.changeRole"), icon: UserIcon, disabled: self, onSelect: () => setDialog({ kind: "role", user }) });
@@ -126,6 +129,7 @@ export function AccountsView() {
                 { value: "admin" as const, label: t("admin.roles.admin") },
                 { value: "federation" as const, label: t("admin.roles.federation") },
                 { value: "referee" as const, label: t("admin.roles.referee") },
+                { value: "tagger" as const, label: t("admin.roles.tagger") },
               ]}
             />
           </div>
@@ -255,6 +259,20 @@ export function AccountsView() {
       {dialog?.kind === "reset" && <ResetPasswordDialog user={dialog.user} onClose={() => setDialog(null)} onDone={done} />}
       {dialog?.kind === "language" && <LanguageDialog user={dialog.user} onClose={() => setDialog(null)} onDone={done} />}
       {dialog?.kind === "role" && <RoleDialog user={dialog.user} onClose={() => setDialog(null)} onDone={done} />}
+      {dialog?.kind === "signOut" && (
+        <ConfirmDialog
+          title={t("admin.accounts.signOutAllTitle")}
+          confirmLabel={t("admin.accounts.signOutAll")}
+          perform={() => signOutUser(dialog.user.id)}
+          onDone={() => {
+            toast.push("success", t("admin.accounts.signedOutAll", { name: dialog.user.name }));
+            done();
+          }}
+          onCancel={() => setDialog(null)}
+        >
+          <p>{t("admin.accounts.signOutAllBody", { name: dialog.user.name })}</p>
+        </ConfirmDialog>
+      )}
       {dialog?.kind === "deactivate" && (
         <ConfirmDialog
           title={t("admin.accounts.deactivateTitle")}

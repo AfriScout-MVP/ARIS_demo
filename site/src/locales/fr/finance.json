@@ -1,0 +1,285 @@
+{
+  "title": "Indemnités et avances",
+  "subtitle": "Des désignations validées aux virements : barèmes, contrôles, paiements et avances, avec une trace de chaque étape.",
+  "tabs": {
+    "payments": "Indemnités",
+    "advances": "Avances",
+    "scales": "Barèmes"
+  },
+  "status": {
+    "due": "À valider",
+    "validated": "Validée",
+    "paid": "Payée",
+    "contested": "Contestée",
+    "cancelled": "Annulée"
+  },
+  "views": {
+    "open": "En cours",
+    "all": "Toutes",
+    "label": "Afficher"
+  },
+  "checks": {
+    "presenceConfirmed": "Présence confirmée",
+    "matchValidated": "Match validé",
+    "expensesVerified": "Frais vérifiés",
+    "title": "Contrôles",
+    "hint": "Les trois contrôles sont exigés avant la validation. Ils se règlent un par un.",
+    "done": "{n}/3 contrôles"
+  },
+  "money": {
+    "base": "Indemnité de match",
+    "transport": "Transport",
+    "lodging": "Hébergement",
+    "meals": "Repas",
+    "bonus": "Prime",
+    "deduction": "Retenue",
+    "total": "Total"
+  },
+  "tiers": {
+    "d1": "Première division",
+    "d2": "Deuxième division",
+    "cup": "Coupe",
+    "continental": "Continental"
+  },
+  "kpi": {
+    "outstanding": "Reste à payer",
+    "outstandingHint": "{n} lignes à valider, validées ou contestées",
+    "toPay": "Prêt à virer",
+    "toPayHint": "Lignes validées, en attente du virement",
+    "paid": "Payé",
+    "paidHint": "Sur la période",
+    "contested": "Contestations",
+    "contestedHint": "À trancher par la fédération",
+    "otherCurrencies": "Autres devises"
+  },
+  "range": {
+    "from": "Du",
+    "to": "Au",
+    "label": "Période des matchs"
+  },
+  "searchPlaceholder": "Arbitre, équipe, ville, référence…",
+  "export": "Exporter (CSV)",
+  "exportName": "indemnites",
+  "fields": {
+    "date": "Date",
+    "match": "Match",
+    "role": "Rôle",
+    "official": "Officiel",
+    "total": "Total",
+    "status": "Statut",
+    "checks": "Contrôles",
+    "reference": "Référence",
+    "city": "Ville",
+    "competition": "Compétition",
+    "currency": "Devise"
+  },
+  "ready": {
+    "title": "À facturer",
+    "hint": "Matchs dont l'équipe arbitrale est validée mais dont les indemnités n'ont pas encore été calculées.",
+    "count": "{n} matchs",
+    "roles": "Sans ligne : {roles}",
+    "generate": "Calculer",
+    "generateAll": "Tout calculer",
+    "generating": "Calcul… {done}/{total}",
+    "empty": "Tout est facturé sur la période."
+  },
+  "report": {
+    "title": "Dernier calcul",
+    "created": "{n} lignes créées",
+    "nothing": "Aucune nouvelle ligne.",
+    "missingScale": "Aucun barème pour : {roles}",
+    "currencyMismatch": "Barème seulement dans une autre devise pour : {roles}. ARIS n'applique aucun taux de change.",
+    "defaultScaleUsed": "Calculé avec le barème par défaut de la plateforme : {roles}",
+    "heldByPrevious": "Ligne encore au nom de l'officiel remplacé : {roles}. Annulez-la ou corrigez-la avant de recalculer.",
+    "reissued": "Réémise au nom du nouvel officiel : {roles}",
+    "openScales": "Ouvrir les barèmes",
+    "dismiss": "Masquer"
+  },
+  "bulk": {
+    "selected": "{n} sélectionnées",
+    "check": "Cocher les contrôles",
+    "validate": "Valider",
+    "pay": "Payer…",
+    "clear": "Désélectionner",
+    "done": "{ok} réussies · {failed} en échec · {skipped} ignorées",
+    "selectAll": "Tout sélectionner",
+    "selectRow": "Sélectionner la ligne de {name}",
+    "running": "Traitement… {done}/{total}"
+  },
+  "panel": {
+    "breakdown": "Détail",
+    "receipts": "Justificatifs",
+    "noReceipts": "Aucun justificatif déposé.",
+    "contestNote": "Motif de la contestation",
+    "paidOn": "Payée le {date} · réf. {ref}",
+    "validatedOn": "Validée le {date}",
+    "closed": "Cette ligne est close : elle ne peut plus être modifiée."
+  },
+  "actions": {
+    "adjust": "Ajuster",
+    "validate": "Valider",
+    "pay": "Marquer payée",
+    "resolve": "Trancher",
+    "cancel": "Annuler la ligne",
+    "open": "Ouvrir la ligne de {name}"
+  },
+  "adjust": {
+    "title": "Ajuster les montants",
+    "hint": "Chaque changement de montant est motivé et enregistré au journal d'audit.",
+    "reason": "Motif",
+    "reasonHint": "Par exemple : billet d'avion plus cher que le barème, retard de 45 minutes.",
+    "newTotal": "Nouveau total : {total}",
+    "negative": "La retenue dépasse le montant dû.",
+    "noChange": "Aucun montant n'a changé.",
+    "sendsBack": "Une ligne validée repasse « à valider » pour un nouveau contrôle."
+  },
+  "pay": {
+    "title": "Enregistrer le paiement",
+    "hint": "Le paiement se fait hors d'ARIS ; indiquez la référence du virement pour le rapprochement.",
+    "bulkTitle": "{n} lignes, un seul virement",
+    "bulkHint": "Total : {total}. La même référence est inscrite sur chaque ligne.",
+    "reference": "Référence du virement",
+    "referenceHint": "Au moins 3 caractères, par exemple VIR-2026-0142.",
+    "submit": "Enregistrer"
+  },
+  "resolve": {
+    "title": "Trancher la contestation",
+    "hint": "L'officiel conteste ce montant. Ajustez d'abord si besoin, puis tranchez.",
+    "outcome": "Décision",
+    "keep": "Maintenir la ligne (retour « à valider »)",
+    "drop": "Annuler la ligne",
+    "note": "Réponse à l'officiel",
+    "submit": "Trancher"
+  },
+  "cancel": {
+    "title": "Annuler cette ligne ?",
+    "hint": "Une ligne annulée n'est plus due. Une ligne payée ne s'annule pas.",
+    "note": "Motif",
+    "submit": "Annuler la ligne"
+  },
+  "toast": {
+    "generated": "{n} lignes créées",
+    "adjusted": "Montants enregistrés",
+    "validated": "Ligne validée",
+    "paid": "Paiement enregistré",
+    "resolved": "Contestation tranchée",
+    "cancelled": "Ligne annulée",
+    "checked": "Contrôle enregistré",
+    "exported": "{n} lignes exportées"
+  },
+  "empty": "Aucune indemnité sur la période",
+  "emptyHint": "Les lignes apparaissent une fois les indemnités calculées pour un match validé.",
+  "errors": {
+    "closed": "Cette ligne est payée ou annulée : elle ne peut plus être modifiée.",
+    "bad_state": "Ce n'est plus possible dans l'état actuel. Rechargez pour voir où en est la demande.",
+    "checks_missing": "Les trois contrôles doivent être cochés avant la validation.",
+    "not_validated": "Cela demande d'abord une validation.",
+    "negative_total": "La retenue dépasse le montant dû.",
+    "currency_mismatch": "Les barèmes de cette fédération sont dans la devise de son pays.",
+    "competition_mismatch": "Cette compétition appartient à une autre fédération.",
+    "amount": "Un montant entier, 0 ou plus.",
+    "amountPositive": "Un montant entier supérieur à 0.",
+    "short": "Au moins 3 caractères.",
+    "justification": "Au moins 5 caractères."
+  },
+  "advances": {
+    "new": "Nouvelle avance",
+    "status": {
+      "requested": "Demandée",
+      "approved": "Approuvée",
+      "paid": "Versée",
+      "settled": "Régularisée",
+      "rejected": "Refusée"
+    },
+    "decide": {
+      "approved": "Approuver",
+      "paid": "Marquer versée",
+      "settled": "Marquer régularisée",
+      "rejected": "Refuser"
+    },
+    "confirm": {
+      "approved": "Approuver l'avance de {amount} pour {name} ?",
+      "paid": "Confirmer le versement de {amount} à {name} ?",
+      "settled": "Les justificatifs de {name} couvrent-ils les {amount} ?",
+      "rejected": "Refuser l'avance de {amount} demandée par {name} ?",
+      "hint": "L'officiel est prévenu dans son espace. La décision est enregistrée au journal d'audit."
+    },
+    "kpi": {
+      "requested": "En attente de décision",
+      "outstanding": "À régulariser",
+      "outstandingHint": "Approuvées ou versées, sans justificatif encore"
+    },
+    "fields": {
+      "official": "Officiel",
+      "amount": "Montant",
+      "justification": "Justification",
+      "requestedAt": "Demandée le",
+      "status": "Statut"
+    },
+    "form": {
+      "title": "Avance pour un officiel",
+      "hint": "Pour un déplacement à financer avant le match. Le montant est dans la devise du pays de l'officiel.",
+      "official": "Officiel",
+      "amount": "Montant",
+      "justification": "Justification",
+      "justificationHint": "Ce que l'avance couvre : billet, hébergement, visa…",
+      "submit": "Enregistrer la demande"
+    },
+    "empty": "Aucune avance",
+    "emptyHint": "Les demandes des officiels et celles saisies par la fédération apparaissent ici.",
+    "toast": {
+      "requested": "Demande d'avance enregistrée",
+      "decided": "Avance : {status}"
+    }
+  },
+  "scales": {
+    "whose": "Barèmes de",
+    "defaults": "Plateforme (par défaut)",
+    "defaultsHint": "Utilisés quand une fédération n'a pas de barème propre, et seulement s'ils sont dans la devise de son pays.",
+    "readonlyHint": "Barèmes par défaut de la plateforme : en lecture seule, utilisés à défaut des vôtres.",
+    "add": "Nouveau barème",
+    "editCell": "Modifier {role}, {tier}",
+    "addCell": "Ajouter {role}, {tier}",
+    "grid": "Barèmes par division et par rôle",
+    "specific": "Barèmes propres à une compétition",
+    "specificHint": "Prioritaires sur le barème de la division.",
+    "noSpecific": "Aucun barème propre à une compétition.",
+    "expenses": "+{n} frais",
+    "empty": "Aucun barème",
+    "emptyHint": "Sans barème, ARIS ne peut pas calculer les indemnités d'un match.",
+    "coverage": {
+      "title": "Couverture",
+      "hint": "Ce que le calcul des indemnités trouverait pour chaque compétition et chaque rôle.",
+      "ok": "Chaque rôle de chaque compétition a un barème dans la bonne devise.",
+      "missing": "{competition} : aucun barème pour {roles}",
+      "currency": "{competition} : barème seulement dans une autre devise pour {roles}"
+    },
+    "form": {
+      "newTitle": "Nouveau barème",
+      "editTitle": "Modifier le barème",
+      "hint": "Un barème par division (ou par compétition) et par rôle. L'enregistrer remplace le précédent pour les prochains calculs ; les lignes déjà calculées ne changent pas.",
+      "tier": "Division",
+      "competition": "Compétition",
+      "anyCompetition": "Toutes les compétitions de la division",
+      "role": "Rôle",
+      "amount": "Indemnité de match",
+      "transport": "Transport",
+      "lodging": "Hébergement",
+      "meals": "Repas",
+      "currency": "Devise",
+      "currencyHint": "Code ISO à 3 lettres. Une fédération est toujours payée dans la devise de son pays.",
+      "submit": "Enregistrer"
+    },
+    "toast": {
+      "saved": "Barème enregistré"
+    }
+  },
+  "mine": {
+    "title": "Mes avances",
+    "request": "Demander une avance",
+    "hint": "Pour un déplacement à financer avant un match. La fédération décide et vous êtes prévenu ici.",
+    "empty": "Aucune demande d'avance.",
+    "submit": "Envoyer la demande"
+  },
+  "truncated": "Seules les {n} lignes les plus récentes sont affichées : réduisez la période."
+}

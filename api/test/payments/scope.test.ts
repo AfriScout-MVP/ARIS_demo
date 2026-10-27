@@ -22,7 +22,7 @@ beforeAll(async () => {
 
 const snapshot = (id: string) => sql("SELECT status, bonus, presence_confirmed, contest_note FROM payments WHERE id = ?", id).first();
 
-describe("payments are confined to the country of the official", () => {
+describe("payments are confined to the country paying them", () => {
   it("lists a federation's own country only, a referee their own, an admin everything (and ?country=)", async () => {
     const ids = async (s: Parameters<typeof get>[0], q = "") => (await get(s, `/payments${q}`)).json.payments.map((p: { id: string }) => p.id);
     expect(await ids(w.seatA)).toEqual([a.id]);

@@ -11,6 +11,8 @@ export const isAdmin = (u: AuthUser) => u.role === "admin";
 export const isFederation = (u: AuthUser) => u.role === "federation";
 /** Admin and federation seats — those who run competitions. */
 export const isStaff = (u: AuthUser) => u.role === "admin" || u.role === "federation";
+/** A tagger: country-scoped like a federation seat, but reaches only the tagging routes (see taggingCountryFilter below). */
+export const isTagger = (u: AuthUser) => u.role === "tagger";
 
 /** Continental ties (country code `CAF`) belong to the platform administrator, not to any one federation. */
 export const CONTINENTAL = "CAF";
@@ -31,6 +33,27 @@ export function countryFilter(u: AuthUser, column: string): { sql: string; param
   if (u.role === "admin") return { sql: "1 = 1", params: [] };
   if (u.role === "federation" && u.country) return { sql: `${column} = ?`, params: [u.country] };
   return { sql: "1 = 0", params: [] };
+}
+
+/**
+ * Country scope for the tagging feature only — mirrors `countryFilter`'s shape exactly, but is never used by
+ * any other route, so widening what a tagger may touch here can never leak into officials, payments,
+ * discipline, training, teams, competitions, federations, the outbox or the audit log (all of which call the
+ * generic `countryFilter`/`inCountry`, left untouched for every role including tagger).
+ */
+export function taggingCountryFilter(u: AuthUser, column: string): { sql: string; params: string[] } {
+  if (u.role === "admin") return { sql: "1 = 1", params: [] };
+  if ((u.role === "federation" || u.role === "tagger") && u.country) return { sql: `${column} = ?`, params: [u.country] };
+  return { sql: "1 = 0", params: [] };
+}
+
+/**
+ * `assertCountry`'s tagging-only counterpart — see `taggingCountryFilter` for why this is separate.
+ * Same 404-not-403 rule: a tagger from one country must not learn that a match in another exists.
+ */
+export function assertTaggingCountry(u: AuthUser, countryCode: string | null | undefined, what = "Match") {
+  const ok = u.role === "admin" || ((u.role === "federation" || u.role === "tagger") && !!countryCode && countryCode !== CONTINENTAL && u.country === countryCode);
+  if (!ok) throw u.role === "referee" ? forbidden() : notFound(what);
 }
 
 /** The country a request is scoped to: a federation's own, or whatever an admin asked for (null = all). */

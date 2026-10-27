@@ -152,8 +152,8 @@ function toLoaded(r: FixtureRow, crew: ApiSlot[]): LoadedFixture {
 
 const ROLE_ORDER: CrewRole[] = ["R", "AR1", "AR2", "FOURTH", "VAR", "AVAR", "OBS"];
 
-/** Fixtures with their crews, as the engine and the API both want them. Filters run in SQL. */
-export async function loadFixtures(db: D1Database, where: FixtureFilter): Promise<LoadedFixture[]> {
+/** The WHERE clauses of a fixture filter (on alias `f`). */
+function filterClauses(where: FixtureFilter) {
   const clauses: string[] = [];
   const params: (string | number)[] = [];
   if (where.scope) {
@@ -168,7 +168,12 @@ export async function loadFixtures(db: D1Database, where: FixtureFilter): Promis
   if (where.competition) (clauses.push("f.competition_id = ?"), params.push(where.competition));
   if (where.status) (clauses.push("f.status = ?"), params.push(where.status));
   if (where.designationStatus) (clauses.push("f.designation_status = ?"), params.push(where.designationStatus));
+  return { clauses, params };
+}
 
+/** Fixtures with their crews, as the engine and the API both want them. Filters run in SQL. */
+export async function loadFixtures(db: D1Database, where: FixtureFilter): Promise<LoadedFixture[]> {
+  const { clauses, params } = filterClauses(where);
   const rows: FixtureRow[] = [];
   const query = async (extra: string[], extraParams: (string | number)[]) => {
     const all = [...clauses, ...extra];
@@ -184,9 +189,63 @@ export async function loadFixtures(db: D1Database, where: FixtureFilter): Promis
   } else {
     await query([], []);
   }
-  if (rows.length === 0) return [];
+  return withCrews(db, rows, where);
+}
 
+/** Where a page of fixtures stopped: the list order is (kickoff, importance desc, id). */
+export interface FixtureCursor {
+  kickoffAt: string;
+  importance: number;
+  id: string;
+}
+
+/**
+ * One page of `loadFixtures`, read with a keyset cursor in SQL instead of loading the whole window. `total` counts
+ * every fixture the filter matches (local dates included), so a caller can still say "120 of 480".
+ */
+export async function loadFixturePage(db: D1Database, where: Omit<FixtureFilter, "ids">, limit: number, after?: FixtureCursor | null) {
+  const { clauses, params } = filterClauses(where);
+  const page: LoadedFixture[] = [];
+  let cursor = after ?? null;
+  // The SQL window is a day wider than the local dates asked for (see filterClauses), so a batch can lose a few
+  // rows to the local-date trim: keep reading until the page (plus one, to know there is more) is full.
+  for (;;) {
+    const want = limit + 1 - page.length;
+    const extra = cursor ? ["(f.kickoff_at > ? OR (f.kickoff_at = ? AND (f.importance < ? OR (f.importance = ? AND f.id > ?))))"] : [];
+    const extraParams = cursor ? [cursor.kickoffAt, cursor.kickoffAt, cursor.importance, cursor.importance, cursor.id] : [];
+    const all = [...clauses, ...extra];
+    const { results } = await db
+      .prepare(`SELECT ${FIXTURE_COLUMNS} ${FIXTURE_FROM} ${all.length ? "WHERE " + all.join(" AND ") : ""} ORDER BY f.kickoff_at, f.importance DESC, f.id LIMIT ?`)
+      .bind(...params, ...extraParams, want)
+      .all<FixtureRow>();
+    page.push(...(await withCrews(db, results, where)));
+    if (results.length < want || page.length > limit) break;
+    const last = results.at(-1)!;
+    cursor = { kickoffAt: last.kickoff_at, importance: last.importance, id: last.id };
+  }
+  const more = page.length > limit;
+  const fixtures = page.slice(0, limit);
+  const end = fixtures.at(-1);
+
+  // the count only needs each fixture's instant and zone (for the local-date trim), not its crew
+  const { results: all } = await db
+    .prepare(`SELECT f.kickoff_at, ${FIXTURE_TZ} AS tz ${FIXTURE_FROM} ${clauses.length ? "WHERE " + clauses.join(" AND ") : ""}`)
+    .bind(...params)
+    .all<{ kickoff_at: string; tz: string }>();
+  const total =
+    where.from || where.to
+      ? all.filter((r) => {
+          const d = localParts(r.kickoff_at, r.tz).date;
+          return (!where.from || d >= where.from) && (!where.to || d <= where.to);
+        }).length
+      : all.length;
+  return { fixtures, total, next: more && end ? { kickoffAt: end.kickoffAt, importance: end.importance, id: end.id } : null };
+}
+
+async function withCrews(db: D1Database, rows: FixtureRow[], where: Pick<FixtureFilter, "from" | "to">): Promise<LoadedFixture[]> {
+  if (rows.length === 0) return [];
   const crews = new Map<string, ApiSlot[]>();
+
   for (const ids of chunk(rows.map((r) => r.id))) {
     const { results } = await db
       .prepare(`SELECT fixture_id, role, official_id, state, version FROM designations WHERE fixture_id IN (${marks(ids.length)})`)

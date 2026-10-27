@@ -1,0 +1,150 @@
+{
+  "new": "New fixture",
+  "newTitle": "New fixture",
+  "newHint": "The crew slots are created from the competition (VAR, observer).",
+  "editTitle": "Edit the fixture",
+  "create": "Create the fixture",
+  "created": "{home} — {away} is on the calendar.",
+  "saved": "Fixture updated.",
+  "rescheduledWarn": "Fixture moved: {n} officials no longer meet the conditions, check the board.",
+  "chooseTeam": "Choose a team…",
+  "chooseCompetition": "Choose a competition…",
+  "noStadium": "Stadium to be confirmed",
+  "fields": {
+    "competition": "Competition",
+    "homeCountry": "Home team's country",
+    "awayCountry": "Away team's country",
+    "home": "Home team",
+    "away": "Away team",
+    "date": "Date",
+    "time": "Kick-off",
+    "stadium": "Stadium",
+    "round": "Matchday",
+    "roundLabel": "Round name",
+    "importance": "Importance",
+    "reason": "Reason"
+  },
+  "hints": {
+    "localTime": "Local time at the stadium.",
+    "roundLabel": "Optional: \"Quarter-final\"…",
+    "importance": "0 to 100: weighs on who is chosen.",
+    "reason": "Officials already designated are told, with this reason.",
+    "reasonNotified": "Required: designated officials are told, with this reason."
+  },
+  "errors": {
+    "competition": "Choose the competition.",
+    "team": "Choose the team.",
+    "sameTeam": "A team cannot play itself.",
+    "round": "A matchday from 1 to 100.",
+    "roundLabel": "60 characters at most.",
+    "date": "Invalid date.",
+    "time": "Time as HH:MM.",
+    "importance": "A number from 0 to 100.",
+    "reason": "Give the reason (at least 3 characters).",
+    "score": "A score from 0 to 99 for each team.",
+    "attendance": "A whole number, 300,000 at most.",
+    "duplicate": "These teams already meet on this matchday.",
+    "invalid_local_time": "That time does not exist on that day (clock change).",
+    "team_outside_country": "A domestic fixture is between teams of the competition's country.",
+    "stadium_outside_country": "The stadium must be in the competition's country.",
+    "competition_inactive": "This competition is closed.",
+    "not_yet_played": "The match has not been played yet.",
+    "no_referee": "A designated referee is needed to record the result.",
+    "duplicate_match": "A match between these teams is already recorded on that day.",
+    "not_scheduled": "This fixture is not scheduled.",
+    "not_validated": "The crew must be validated first.",
+    "not_published": "The convocations are not published yet.",
+    "unknown": "That team, stadium or competition no longer exists: reload the page."
+  },
+  "blocked": {
+    "incomplete": "Every required role needs an official before the crew goes out for confirmation.",
+    "unconfirmed": "Every official must have confirmed before validation."
+  },
+  "pipeline": {
+    "draft": "Draft",
+    "awaiting_confirmation": "Awaiting the officials",
+    "validated": "Validated",
+    "published": "Published"
+  },
+  "steps": {
+    "submit": "Send for confirmation",
+    "validate": "Validate the crew",
+    "publish": "Publish convocations",
+    "done": {
+      "submit": "Crew sent to the officials for confirmation.",
+      "validate": "Crew validated.",
+      "publish": "Convocations published: every official has been told."
+    }
+  },
+  "status": {
+    "title": {
+      "postponed": "Postpone the fixture",
+      "cancelled": "Cancel the fixture",
+      "scheduled": "Reinstate the fixture"
+    },
+    "body": {
+      "postponed": "The fixture leaves the active calendar; the crew is kept.",
+      "cancelled": "The fixture is cancelled; designated officials are told.",
+      "scheduled": "The fixture returns to the calendar. Then check its date and crew."
+    },
+    "confirm": {
+      "postponed": "Postpone",
+      "cancelled": "Cancel the fixture",
+      "scheduled": "Reinstate"
+    },
+    "done": {
+      "postponed": "Fixture postponed.",
+      "cancelled": "Fixture cancelled.",
+      "scheduled": "Fixture reinstated."
+    }
+  },
+  "result": {
+    "title": "Result",
+    "submit": "Record the result",
+    "attendance": "Attendance (optional)",
+    "hint": "The match can then be assessed and billed; it can no longer be changed.",
+    "done": "{home} {score} {away} recorded."
+  },
+  "convocations": {
+    "title": "Convocations",
+    "emailAll": "Email the {n} officials"
+  },
+  "history": {
+    "title": "Fixture history",
+    "engine": "ARIS engine",
+    "empty": "Nothing yet",
+    "actions": {
+      "assign": "designated",
+      "clear": "slot cleared",
+      "confirm": "confirmed",
+      "accept": "accepted by the official",
+      "decline": "declined by the official",
+      "replace": "replaced",
+      "autofill": "proposed by the engine",
+      "validate": "validated",
+      "publish": "published",
+      "revert": "engine run undone"
+    },
+    "events": {
+      "create": "Fixture created",
+      "update": "Fixture changed",
+      "postponed": "Fixture postponed",
+      "cancelled": "Fixture cancelled",
+      "submit": "Sent for confirmation",
+      "validate": "Crew validated",
+      "publish": "Convocations published",
+      "result": "Result recorded",
+      "billed": "Fees generated"
+    }
+  },
+  "menu": {
+    "label": "Actions for {home} — {away}",
+    "edit": "Edit, move",
+    "result": "Record the result",
+    "convocations": "See the convocations",
+    "postpone": "Postpone",
+    "cancel": "Cancel",
+    "reinstate": "Reinstate",
+    "history": "History"
+  }
+}

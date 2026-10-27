@@ -22,6 +22,7 @@ export function Dialog({
   footer,
   busy = false,
   size = "md",
+  dismissable = true,
 }: {
   title: string;
   description?: string;
@@ -32,6 +33,8 @@ export function Dialog({
   footer?: React.ReactNode;
   busy?: boolean;
   size?: "sm" | "md" | "lg";
+  /** False for a dialog the person must resolve before anything else: no close button, Escape, or backdrop click. */
+  dismissable?: boolean;
 }) {
   const t = useT();
   const titleId = useId();
@@ -39,10 +42,12 @@ export function Dialog({
   const panel = useRef<HTMLDivElement>(null);
   const closeRef = useRef(onClose);
   const busyRef = useRef(busy);
+  const dismissableRef = useRef(dismissable);
 
   useEffect(() => {
     closeRef.current = onClose;
     busyRef.current = busy;
+    dismissableRef.current = dismissable;
   });
 
   useEffect(() => {
@@ -61,7 +66,7 @@ export function Dialog({
     function onKey(e: KeyboardEvent) {
       if (e.key === "Escape") {
         e.stopPropagation();
-        if (!busyRef.current) closeRef.current();
+        if (!busyRef.current && dismissableRef.current) closeRef.current();
         return;
       }
       if (e.key !== "Tab" || !node) return;
@@ -109,7 +114,7 @@ export function Dialog({
     <div
       className="fixed inset-0 z-[90] flex items-end justify-center bg-black/60 sm:items-center sm:p-4"
       onMouseDown={(e) => {
-        if (e.target === e.currentTarget && !busy) onClose();
+        if (e.target === e.currentTarget && !busy && dismissable) onClose();
       }}
     >
       <div
@@ -137,15 +142,17 @@ export function Dialog({
               </p>
             )}
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            disabled={busy}
-            aria-label={t("common.close")}
-            className="-m-1.5 rounded-lg p-2 text-chalk-faint hover:text-chalk disabled:opacity-40"
-          >
-            <X size={16} />
-          </button>
+          {dismissable && (
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={busy}
+              aria-label={t("common.close")}
+              className="-m-1.5 rounded-lg p-2 text-chalk-faint hover:text-chalk disabled:opacity-40"
+            >
+              <X size={16} />
+            </button>
+          )}
         </div>
         {onSubmit ? (
           <form

@@ -59,8 +59,8 @@ reports.get("/overview", async (c) => {
     db.prepare(
       `SELECT p.currency, SUM(CASE WHEN p.status = 'due' THEN p.total END) AS planned, SUM(CASE WHEN p.status = 'validated' THEN p.total END) AS committed,
               SUM(CASE WHEN p.status = 'paid' THEN p.total END) AS paid, SUM(CASE WHEN p.status = 'contested' THEN p.total END) AS contested
-         FROM payments p JOIN officials o ON o.id = p.official_id WHERE p.status <> 'cancelled' ${off.sql} GROUP BY p.currency`,
-    ).bind(...off.args),
+         FROM payments p JOIN fixtures f ON f.id = p.fixture_id WHERE p.status <> 'cancelled' ${fix.sql} GROUP BY p.currency`,
+    ).bind(...fix.args),
     db.prepare(`SELECT ROUND(AVG(rmcs_avg), 1) AS avgRating, ROUND(AVG(arps), 1) AS avgArps FROM officials WHERE kind = 'referee' AND status <> 'retired' ${offBare.sql}`).bind(...offBare.args),
     db.prepare(`SELECT SUM(l.expires < ?) AS expired, SUM(l.expires BETWEEN ? AND ?) AS expiring FROM licences l JOIN officials o ON o.id = l.official_id WHERE 1 = 1 ${off.sql}`).bind(t, t, addDays(t, 90), ...off.args),
     db.prepare(`SELECT SUM(t.test1_result = 'failed' OR t.test2_result = 'failed') AS failed FROM fitness_tests t JOIN officials o ON o.id = t.official_id WHERE 1 = 1 ${off.sql}`).bind(...off.args),
@@ -156,16 +156,17 @@ reports.get("/fees", async (c) => {
   const user = currentUser(c);
   const q = parseQuery(c, rangeQuery.extend({ groupBy: z.enum(["official", "day", "city", "competition"]).default("official") }));
   const cc = scopeCountry(user, q.country);
-  const off = only(cc, "o.country_code");
+  // money is counted where it is paid: the country that runs the fixture
+  const fix = only(cc, "f.country_code");
   const expr = { official: "o.name", day: "f.date", city: "COALESCE(s.city, '')", competition: "f.competition_id" }[q.groupBy];
   const { results } = await c.env.DB.prepare(
     `SELECT ${expr} AS key, p.currency, COUNT(*) AS lines, SUM(p.total) AS total,
             SUM(CASE WHEN p.status = 'paid' THEN p.total ELSE 0 END) AS paid, SUM(CASE WHEN p.status = 'validated' THEN p.total ELSE 0 END) AS validated,
             SUM(CASE WHEN p.status = 'due' THEN p.total ELSE 0 END) AS due, SUM(CASE WHEN p.status = 'contested' THEN p.total ELSE 0 END) AS contested
        FROM payments p JOIN fixtures f ON f.id = p.fixture_id JOIN officials o ON o.id = p.official_id LEFT JOIN stadiums s ON s.id = f.stadium_id
-      WHERE f.date BETWEEN ? AND ? AND p.status <> 'cancelled' ${off.sql} GROUP BY ${expr}, p.currency ORDER BY total DESC`,
+      WHERE f.date BETWEEN ? AND ? AND p.status <> 'cancelled' ${fix.sql} GROUP BY ${expr}, p.currency ORDER BY total DESC`,
   )
-    .bind(q.from, q.to, ...off.args)
+    .bind(q.from, q.to, ...fix.args)
     .all();
   if (q.format === "csv") return csvResponse(`fees-by-${q.groupBy}.csv`, results);
   return c.json({ from: q.from, to: q.to, country: cc, groupBy: q.groupBy, rows: results });
@@ -176,7 +177,8 @@ reports.get("/reconciliation", async (c) => {
   const user = currentUser(c);
   const q = parseQuery(c, rangeQuery);
   const cc = scopeCountry(user, q.country);
-  const off = only(cc, "o.country_code");
+  // the paying federation reconciles its own fixtures, whoever officiated them
+  const fix = only(cc, "f.country_code");
   const { results } = await c.env.DB.prepare(
     `SELECT f.id AS fixtureId, f.date, ht.name AS home, aw.name AS away, f.status AS fixtureStatus, d.role, o.name AS officialName, o.country_code AS countryCode,
             d.state AS designation, p.status AS payment, p.total, p.currency,
@@ -186,9 +188,9 @@ reports.get("/reconciliation", async (c) => {
        FROM designations d JOIN fixtures f ON f.id = d.fixture_id JOIN officials o ON o.id = d.official_id
        JOIN teams ht ON ht.id = f.home_team_id JOIN teams aw ON aw.id = f.away_team_id
        LEFT JOIN payments p ON p.fixture_id = d.fixture_id AND p.role = d.role
-      WHERE f.date BETWEEN ? AND ? AND d.official_id IS NOT NULL ${off.sql} ORDER BY f.date, f.id, d.role`,
+      WHERE f.date BETWEEN ? AND ? AND d.official_id IS NOT NULL ${fix.sql} ORDER BY f.date, f.id, d.role`,
   )
-    .bind(q.from, q.to, ...off.args)
+    .bind(q.from, q.to, ...fix.args)
     .all<{ issue: string | null } & Record<string, unknown>>();
   const issues = results.filter((r) => r.issue);
   if (q.format === "csv") return csvResponse("reconciliation.csv", issues);

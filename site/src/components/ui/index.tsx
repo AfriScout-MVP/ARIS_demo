@@ -340,7 +340,7 @@ export function Board({
       )}
     >
       <div className="flex items-start justify-between gap-2">
-        <p className={cn("hyphens-auto break-words text-xs font-semibold leading-tight", tint.label)}>{label}</p>
+        <p className={cn("hyphens-auto break-words text-xs font-semibold leading-tight first-letter:uppercase", tint.label)}>{label}</p>
         {Icon && (
           <span
             className={cn(

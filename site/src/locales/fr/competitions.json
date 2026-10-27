@@ -1,0 +1,73 @@
+{
+  "title": "Compétitions",
+  "subtitleAdmin": "Les championnats et coupes de chaque pays, et les compétitions continentales de la CAF : saison, journées, VAR, poids dans les désignations.",
+  "subtitleFederation": "Les championnats et coupes de votre fédération : saison, journées, VAR, poids dans les désignations.",
+  "new": "Nouvelle compétition",
+  "newTitle": "Nouvelle compétition",
+  "newHint": "Elle apparaît aussitôt dans le calendrier, les désignations et les barèmes.",
+  "editTitle": "Modifier la compétition",
+  "create": "Créer",
+  "created": "{name} est créée.",
+  "saved": "Compétition mise à jour.",
+  "search": "Nom, sigle ou saison…",
+  "continental": "CAF : compétitions continentales",
+  "views": {
+    "active": "En cours",
+    "all": "Toutes"
+  },
+  "fields": {
+    "name": "Nom",
+    "shortName": "Sigle",
+    "tier": "Niveau",
+    "gender": "Catégorie",
+    "season": "Saison",
+    "matchdays": "Journées",
+    "currentMatchday": "Journée en cours",
+    "weight": "Poids",
+    "varEnabled": "VAR utilisée",
+    "isActive": "Compétition en cours",
+    "progress": "Avancement",
+    "status": "État"
+  },
+  "gender": {
+    "M": "Masculin",
+    "W": "Féminin"
+  },
+  "hints": {
+    "season": "Format AAAA/AAAA, par exemple 2026/2027.",
+    "seasonFixed": "La saison et la catégorie ne changent plus après la création.",
+    "weight": "De 0 à 10 : pèse sur l'importance des matchs dans les désignations.",
+    "var": "Les désignations prévoient alors un VAR et un AVAR.",
+    "active": "Une compétition close reste consultable mais ne reçoit plus de matchs."
+  },
+  "active": "En cours",
+  "inactive": "Close",
+  "edit": "Modifier",
+  "advance": "Passer à la journée suivante",
+  "advanced": "{name} : journée {n}.",
+  "close": "Clore la compétition",
+  "reopen": "Rouvrir la compétition",
+  "closed": "{name} est close.",
+  "reopened": "{name} est rouverte.",
+  "actionsFor": "Actions pour {name}",
+  "rollover": {
+    "action": "Préparer la saison {season}",
+    "title": "Préparer la saison {season} ?",
+    "body": "{name} est reprise telle quelle de {from} à {to}, à partir de la journée 0.",
+    "closeOld": "Clore la saison {season}",
+    "confirm": "Créer la saison",
+    "done": "{name} {season} est prête."
+  },
+  "empty": "Aucune compétition",
+  "emptyHint": "Créez le championnat ou la coupe dont la fédération désigne les arbitres.",
+  "errors": {
+    "name": "Entre 2 et 120 caractères.",
+    "shortName": "30 caractères au plus.",
+    "tier": "La CAF n'organise que des compétitions continentales, et elle seule.",
+    "season": "Format AAAA/AAAA, la seconde année suivant la première (2026/2027).",
+    "matchdays": "Un nombre entre 1 et 100.",
+    "currentMatchday": "Un nombre entre 0 et 100.",
+    "beyondLast": "Ne peut dépasser le nombre de journées.",
+    "weight": "Un nombre entre 0 et 10."
+  }
+}

@@ -79,7 +79,7 @@ export function slotChangeStmts(db: D1Database, change: SlotChange, current: Cre
   const applied = "EXISTS (SELECT 1 FROM designations WHERE fixture_id = ? AND role = ? AND version = ?)";
   const appliedArgs = [fixture.id, role, newVersion] as const;
 
-  return [
+  const stmts = [
     db
       .prepare(
         `UPDATE designations SET official_id = ?, state = ?, version = ?, updated_by = ?, updated_at = strftime('%Y-%m-%dT%H:%M:%fZ','now')
@@ -126,6 +126,28 @@ export function slotChangeStmts(db: D1Database, change: SlotChange, current: Cre
       ip: change.ip,
     }),
   ];
+  // The official who leaves a slot takes no money with them: an unpaid line for that role is cancelled (and audited),
+  // so the next generation issues it to whoever holds the slot now. A paid line is history and is left alone.
+  if (current.officialId && change.toOfficialId !== current.officialId) {
+    const unpaid = "p.fixture_id = ? AND p.role = ? AND p.official_id = ? AND p.status IN ('due', 'validated', 'contested')";
+    const unpaidArgs = [fixture.id, role, current.officialId] as const;
+    stmts.push(
+      db
+        .prepare(
+          `INSERT INTO audit_log (actor_user_id, actor_role, action, entity, entity_id, country_code, before, after, reason, ip)
+           SELECT ?, ?, 'payment.cancel', 'payment', p.id, ?, json_object('status', p.status, 'officialId', p.official_id), json_object('status', 'cancelled'), ?, ?
+             FROM payments p WHERE ${unpaid} AND ${applied}`,
+        )
+        .bind(change.actor?.id ?? null, change.actor?.role ?? null, fixture.countryCode, `Official left the slot (designation.${change.action})`, change.ip ?? null, ...unpaidArgs, ...appliedArgs),
+      // an advance settled on that line is owed again (back to "paid out, not settled")
+      db
+        .prepare(`UPDATE advances SET status = 'paid', payment_id = NULL WHERE payment_id IN (SELECT p.id FROM payments p WHERE ${unpaid}) AND ${applied}`)
+        .bind(...unpaidArgs, ...appliedArgs),
+      db.prepare(`UPDATE payments AS p SET status = 'cancelled' WHERE ${unpaid} AND ${applied}`).bind(...unpaidArgs, ...appliedArgs),
+
+    );
+  }
+  return stmts;
 }
 
 /** The slot's row, or 404 — fixtures only have the roles their shape needs. */

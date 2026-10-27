@@ -1,6 +1,7 @@
 "use client";
 
 import { useSyncNow } from "@/lib/dataset/useSyncNow";
+import { RequireRole } from "@/components/auth/RequireRole";
 import { useMemo, useState } from "react";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { CalendarDays, Globe2, RefreshCcw, Trophy, Users } from "@/components/icons/glyphs";
@@ -11,6 +12,7 @@ import { PageHeading } from "@/components/layout/PageHeading";
 import { Badge, Board, Button, Card, CardHeader, EmptyState, Segmented, Td, Th } from "@/components/ui";
 import { axisProps, barCursor, chartColors, tooltipStyle } from "@/components/charts/theme";
 import { CountryFlag } from "@/components/ui/CountryFlag";
+import { FreshnessBadge, useFreshnessAge } from "@/components/ui/FreshnessBadge";
 import {
   competitions,
   countryByCode,
@@ -21,12 +23,22 @@ import {
   type Zone,
 } from "@/lib/store";
 
+// The continental comparison of federations is for the confederation: a federation seat would only ever see its own row.
 export default function FederationsPage() {
+  return (
+    <RequireRole roles={["admin"]}>
+      <FederationsView />
+    </RequireRole>
+  );
+}
+
+function FederationsView() {
   const t = useT();
   const { locale } = useLocale();
   const { setScope, codes, lockedTo } = useScope();
   const [zoneFilter, setZoneFilter] = useState<Zone | "all">("all");
   const { syncing, syncNow } = useSyncNow();
+  const age = useFreshnessAge();
 
   const presentZones = useMemo(() => zoneDistribution(), []);
 
@@ -108,17 +120,7 @@ export default function FederationsPage() {
                           {row.code} · {row.zone}
                         </p>
                       </div>
-                      <Badge
-                        tone={row.syncHealth === "healthy" ? "pitch" : row.syncHealth === "stale" ? "amber" : "neutral"}
-                      >
-                        {t(
-                          row.syncHealth === "healthy"
-                            ? "federations.syncHealthy"
-                            : row.syncHealth === "stale"
-                              ? "federations.syncStale"
-                              : "federations.syncManual",
-                        )}
-                      </Badge>
+                      <FreshnessBadge health={row.syncHealth} />
                     </div>
                     <div className="mt-3 grid grid-cols-4 gap-2 text-center">
                       <Mini label={t("federations.corps")} value={row.refereeCount} />
@@ -178,23 +180,8 @@ export default function FederationsPage() {
                         <Td className={cn("tnum text-right", row.openSlots > 0 && "text-amber")}>{row.openSlots}</Td>
                         <Td>
                           <span className="flex items-center gap-2">
-                            <Badge
-                              tone={
-                                row.syncHealth === "healthy" ? "pitch" : row.syncHealth === "stale" ? "amber" : "neutral"
-                              }
-                            >
-                              {t(
-                                row.syncHealth === "healthy"
-                                  ? "federations.syncHealthy"
-                                  : row.syncHealth === "stale"
-                                    ? "federations.syncStale"
-                                    : "federations.syncManual",
-                              )}
-                            </Badge>
-                            <span className="text-[11px] text-chalk-faint">
-                              {row.lastSyncHours}
-                              {t("common.hours")}
-                            </span>
+                            <FreshnessBadge health={row.syncHealth} />
+                            <span className="text-[11px] text-chalk-faint">{age(row.lastSyncHours)}</span>
                           </span>
                         </Td>
                         <Td className="text-right">

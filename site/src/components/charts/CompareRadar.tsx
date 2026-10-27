@@ -12,7 +12,7 @@ import {
 } from "recharts";
 import { chartColors, tooltipStyle } from "./theme";
 
-/** Two officials only: green for A, sky for B — no third series to confuse. */
+/** Two officials only: green for A, sky for B — no third series to confuse. Values are grid marks, 0–10. */
 const series = [chartColors.pitch, chartColors.var];
 
 export function CompareRadar({
@@ -28,7 +28,7 @@ export function CompareRadar({
         <RadarChart data={data} outerRadius="68%">
           <PolarGrid stroke={chartColors.grid} />
           <PolarAngleAxis dataKey="metric" tick={{ fill: chartColors.faint, fontSize: 10 }} />
-          <PolarRadiusAxis domain={[50, 100]} tick={false} axisLine={false} />
+          <PolarRadiusAxis domain={[0, 10]} tick={false} axisLine={false} />
           <Tooltip contentStyle={tooltipStyle} />
           <Legend wrapperStyle={{ fontSize: 11, color: chartColors.chalkDim }} />
           {seriesNames.map((name, i) => (

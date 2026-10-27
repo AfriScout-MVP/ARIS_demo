@@ -163,6 +163,32 @@ export const Landmark = glyph(
   <path d="M2.5 9.5 12 4l9.5 5.5zM5 11.5v7M9.7 11.5v7M14.3 11.5v7M19 11.5v7M3 21h18" />,
 );
 export const Files = glyph("Files", <path d="M8 3h9l4 4v13H8zM17 3v4h4M4 7v14h11" />);
+/** Two hands meeting: a partnership. */
+export const Handshake = glyph(
+  "Handshake",
+  <path d="M2 8.5 5.5 6l3 1.5L12 6l3.5 1.5L19 6l3 2.5M5.5 6v7.5l5 5a1.4 1.4 0 0 0 2-2M10 15.5l2.5 2.5a1.4 1.4 0 0 0 2-2l-2-2M14 13l2 2a1.4 1.4 0 0 0 2-2V6M8.5 7.5l-1 2.5a1.6 1.6 0 0 0 2.8 1.5L12 9.5" />,
+);
+export const KeyRound = glyph(
+  "KeyRound",
+  <>
+    <circle cx={8} cy={15} r={4.5} />
+    <path d="M11.2 11.8 20 3M16 7l2.5 2.5M18.5 4.5 21 7" />
+    <Dot cx={8} cy={15} r={1.2} />
+  </>,
+);
+export const Mail = glyph("Mail", <path d="M3 5.5h18v13H3zM3 6l9 7 9-7" />);
+export const Phone = glyph(
+  "Phone",
+  <path d="M5 3.5h4l1.8 4.5-2.4 1.6a11 11 0 0 0 6 6l1.6-2.4 4.5 1.8v4a1.5 1.5 0 0 1-1.6 1.5C10.4 19.9 4.1 13.6 3.5 5.1A1.5 1.5 0 0 1 5 3.5z" />,
+);
+export const MessageSquare = glyph("MessageSquare", <path d="M3.5 4.5h17v12H9l-5.5 4v-16zM8 9h8M8 12.5h5" />);
+export const Rocket = glyph(
+  "Rocket",
+  <>
+    <path d="M14.5 3.5c3 0 6 3 6 6l-8 8-6-6zM6.5 11.5l-3.5.5 2.5-4h4.5M12.5 17.5l-.5 3.5 4-2.5v-4.5M7 17l-3.5 3.5" />
+    <Dot cx={15} cy={9} r={1.4} />
+  </>,
+);
 export const FileText = glyph("FileText", <path d="M5 3h9l5 5v13H5zM14 3v5h5M8.5 13h7M8.5 17h5" />);
 
 /* ---------------------------------------------------------------- trends, data */

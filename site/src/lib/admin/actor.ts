@@ -28,11 +28,13 @@ export function toActor(user: unknown): Actor | null {
 
 export const isAdmin = (actor: Actor | null) => actor?.role === "admin";
 export const isFederation = (actor: Actor | null) => actor?.role === "federation";
+/** A tagger: country-scoped like a federation seat, but reaches only the tagging screen. */
+export const isTagger = (actor: Actor | null) => actor?.role === "tagger";
 export const isStaff = (actor: Actor | null) => isAdmin(actor) || isFederation(actor);
 
 /** Roles the actor may hand out when creating an account. */
 export function creatableRoles(actor: Actor | null): AdminRole[] {
-  if (isAdmin(actor)) return ["admin", "federation", "referee"];
+  if (isAdmin(actor)) return ["admin", "federation", "referee", "tagger"];
   if (isFederation(actor)) return ["referee"];
   return [];
 }

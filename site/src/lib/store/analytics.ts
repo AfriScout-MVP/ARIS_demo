@@ -7,7 +7,8 @@ import { countries, competitions, countryByCode, zones } from "./geography";
 import { assistants, referees } from "./officials";
 import { fixtures, openSlots } from "./fixtures";
 import { matches } from "./matches";
-import type { Country, DecisionShare, Referee, RefereeLevel, SyncHealth, TrendPoint, Zone } from "./types";
+import { criteria as gridCriteria } from "./assessments";
+import type { Country, Criterion, CriterionAverage, DecisionShare, Localized, RefereeLevel, SyncHealth, TrendPoint, Zone } from "./types";
 
 /** The monthly ARPS series from `snapshot.analytics`, oldest first. */
 export const arpsTrend: TrendPoint[] = [];
@@ -17,15 +18,52 @@ export const decisionsBreakdown: DecisionShare[] = [];
 const round1 = (n: number) => Math.round(n * 10) / 10;
 export const mean = (values: number[]) => (values.length ? round1(values.reduce((s, v) => s + v, 0) / values.length) : 0);
 
-export function getSubIndices(referee: Referee) {
-  const clamp = (n: number) => Math.max(55, Math.min(99, Math.round(n * 10) / 10));
-  return {
-    ras: clamp(referee.varAccuracy - 2),
-    cei: clamp(100 - referee.cards.red * 1.1),
-    mds: clamp(referee.rmcsAvg + 1.5),
-    prs: clamp(referee.fitness * 0.55 + referee.arps * 0.45),
-    ci: clamp(100 - Math.abs(referee.trend) * 3.2),
-  };
+/** Each referee's mean mark per grid criterion over their filed reports, from `snapshot.analytics`. */
+export const criterionAverages: CriterionAverage[] = [];
+export const criterionAveragesByReferee = new Map<string, CriterionAverage>();
+
+/** Fewer filed reports than this and the radar says "not enough assessments" instead of drawing a shape. */
+export const RADAR_MIN_REPORTS = 3;
+/** A radar needs at least three axes to be a shape; with fewer, the values are listed instead. */
+export const RADAR_MIN_AXES = 3;
+
+export interface RadarAxis {
+  key: string;
+  label: Localized;
+  /** Mean mark on the grid's 0–10 scale, one decimal. */
+  value: number;
+  /** Reports that marked this criterion. */
+  n: number;
+}
+
+export interface RefereeRadar {
+  /** Filed reports on the referee. */
+  reports: number;
+  /** True when there are enough reports to show a profile at all. */
+  enough: boolean;
+  /** The grid's criteria the referee has actually been marked on, in grid order; criteria with no mark are left out. */
+  axes: RadarAxis[];
+}
+
+/**
+ * The referee's profile on the evaluation grid: one axis per criterion, the mean of the marks observers gave in
+ * filed reports. Nothing is estimated — a criterion nobody marked has no axis, and too few reports means no profile.
+ */
+export function deriveRadar(average: CriterionAverage | undefined, grid: Criterion[], minReports = RADAR_MIN_REPORTS): RefereeRadar {
+  const reports = average?.reports ?? 0;
+  const axes = grid
+    .filter((c) => (average?.marks[c.key]?.n ?? 0) > 0)
+    .map((c) => ({ key: c.key, label: c.label, value: round1(average!.marks[c.key].avg), n: average!.marks[c.key].n }));
+  return { reports, enough: reports >= minReports && axes.length > 0, axes };
+}
+
+export const radarFor = (refereeId: string) => deriveRadar(criterionAveragesByReferee.get(refereeId), gridCriteria);
+
+/** Two referees on the axes both have data for — a comparison never pits a mark against a blank. */
+export function sharedAxes(a: RefereeRadar, b: RefereeRadar) {
+  if (!a.enough || !b.enough) return [];
+  const other = new Map(b.axes.map((x) => [x.key, x]));
+  return a.axes.filter((x) => other.has(x.key)).map((x) => ({ key: x.key, label: x.label, a: x.value, b: other.get(x.key)!.value }));
 }
 
 /** Change in the average ARPS between the last two months of the series; null when there is no history to compare. */
@@ -77,7 +115,7 @@ export interface FederationRow {
   openSlots: number;
   syncHealth: SyncHealth;
   syncSource: Country["syncSource"];
-  lastSyncHours: number;
+  lastSyncHours: number | null;
 }
 
 export function federationRows(): FederationRow[] {

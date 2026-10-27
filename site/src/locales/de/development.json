@@ -31,5 +31,72 @@
   "requirementOpen": "Offen",
   "complianceRisk": "Compliance-Risiko",
   "complianceOk": "Alle Offiziellen im Bereich erfüllen die Anforderungen.",
-  "renewed": "Lizenz um ein Jahr verlängert."
+  "renewed": "Lizenz um ein Jahr verlängert.",
+  "addLicence": "Lizenz hinzufügen",
+  "editDatesFor": "Daten der Lizenz von {name} bearbeiten",
+  "searchLicences": "Offizieller oder Lizenzart…",
+  "noLicences": "Keine Lizenzen im Bereich.",
+  "licenceSaved": "Lizenz gespeichert.",
+  "varNote": "Eine gültige VAR-Zertifizierung setzt den Schiedsrichter auf die VAR-Liste; läuft sie ab, wird er automatisch entfernt.",
+  "licenceForm": {
+    "title": "Neue Lizenz",
+    "editTitle": "Lizenzdaten",
+    "kind": "Lizenzart"
+  },
+  "recordTest": "Test erfassen",
+  "updateTestFor": "Test von {name} aktualisieren",
+  "fitnessSaved": "Fitnesstest gespeichert.",
+  "fitnessForm": {
+    "title": "Fitnesstest",
+    "result": "Ergebnis",
+    "sprint": "Bester Sprint (s)",
+    "laps": "Absolvierte Runden",
+    "retestHint": "Pflicht nach Nichtbestehen: Der Offizielle wird zu diesem Datum erneut geladen."
+  },
+  "newCourse": "Neuer Lehrgang",
+  "courseCreated": "Lehrgang angelegt.",
+  "platformWide": "Alle Verbände",
+  "ownCourse": "Verband",
+  "officialsCount": "{n} Offizielle angemeldet",
+  "enrol": "Anmelden",
+  "complete": "Abschluss erfassen",
+  "enrolledToast": "{n} Offizielle angemeldet.",
+  "completedToast": "{n} Abschlüsse erfasst.",
+  "courseForm": {
+    "title": "Neuer Lehrgang",
+    "kind": "Art",
+    "kinds": {
+      "course": "Lehrgang",
+      "exam": "Prüfung",
+      "camp": "Trainingslager"
+    },
+    "scope": "Angeboten für",
+    "nameFr": "Titel (Französisch)",
+    "nameEn": "Titel (Englisch)",
+    "nameEs": "Titel (Spanisch)",
+    "nameDe": "Titel (Deutsch)",
+    "provider": "Anbieter",
+    "hours": "Dauer (Stunden)",
+    "submit": "Lehrgang anlegen"
+  },
+  "enrolForm": {
+    "title": "Offizielle anmelden",
+    "hint": "Wählen Sie einen oder mehrere Offizielle; bereits Angemeldete werden übersprungen.",
+    "chosen": "Gewählte Offizielle",
+    "remove": "{name} entfernen",
+    "submit": "Anmelden ({n})"
+  },
+  "completeForm": {
+    "title": "Abschluss erfassen",
+    "hint": "Markieren Sie die Offiziellen, die fertig sind. Der Lehrgang schließt, sobald alle fertig sind.",
+    "submit": "Erfassen ({n})"
+  },
+  "errors": {
+    "dates": "Das Ablaufdatum muss nach dem Ausstellungsdatum liegen.",
+    "sprint": "Zwischen 3 und 15 Sekunden.",
+    "laps": "Eine ganze Zahl von 0 bis 100.",
+    "hours": "Zwischen 1 und 400 Stunden.",
+    "retest_required": "Ein nicht bestandener Test braucht einen Wiederholungstermin.",
+    "official_not_eligible": "Dieser Lehrgang ist für die Offiziellen eines anderen Verbands."
+  }
 }

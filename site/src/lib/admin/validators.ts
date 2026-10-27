@@ -9,7 +9,7 @@ export const isAlpha3 = (value: string) => /^[A-Z]{3}$/.test(value);
 export const isIso2 = (value: string) => /^[A-Z]{2}$/.test(value);
 export const isCurrency = (value: string) => /^[A-Z]{3}$/.test(value);
 
-/** "FRMF", "FAF-AGO": 2 to 20 upper-case letters or digits, hyphens allowed after the first character (the Worker's rule). */
+/** "FSF", "FECOFOOT": 2 to 20 upper-case letters or digits, hyphens allowed after the first character (the Worker's rule). */
 export const isFederationCode = (value: string) => /^[A-Z0-9][A-Z0-9-]{1,19}$/.test(value);
 
 /** Codes are typed in any case and stored upper case. */

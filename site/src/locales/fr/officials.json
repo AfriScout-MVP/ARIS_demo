@@ -1,0 +1,202 @@
+{
+  "views": {
+    "performance": "Performance",
+    "registry": "Registre"
+  },
+  "register": "Inscrire un officiel",
+  "searchPlaceholder": "Nom ou matricule…",
+  "count": "{n} officiels",
+  "truncated": "Seuls les 500 premiers sont affichés : affinez la recherche.",
+  "empty": "Aucun officiel",
+  "emptyHint": "Inscrivez le premier arbitre ou arbitre assistant de la fédération.",
+  "edit": "Modifier",
+  "editFile": "Modifier la fiche",
+  "openFile": "Voir la fiche",
+  "allKinds": "Tous",
+  "allStatuses": "Tous les statuts",
+  "kinds": {
+    "referee": "Arbitre",
+    "assistant": "Arbitre assistant"
+  },
+  "status": {
+    "active": "En activité",
+    "training": "En formation",
+    "elite-pool": "Groupe élite",
+    "unavailable": "Indisponible",
+    "retired": "Retraité",
+    "suspended": "Suspendu"
+  },
+  "disciplines": {
+    "football": "Football",
+    "futsal": "Futsal",
+    "football7": "Football à 7"
+  },
+  "fields": {
+    "kind": "Fonction",
+    "name": "Nom complet",
+    "country": "Pays",
+    "level": "Niveau",
+    "status": "Statut",
+    "matricule": "Matricule",
+    "licenceNo": "N° de licence",
+    "nationality": "Nationalité",
+    "birthDate": "Date de naissance",
+    "city": "Ville",
+    "region": "Région",
+    "league": "Ligue",
+    "email": "E-mail",
+    "phone": "Téléphone",
+    "disciplines": "Disciplines",
+    "zones": "Zones d'intervention",
+    "varQualified": "Qualifié VAR",
+    "yearsActive": "Années d'arbitrage",
+    "bio": "Présentation",
+    "bioFr": "En français",
+    "bioEn": "En anglais",
+    "bioEs": "En espagnol (facultatif)",
+    "bioDe": "En allemand (facultatif)",
+    "updatedAt": "Mis à jour"
+  },
+  "sections": {
+    "identity": "Identité",
+    "career": "Carrière",
+    "contact": "Coordonnées",
+    "bio": "Présentation publique"
+  },
+  "hints": {
+    "matricule": "Laissez vide : ARIS fournit le suivant du pays (ARIS-SEN-R0001…).",
+    "matriculeAuto": "Attribué automatiquement à l'inscription.",
+    "zones": "Codes pays ou régions, séparés par des virgules.",
+    "var": "Tenu à jour automatiquement dès qu'un certificat VAR figure au dossier.",
+    "suspended": "Suspendu par une décision disciplinaire : le statut change avec le dossier, pas ici.",
+    "retired": "Un officiel retraité disparaît des désignations et des classements ; sa fiche reste au registre."
+  },
+  "dialog": {
+    "newTitle": "Inscrire un officiel",
+    "newHint": "La fiche entre au registre de la fédération. L'officiel reçoit son matricule tout de suite.",
+    "editTitle": "Fiche de {name}",
+    "create": "Inscrire",
+    "created": "{name} est inscrit : matricule {matricule}.",
+    "saved": "Fiche mise à jour.",
+    "unchanged": "Rien n'a changé."
+  },
+  "registry": {
+    "title": "Registre",
+    "subtitle": "Visible uniquement par la fédération et l'officiel lui-même.",
+    "none": "—"
+  },
+  "fileOnly": "Cet officiel n'apparaît pas dans les classements (arbitre assistant ou retraité) : voici sa fiche au registre.",
+  "documents": {
+    "title": "Documents",
+    "staffHint": "Licences, certificats médicaux, pièces d'identité : vérifiez chaque pièce déposée.",
+    "selfHint": "Déposez vos pièces ici ; la fédération les vérifie et vous prévient.",
+    "kind": "Type de pièce",
+    "expiresOn": "Expire le (facultatif)",
+    "file": "Fichier",
+    "fileHint": "PDF, PNG, JPEG ou WebP, 8 Mo au plus.",
+    "upload": "Déposer",
+    "uploaded": "Document déposé.",
+    "photoNote": "Une photo remplace la précédente sur la fiche.",
+    "kinds": {
+      "licence": "Licence",
+      "identity": "Pièce d'identité",
+      "medical": "Certificat médical",
+      "certificate": "Certificat",
+      "attestation": "Attestation",
+      "receipt": "Justificatif de frais",
+      "photo": "Photo",
+      "other": "Autre"
+    },
+    "statuses": {
+      "pending": "À vérifier",
+      "verified": "Vérifié",
+      "rejected": "Refusé"
+    },
+    "expired": "Expiré le {date}",
+    "expiring": "Expire le {date}",
+    "valid": "Valable jusqu'au {date}",
+    "uploadedOn": "Déposé le {date}",
+    "download": "Télécharger",
+    "verify": "Valider",
+    "reject": "Refuser",
+    "reopen": "Remettre à vérifier",
+    "delete": "Supprimer",
+    "deleteTitle": "Supprimer ce document ?",
+    "deleteBody": "« {name} » sera effacé définitivement du dossier.",
+    "toast": {
+      "verified": "Document validé ; l'officiel est prévenu.",
+      "rejected": "Document refusé ; l'officiel est prévenu.",
+      "pending": "Document remis à vérifier.",
+      "deleted": "Document supprimé."
+    },
+    "empty": "Aucun document",
+    "emptyHint": "Les pièces déposées par l'officiel ou la fédération apparaissent ici.",
+    "toReview": "{n} à vérifier",
+    "lapsed": "{n} expirés",
+    "lapsing": "{n} expirent bientôt",
+    "lockedSelf": "Une pièce déjà vérifiée ne peut être retirée que par la fédération.",
+    "errors": {
+      "type": "Seuls les PDF, PNG, JPEG et WebP sont acceptés (une photo doit être une image).",
+      "size": "8 Mo au plus.",
+      "empty": "Ce fichier est vide.",
+      "missing": "Choisissez un fichier.",
+      "date": "Date invalide."
+    }
+  },
+  "mine": {
+    "title": "Ma fiche",
+    "hint": "Vos coordonnées et vos zones d'intervention. Le reste de la fiche est tenu par votre fédération.",
+    "save": "Enregistrer",
+    "saved": "Coordonnées enregistrées."
+  },
+  "errors": {
+    "name": "Entre 2 et 120 caractères.",
+    "country": "Choisissez le pays de l'officiel.",
+    "code": "Entre 3 et 40 caractères.",
+    "birthDate": "Date invalide (l'officiel doit avoir au moins 16 ans).",
+    "years": "Un nombre entre 0 et 60.",
+    "disciplines": "Au moins une discipline.",
+    "zones": "30 zones au plus, de 20 caractères chacune.",
+    "duplicate": "Un officiel a déjà ce matricule ou ce numéro de licence.",
+    "suspended": "Cet officiel est suspendu : son statut change avec le dossier disciplinaire."
+  },
+  "chooseCountry": "Choisir un pays…",
+  "conflicts": {
+    "title": "Conflits d'intérêts",
+    "selfHint": "Déclarez tout lien avec un club, une équipe ou un pays : vous ne serez pas désigné sur leurs matchs.",
+    "staffHint": "Liens déclarés : le moteur écarte l'officiel des matchs concernés.",
+    "add": "Déclarer",
+    "declare": "Déclarer le lien",
+    "declared": "Lien déclaré : le moteur en tiendra compte.",
+    "empty": "Aucun lien déclaré",
+    "emptyHint": "Un ancien club, un proche entraîneur, une double nationalité : déclarez-le avant d'être désigné.",
+    "declaredOn": "Déclaré le {date}",
+    "remove": "Retirer",
+    "removeTitle": "Retirer ce lien ?",
+    "removeBody": "« {subject} » ne sera plus pris en compte : l'officiel pourra de nouveau être désigné sur ces matchs.",
+    "removed": "Lien retiré.",
+    "kinds": {
+      "club": "Club",
+      "team": "Équipe",
+      "country": "Pays"
+    },
+    "fields": {
+      "kind": "Type de lien",
+      "club": "Club",
+      "team": "Équipe",
+      "country": "Pays",
+      "note": "Précision (facultatif)"
+    },
+    "hints": {
+      "name": "Le nom tel qu'il figure au calendrier.",
+      "note": "Ex. : « joueur de 2015 à 2019 », « frère entraîneur adjoint ».",
+      "permanent": "Seule la fédération peut retirer un lien déclaré."
+    },
+    "errors": {
+      "subject": "De 2 à 80 caractères.",
+      "country": "Choisissez le pays.",
+      "duplicate": "Ce lien est déjà déclaré.",
+      "note": "300 caractères au plus."
+    }
+  }
+}

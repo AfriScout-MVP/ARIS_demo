@@ -8,5 +8,14 @@
   "played": "Ce match a déjà été joué.",
   "autoFillFailed": "L'attribution automatique n'a pas abouti. Réessayez.",
   "reasonPrompt": "Motif de ce changement (obligatoire) :",
-  "overridePrompt": "{why}. Pour continuer malgré tout, indiquez un motif écrit :"
+  "overridePrompt": "{why}. Pour continuer malgré tout, indiquez un motif écrit :",
+  "reasonDialog": {
+    "title": "Motif du changement",
+    "overrideTitle": "Passer outre ?",
+    "label": "Motif",
+    "hint": "Inscrit à l'historique de la désignation et transmis aux officiels concernés.",
+    "short": "Au moins 3 caractères.",
+    "confirm": "Continuer",
+    "override": "Passer outre et désigner"
+  }
 }

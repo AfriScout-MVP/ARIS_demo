@@ -5,7 +5,14 @@ export const PASSWORD = "correct-horse-battery-staple";
 
 export interface Session {
   cookie: string;
-  user: { id: string; role: "admin" | "federation" | "referee"; country: string | null; federationId: string | null; officialId: string | null };
+  user: {
+    id: string;
+    role: "admin" | "federation" | "referee" | "tagger";
+    country: string | null;
+    federationId: string | null;
+    officialId: string | null;
+    mustChangePassword?: boolean;
+  };
 }
 
 export async function api(

@@ -27,7 +27,7 @@ async function country(code: string, tz: string) {
   await sql("INSERT INTO matches (id, league_id, season, home_team_id, away_team_id, match_date, home_score, away_score, status, referee_id, fixture_id) VALUES (?, ?, '2026/2027', ?, ?, '2031-06-01T18:00:00Z', 2, 1, 'finished', ?, NULL)", m, `${code.toLowerCase()}-d1`, home, away, `${code}-ref`).run();
   await sql("INSERT INTO match_officiating (match_id, arps_for_match, rmcs, pressure_avg, heat_points) VALUES (?, 8.2, 8.0, 40, '[{\"x\":10,\"y\":20,\"intensity\":0.5}]')", m).run();
   for (const [i, call, review, final] of [[1, "given", 0, "confirmed"], [2, "given", 1, "confirmed"], [3, "not-given", 1, "overturned"]] as const) {
-    await sql("INSERT INTO match_decisions (id, match_id, minute, type, description, initial_call, var_review, final_call, confidence, pressure_index, distance) VALUES (?, ?, ?, 'Foul', '{\"en\":\"x\",\"fr\":\"x\"}', ?, ?, ?, 0.9, 1, 10)", `${m}-d${i}`, m, i * 10, call, review, final).run();
+    await sql("INSERT INTO match_decisions (id, match_id, minute, type, sub_event, description, initial_call, var_review, final_call, confidence, pressure_index, distance) VALUES (?, ?, ?, 'foul_advantage', 'foul_given', '{\"en\":\"x\",\"fr\":\"x\"}', ?, ?, ?, 0.9, 1, 10)", `${m}-d${i}`, m, i * 10, call, review, final).run();
   }
   await sql("INSERT INTO assessments (id, match_id, referee_id, observer_id, state, overall, marks, notes) VALUES (?, ?, ?, ?, 'filed', 8, '{}', '{\"en\":\"ok\",\"fr\":\"ok\"}')", `a-${code}`, m, `${code}-ref`, `${code}-obs`).run();
   await sql("INSERT INTO dossiers (id, match_id, generated, pages) VALUES (?, ?, '2031-06-02', 3)", `d-${code}`, m).run();

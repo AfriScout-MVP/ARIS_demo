@@ -17,7 +17,11 @@ export { crewRoles };
 /** Copy stored in the database in several languages. French and English are always present. */
 export type Localized = { fr: string; en: string; es?: string; de?: string };
 
-export type SyncHealth = "healthy" | "stale" | "manual";
+/**
+ * Data freshness of a country, derived by the API from its latest fixture / crew / match / report change:
+ * "healthy" within the API's threshold (7 days), "stale" after it, "none" when the country has no data at all.
+ */
+export type SyncHealth = "healthy" | "stale" | "none";
 
 export interface Country {
   code: string;
@@ -30,7 +34,7 @@ export interface Country {
   flag: string;
   /** `/api/v1/media/<id>` (public), or null. */
   flagUrl: string | null;
-  /** Federation code, e.g. "FRMF". */
+  /** Federation code, e.g. "FSF". */
   federation: string;
   federationName: string;
   zone: Zone;
@@ -40,7 +44,9 @@ export interface Country {
   active: boolean;
   syncSource: "COMET" | "League feed" | "Manual entry";
   syncHealth: SyncHealth;
-  lastSyncHours: number;
+  /** Hours since the latest change to the country's data; null when there is none. */
+  lastSyncHours: number | null;
+  lastActivityAt?: string | null;
   /** The club teams of the country. */
   clubs: string[];
 }
@@ -58,9 +64,14 @@ export interface Competition {
   varEnabled: boolean;
   /** Weight used for fixture importance. */
   weight: number;
+  /** Sent by the Worker; optional for older responses. */
+  season?: string;
+  shortName?: string | null;
+  isActive?: boolean;
 }
 
-export type RefereeStatus = "active" | "suspended" | "training" | "elite-pool";
+/** `retired` officials stay in the register but never reach the snapshot. */
+export type RefereeStatus = "active" | "suspended" | "training" | "elite-pool" | "unavailable";
 export type RefereeLevel = "CAF Elite" | "FIFA Listed" | "National D1" | "Regional";
 
 export interface Referee {
@@ -120,6 +131,10 @@ export interface Fixture extends CoreFixture {
   awayCode: string | null;
   designationStatus: DesignationStatus;
   status: FixtureStatus;
+  /** Sent by the Worker; optional for older responses. */
+  stadiumId?: string | null;
+  roundLabel?: string | null;
+  timezone?: string;
 }
 
 /**
@@ -131,7 +146,10 @@ export type ApiFixture = CoreFixture & Partial<Omit<Fixture, keyof CoreFixture>>
 export interface MatchDecision {
   id: string;
   minute: number;
-  type: "Penalty" | "Red Card" | "Yellow Card" | "Offside" | "Handball" | "Foul";
+  /** One of the referee-decision taxonomy's event-type keys (fetched from `GET /matches/event-types`, not hardcoded here). */
+  eventType: string;
+  subEvent: string | null;
+  outcome: string | null;
   description: Localized;
   initialCall: "given" | "not-given";
   varReview: boolean;
@@ -149,8 +167,32 @@ export interface HeatPoint {
   intensity: number;
 }
 
+/** One leaf of the referee-decision taxonomy, exactly as `GET /matches/event-types` serves it. */
+export interface EventOutcome {
+  key: string;
+  labelFr: string;
+  labelEn: string;
+}
+
+export interface EventSubEvent {
+  key: string;
+  labelFr: string;
+  labelEn: string;
+  outcomes?: EventOutcome[];
+  variable?: boolean;
+}
+
+export interface EventType {
+  key: string;
+  labelFr: string;
+  labelEn: string;
+  subEvents: EventSubEvent[];
+}
+
 export interface MatchRecord {
   id: string;
+  /** The calendar fixture this match was played from, when it came through the designation pipeline. */
+  fixtureId?: string | null;
   home: string;
   away: string;
   competitionId: string;
@@ -175,8 +217,10 @@ export interface MatchRecord {
   };
   decisions: MatchDecision[];
   pressureTimeline: { minute: number; pressure: number }[];
-  /** Presence samples in metres on a 105 x 68 pitch, supplied with each match. */
+  /** Presence samples in metres on a 105 x 68 pitch, as recorded for the match (empty when none were). */
   heatPoints: HeatPoint[];
+  /** The weather as recorded for the match; null when nobody entered it. */
+  weather?: { condition: string; temperatureC?: number | null; humidity?: number | null } | null;
 }
 
 export interface Assessment {
@@ -186,15 +230,11 @@ export interface Assessment {
   observerId: string;
   state: "filed" | "draft" | "overdue";
   filedHoursAfter: number | null;
+  /** Released to the referee; until then the report is the federation's only. */
+  published?: boolean;
   overall: number;
-  marks: {
-    positioning: number;
-    decisions: number;
-    gameManagement: number;
-    teamwork: number;
-    discipline: number;
-    fitness: number;
-  };
+  /** One mark (0–10) per criterion of the platform grid — the grid's keys, which an administrator may change. */
+  marks: Record<string, number>;
   notes: Localized;
   clips: { minute: number; label: Localized }[];
 }
@@ -230,6 +270,16 @@ export interface Dossier {
   generated: string;
   pages: number;
   recipients: string[];
+  /** Section ids chosen when it was built, in print order. */
+  sections?: string[];
+}
+
+/** One referee's mean mark (0–10) per grid criterion over their filed reports, from `snapshot.analytics`. */
+export interface CriterionAverage {
+  refereeId: string;
+  /** Filed reports on the referee. */
+  reports: number;
+  marks: Record<string, { avg: number; n: number }>;
 }
 
 export interface Criterion {
@@ -285,5 +335,6 @@ export interface ApiSnapshot {
   analytics: {
     arpsTrend: TrendPoint[];
     decisionsBreakdown: DecisionShare[];
+    criterionAverages?: CriterionAverage[];
   };
 }

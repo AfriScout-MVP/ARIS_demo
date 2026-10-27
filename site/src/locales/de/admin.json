@@ -4,13 +4,17 @@
     "accounts": "Konten",
     "federations": "Verbände",
     "countries": "Länder",
+    "competitions": "Wettbewerbe",
     "teams": "Teams und Stadien",
-    "audit": "Prüfprotokoll"
+    "audit": "Prüfprotokoll",
+    "partnerships": "Partnerschaften",
+    "grid": "Bewertungsraster"
   },
   "roles": {
     "admin": "Superadministrator",
     "federation": "Verband",
-    "referee": "Schiedsrichter"
+    "referee": "Schiedsrichter",
+    "tagger": "Tagger"
   },
   "zones": {
     "UNAF": "Nordafrika",
@@ -53,7 +57,7 @@
     "pickOfficial": "Wählen Sie die betreffende Person.",
     "pickCountry": "Wählen Sie ein Land.",
     "pickZone": "Wählen Sie eine Zone.",
-    "federationCode": "2 bis 20 Zeichen: Großbuchstaben, Ziffern oder Bindestriche (z. B. FRMF, FAF-AGO).",
+    "federationCode": "2 bis 20 Zeichen: Großbuchstaben, Ziffern oder Bindestriche (z. B. FSF, FECOFOOT).",
     "alpha3": "ISO-Alpha-3-Code: drei Großbuchstaben (z. B. MAR).",
     "iso2": "ISO-Alpha-2-Code: zwei Großbuchstaben (z. B. MA).",
     "currency": "Währungscode nach ISO 4217: drei Buchstaben (z. B. MAD).",
@@ -84,7 +88,8 @@
     "stadium_exists": "Diese Stadt hat bereits ein Stadion mit diesem Namen.",
     "file_type": "Bildformat nicht zulässig: Verwenden Sie PNG, JPEG oder WebP.",
     "file_size": "Bild zu groß: höchstens 8 MB.",
-    "file_empty": "Die Datei ist leer."
+    "file_empty": "Die Datei ist leer.",
+    "in_use": "Noch von Spielen verwendet, daher nicht löschbar. Bearbeiten Sie es stattdessen."
   },
   "password": {
     "show": "Passwort anzeigen",
@@ -134,7 +139,8 @@
     "roleHint": {
       "admin": "Zugriff auf alle Länder und die gesamte Verwaltung.",
       "federation": "Ein Zugang eines nationalen Verbands, auf sein Land beschränkt.",
-      "referee": "Der persönliche Bereich einer Schiedsrichterin oder eines Schiedsrichters: Ansetzungen, Verfügbarkeit, Zahlungen."
+      "referee": "Der persönliche Bereich einer Schiedsrichterin oder eines Schiedsrichters: Ansetzungen, Verfügbarkeit, Zahlungen.",
+      "tagger": "Taggt Schiedsrichterentscheidungen eines Landes. Kein weiterer Zugriff auf das Produkt."
     },
     "federation": "Verband",
     "chooseFederation": "Verband wählen …",
@@ -153,6 +159,10 @@
     "deactivateTitle": "Dieses Konto deaktivieren?",
     "deactivateBody": "{name} kann sich nicht mehr anmelden und wird sofort abgemeldet. Sie können das Konto jederzeit wieder aktivieren.",
     "deactivated": "Konto von {name} deaktiviert.",
+    "signOutAll": "Überall abmelden",
+    "signOutAllTitle": "Alle Geräte abmelden?",
+    "signOutAllBody": "Alle offenen Sitzungen von {name} enden sofort, auf jedem Gerät. Das Passwort bleibt gleich: {name} kann sich wieder anmelden.",
+    "signedOutAll": "{name} ist auf allen Geräten abgemeldet.",
     "resetPassword": "Passwort zurücksetzen",
     "resetTitle": "Passwort zurücksetzen",
     "resetHint": "Legen Sie ein neues Passwort für {name} fest. Offene Sitzungen werden beendet.",
@@ -174,7 +184,7 @@
     "search": "Verbände suchen",
     "searchPlaceholder": "Code, Name, Land …",
     "code": "Code",
-    "codeHint": "Offizielle Abkürzung, zum Beispiel FRMF.",
+    "codeHint": "Offizielle Abkürzung, zum Beispiel FSF.",
     "name": "Name",
     "country": "Land",
     "status": "Status",
@@ -301,7 +311,14 @@
     "editStadium": "Stadion bearbeiten",
     "createStadium": "Stadion anlegen",
     "stadiumCreated": "Stadion {name} angelegt.",
-    "stadiumUpdated": "Stadion {name} aktualisiert."
+    "stadiumUpdated": "Stadion {name} aktualisiert.",
+    "delete": "Löschen",
+    "deleteTeamTitle": "Dieses Team löschen?",
+    "deleteTeamBody": "{name} und das Wappen werden gelöscht. Ein Team mit Spielen kann nicht gelöscht werden: benennen Sie es stattdessen um.",
+    "teamDeleted": "{name} gelöscht.",
+    "deleteStadiumTitle": "Dieses Stadion löschen?",
+    "deleteStadiumBody": "{name} wird gelöscht und bei Teams, die es als Heimstadion führen, entfernt. Ein Stadion mit geplanten oder gespielten Spielen kann nicht gelöscht werden.",
+    "stadiumDeleted": "{name} gelöscht."
   },
   "audit": {
     "title": "Prüfprotokoll",
@@ -339,6 +356,7 @@
       "document": "Dokument",
       "course": "Lehrgang",
       "case": "Verfahren"
-    }
+    },
+    "export": "Exportieren (CSV)"
   }
 }

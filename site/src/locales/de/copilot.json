@@ -1,15 +1,14 @@
 {
-  "title": "KI-Assistent",
+  "title": "Schnellantworten",
   "intro": "Fragen Sie nach dem Schiedsrichterkorps, dem Kalender oder einem bestimmten Offiziellen.",
-  "introSub": "Der Copilot liest dieselben Daten wie alle anderen Bildschirme und zeigt die Zeilen hinter jeder Antwort, damit Sie sie prüfen können.",
+  "introSub": "Die Schnellantworten erkennen häufige Fragen an ihren Stichwörtern und antworten aus denselben Daten wie alle anderen Bildschirme – mit den Zeilen hinter jeder Antwort, damit Sie sie prüfen können.",
   "placeholder": "Stellen Sie eine Frage…",
   "send": "Fragen",
-  "thinking": "Daten werden gelesen…",
   "suggestions": "Probieren Sie eine dieser Fragen",
   "sources": "Verwendete Zeilen",
   "clear": "Unterhaltung löschen",
-  "disclaimer": "Der Copilot antwortet nur aus den ARIS-Daten Ihres Bereichs. Er erfindet nie eine Zahl.",
-  "cannotAnswer": "Diese Frage geht über das hinaus, was ARIS enthält. Der Copilot beantwortet Fragen zu Schiedsrichtern, Spielen, Abdeckung, Lizenzen, Fitness und Rangliste.",
+  "disclaimer": "Stichwortsuche in den ARIS-Daten Ihres Bereichs – keine KI. Es wird nie eine Zahl erfunden.",
+  "cannotAnswer": "Diese Frage passt zu keiner der Fragen, die die Schnellantworten kennen. Sie decken Schiedsrichter, Spiele, Abdeckung, Lizenzen, Fitness und Rangliste ab.",
   "s": {
     "reco": "Wer soll {match} pfeifen?",
     "licences": "Welche Lizenzen laufen in den nächsten 90 Tagen ab?",
@@ -41,8 +40,8 @@
     "obsFiled": "eingereicht, Note {mark}",
     "obsDraft": "Entwurf",
     "obsOverdue": "überfällig",
-    "syncHead": "{bad} von {n} Kalendern sind nicht aktuell.",
-    "syncRow": "{source} · letzte Synchronisierung vor {hours} h",
+    "syncHead": "{bad} von {n} Ländern haben keine aktuellen Daten.",
+    "syncRow": "{source} · zuletzt aktualisiert vor {hours} h",
     "availHead": "{n} Schiedsrichter sind am {date} verfügbar.",
     "loadIdleHead": "{n} Offizielle haben im Dreiwochenfenster keine Ansetzung.",
     "loadHeavyHead": "{n} Offizielle haben {max} oder mehr Ansetzungen; {name} hat die meisten.",
@@ -59,6 +58,7 @@
     "refNone": "keine",
     "refFitness": "Fitnesstest",
     "refTrend": "Tendenz",
-    "refAlt": "Empfohlene Alternative"
+    "refAlt": "Empfohlene Alternative",
+    "syncRowNone": "{source} · noch keine Daten"
   }
 }

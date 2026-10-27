@@ -31,10 +31,35 @@
   "reviewRate": "Sent to review",
   "noDecisions": "No decisions recorded for this match.",
   "noDecisionsHint": "Decisions appear once the match review is entered.",
-  "typePenalty": "Penalty",
-  "typeRedCard": "Red card",
-  "typeYellowCard": "Yellow card",
-  "typeOffside": "Offside",
-  "typeHandball": "Handball",
-  "typeFoul": "Foul"
+  "log": {
+    "open": "Log a decision",
+    "title": "New decision",
+    "submit": "Save the decision",
+    "flow": "Decision type",
+    "eventType": "Event type",
+    "subEvent": "Sub-event",
+    "outcome": "Outcome",
+    "description": "What happened",
+    "descriptionHint": "One or two sentences, in your language.",
+    "varHint": "If the VAR looked at it, say whether the call stood or was overturned.",
+    "measures": "Measures (optional)",
+    "distance": "Distance to the incident (m)",
+    "measuresHint": "From tracking or video; leave blank if you do not have them.",
+    "playersHint": "Comma-separated, 6 at most.",
+    "done": "Decision at minute {minute} saved.",
+    "emptyStaff": "Log the match's key decisions to build its timeline.",
+    "remove": "Remove the decision",
+    "removeTitle": "Remove this decision?",
+    "removeBody": "The \"{type}\" decision at minute {minute} will leave the timeline. The audit log keeps a record of it.",
+    "removed": "Decision removed.",
+    "errors": {
+      "minute": "A minute from 0 to 130.",
+      "eventType": "Choose a valid event, sub-event and outcome.",
+      "description": "Describe the decision.",
+      "descriptionLong": "300 characters at most.",
+      "percent": "A number from 0 to 100.",
+      "distance": "A number from 0 to 120 metres.",
+      "players": "6 players at most, 80 characters each."
+    }
+  }
 }

@@ -6,9 +6,28 @@ import { auditStmt } from "../lib/audit";
 import { CONTINENTAL, assertCountry, countryFilter } from "../lib/access";
 import { currentUser, staff } from "../middleware/auth";
 
-/** Competitions (AfriScout: leagues) — a competition and its season. Federations manage their own country's; admins any, incl. 'CAF'. */
+/**
+ * Competitions (AfriScout: leagues) — a competition and its season. Federations manage their own country's; admins any, incl. 'CAF'.
+ * A referee may read (never change) the competitions they hold a designation in — what their own matches are part of;
+ * any other competition answers 404 to them.
+ */
 export const competitions = new Hono<AppEnv>();
-competitions.use("*", staff);
+competitions.use("*", async (c, next) => {
+  if (c.req.method !== "GET") return staff(c, next);
+  await next();
+});
+
+/** SQL (on the competitions table, unaliased) confining a list to what the caller may read. */
+function readScope(user: ReturnType<typeof currentUser>): { sql: string; params: string[] } {
+  if (user.role === "referee") {
+    if (!user.officialId) return { sql: "1 = 0", params: [] };
+    return {
+      sql: "id IN (SELECT f.competition_id FROM fixtures f JOIN designations d ON d.fixture_id = f.id WHERE d.official_id = ?)",
+      params: [user.officialId],
+    };
+  }
+  return countryFilter(user, "country_code");
+}
 
 export interface CompetitionRow {
   id: string;
@@ -67,7 +86,7 @@ function assertCounters(matchdays: number, current: number) {
 competitions.get("/", async (c) => {
   const user = currentUser(c);
   const q = parseQuery(c, z.object({ country: z.string().min(2).max(3).optional(), active: z.enum(["0", "1"]).optional() }));
-  const scope = countryFilter(user, "country_code");
+  const scope = readScope(user);
   const where = [scope.sql];
   const params: string[] = [...scope.params];
   // a federation is already confined to its own country; asking for another one finds nothing
@@ -80,11 +99,19 @@ competitions.get("/", async (c) => {
 });
 
 async function loadOne(c: Ctx, id: string) {
+  const user = currentUser(c);
+  if (user.role === "referee") {
+    const scope = readScope(user);
+    const mine = await c.env.DB.prepare(`${COMPETITION_SQL} WHERE id = ? AND ${scope.sql}`).bind(id, ...scope.params).first<CompetitionRow>();
+    if (!mine) throw notFound("Competition");
+    return mine;
+  }
   const row = await c.env.DB.prepare(`${COMPETITION_SQL} WHERE id = ?`).bind(id).first<CompetitionRow>();
   if (!row) throw notFound("Competition");
-  assertCountry(currentUser(c), row.country_code, "Competition");
+  assertCountry(user, row.country_code, "Competition");
   return row;
 }
+
 
 competitions.get("/:id", async (c) => c.json({ competition: competitionDto(await loadOne(c, c.req.param("id"))) }));
 
@@ -194,4 +221,28 @@ competitions.patch("/:id", async (c) => {
     }),
   ]);
   return c.json({ competition: competitionDto(await loadOne(c, row.id)) });
+});
+
+// Removing a competition created by mistake. One that fixtures, matches or fee scales refer to stays (409 `in_use`
+// with the counts): close it with `isActive: false` instead.
+competitions.delete("/:id", async (c) => {
+  const user = currentUser(c);
+  const db = c.env.DB;
+  const row = await loadOne(c, c.req.param("id"));
+  const use = (await db
+    .prepare(
+      `SELECT (SELECT COUNT(*) FROM fixtures WHERE competition_id = ?1) AS fixtures,
+              (SELECT COUNT(*) FROM matches WHERE league_id = ?1) AS matches,
+              (SELECT COUNT(*) FROM fee_scales WHERE competition_id = ?1) AS feeScales`,
+    )
+    .bind(row.id)
+    .first<{ fixtures: number; matches: number; feeScales: number }>())!;
+  if (use.fixtures || use.matches || use.feeScales) {
+    throw new ApiError(409, "in_use", "Fixtures, matches or fee scales refer to this competition; deactivate it instead", use);
+  }
+  await db.batch([
+    db.prepare("DELETE FROM competitions WHERE id = ?").bind(row.id),
+    auditStmt(db, user, { action: "competition.delete", entity: "competition", entityId: row.id, before: competitionDto(row), countryCode: row.country_code, ip: c.get("ip") }),
+  ]);
+  return c.json({ ok: true });
 });

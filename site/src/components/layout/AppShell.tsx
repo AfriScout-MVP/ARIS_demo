@@ -33,7 +33,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const toggleDesktop = () => writeStore(SIDEBAR_KEY, desktopOpen ? "closed" : "open");
 
   return (
-    <div className="min-h-screen bg-ink-0">
+    <div className="min-h-screen">
       <Sidebar
         desktopOpen={desktopOpen}
         mobileOpen={mobileOpen}

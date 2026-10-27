@@ -1,0 +1,73 @@
+{
+  "title": "Competiciones",
+  "subtitleAdmin": "Las ligas y copas de cada país y las competiciones continentales de la CAF: temporada, jornadas, VAR, peso en las designaciones.",
+  "subtitleFederation": "Las ligas y copas de su federación: temporada, jornadas, VAR, peso en las designaciones.",
+  "new": "Nueva competición",
+  "newTitle": "Nueva competición",
+  "newHint": "Aparece enseguida en el calendario, las designaciones y los baremos.",
+  "editTitle": "Editar la competición",
+  "create": "Crear",
+  "created": "{name} se ha creado.",
+  "saved": "Competición actualizada.",
+  "search": "Nombre, sigla o temporada…",
+  "continental": "CAF: competiciones continentales",
+  "views": {
+    "active": "En curso",
+    "all": "Todas"
+  },
+  "fields": {
+    "name": "Nombre",
+    "shortName": "Sigla",
+    "tier": "Nivel",
+    "gender": "Categoría",
+    "season": "Temporada",
+    "matchdays": "Jornadas",
+    "currentMatchday": "Jornada actual",
+    "weight": "Peso",
+    "varEnabled": "Con VAR",
+    "isActive": "Competición en curso",
+    "progress": "Avance",
+    "status": "Estado"
+  },
+  "gender": {
+    "M": "Masculina",
+    "W": "Femenina"
+  },
+  "hints": {
+    "season": "Formato AAAA/AAAA, por ejemplo 2026/2027.",
+    "seasonFixed": "La temporada y la categoría ya no cambian tras la creación.",
+    "weight": "De 0 a 10: pesa en la importancia de los partidos en las designaciones.",
+    "var": "Las designaciones incluyen entonces un VAR y un AVAR.",
+    "active": "Una competición cerrada sigue consultable pero ya no recibe partidos."
+  },
+  "active": "En curso",
+  "inactive": "Cerrada",
+  "edit": "Editar",
+  "advance": "Pasar a la jornada siguiente",
+  "advanced": "{name}: jornada {n}.",
+  "close": "Cerrar la competición",
+  "reopen": "Reabrir la competición",
+  "closed": "{name} está cerrada.",
+  "reopened": "{name} está reabierta.",
+  "actionsFor": "Acciones para {name}",
+  "rollover": {
+    "action": "Preparar la temporada {season}",
+    "title": "¿Preparar la temporada {season}?",
+    "body": "{name} se traslada tal cual de {from} a {to}, desde la jornada 0.",
+    "closeOld": "Cerrar la temporada {season}",
+    "confirm": "Crear la temporada",
+    "done": "{name} {season} está lista."
+  },
+  "empty": "Ninguna competición",
+  "emptyHint": "Cree la liga o copa para la que la federación designa árbitros.",
+  "errors": {
+    "name": "Entre 2 y 120 caracteres.",
+    "shortName": "30 caracteres como máximo.",
+    "tier": "La CAF solo organiza competiciones continentales, y solo ella.",
+    "season": "Formato AAAA/AAAA, con el segundo año siguiente al primero (2026/2027).",
+    "matchdays": "Un número entre 1 y 100.",
+    "currentMatchday": "Un número entre 0 y 100.",
+    "beyondLast": "No puede superar el número de jornadas.",
+    "weight": "Un número entre 0 y 10."
+  }
+}

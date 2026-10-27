@@ -31,10 +31,35 @@
   "reviewRate": "Enviadas a revisión",
   "noDecisions": "No hay decisiones registradas para este partido.",
   "noDecisionsHint": "Las decisiones aparecen cuando se introduce la revisión del partido.",
-  "typePenalty": "Penalti",
-  "typeRedCard": "Tarjeta roja",
-  "typeYellowCard": "Tarjeta amarilla",
-  "typeOffside": "Fuera de juego",
-  "typeHandball": "Mano",
-  "typeFoul": "Falta"
+  "log": {
+    "open": "Registrar una decisión",
+    "title": "Nueva decisión",
+    "submit": "Guardar la decisión",
+    "flow": "Tipo de decisión",
+    "eventType": "Tipo de evento",
+    "subEvent": "Subevento",
+    "outcome": "Resultado",
+    "description": "Qué ocurrió",
+    "descriptionHint": "Una o dos frases, en su idioma.",
+    "varHint": "Si el VAR la revisó, indique si la decisión se mantuvo o se anuló.",
+    "measures": "Mediciones (opcional)",
+    "distance": "Distancia a la jugada (m)",
+    "measuresHint": "Del seguimiento o el vídeo; déjelas en blanco si no las tiene.",
+    "playersHint": "Separados por comas, 6 como máximo.",
+    "done": "Decisión del minuto {minute} guardada.",
+    "emptyStaff": "Registre las decisiones clave del partido para construir su cronología.",
+    "remove": "Eliminar la decisión",
+    "removeTitle": "¿Eliminar esta decisión?",
+    "removeBody": "La decisión «{type}» del minuto {minute} saldrá de la cronología. El registro de auditoría la conserva.",
+    "removed": "Decisión eliminada.",
+    "errors": {
+      "minute": "Un minuto de 0 a 130.",
+      "eventType": "Elija un evento, subevento y resultado válidos.",
+      "description": "Describa la decisión.",
+      "descriptionLong": "300 caracteres como máximo.",
+      "percent": "Un número de 0 a 100.",
+      "distance": "Un número de 0 a 120 metros.",
+      "players": "6 jugadores como máximo, 80 caracteres cada uno."
+    }
+  }
 }

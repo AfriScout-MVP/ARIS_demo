@@ -4,7 +4,7 @@ import type { AppEnv } from "../env";
 import { ApiError, notFound, parseQuery, readJson, uuid } from "../lib/http";
 import { auditStmt } from "../lib/audit";
 import { assertCountry, countryFilter } from "../lib/access";
-import { commitMedia, readUpload } from "../lib/media";
+import { commitMedia, deleteMedia, readUpload } from "../lib/media";
 import { mediaUrl } from "../domain/mappers";
 import { currentUser, staff } from "../middleware/auth";
 
@@ -18,6 +18,14 @@ teams.use("*", staff);
 stadiums.use("*", staff);
 
 const country3 = z.string().trim().toUpperCase().regex(/^[A-Z]{3}$/, "ISO alpha-3 country code");
+
+/** Search and paging shared by both lists: `q` matches the name or the city, `nextOffset` is null on the last page. */
+const pageQuery = {
+  q: z.string().trim().max(80).optional(),
+  limit: z.coerce.number().int().min(1).max(1000).default(500),
+  offset: z.coerce.number().int().min(0).max(1_000_000).default(0),
+};
+const likeOf = (q: string) => `%${q.replace(/[\\%_]/g, "\\$&")}%`;
 
 async function assertSupportedCountry(db: D1Database, code: string) {
   const row = await db.prepare("SELECT 1 AS x FROM countries WHERE code = ?").bind(code).first();
@@ -59,14 +67,30 @@ const loadTeam = (db: D1Database, id: string) => db.prepare(`${TEAM_SQL} WHERE t
 
 teams.get("/", async (c) => {
   const user = currentUser(c);
-  const q = parseQuery(c, z.object({ country: country3.optional(), kind: z.enum(["club", "national"]).optional() }));
+  const q = parseQuery(c, z.object({ country: country3.optional(), kind: z.enum(["club", "national"]).optional(), ...pageQuery }));
   const scope = countryFilter(user, "t.country");
   const where = [scope.sql];
-  const args: string[] = [...scope.params];
+  const args: (string | number)[] = [...scope.params];
   if (q.country) (where.push("t.country = ?"), args.push(q.country));
   if (q.kind) (where.push("t.kind = ?"), args.push(q.kind));
-  const { results } = await c.env.DB.prepare(`${TEAM_SQL} WHERE ${where.join(" AND ")} ORDER BY t.country, t.name COLLATE NOCASE`).bind(...args).all<TeamRow>();
-  return c.json({ teams: results.map(presentTeam) });
+  if (q.q) {
+    const like = likeOf(q.q);
+    where.push("(t.name LIKE ? ESCAPE '\\' OR t.short_name LIKE ? ESCAPE '\\' OR t.city LIKE ? ESCAPE '\\')");
+    args.push(like, like, like);
+  }
+  const { results } = await c.env.DB.prepare(`${TEAM_SQL} WHERE ${where.join(" AND ")} ORDER BY t.country, t.name COLLATE NOCASE, t.id LIMIT ? OFFSET ?`)
+    .bind(...args, q.limit + 1, q.offset)
+    .all<TeamRow>();
+  const more = results.length > q.limit;
+  return c.json({ teams: results.slice(0, q.limit).map(presentTeam), limit: q.limit, offset: q.offset, nextOffset: more ? q.offset + q.limit : null });
+});
+
+teams.get("/:id", async (c) => {
+  const user = currentUser(c);
+  const team = await loadTeam(c.env.DB, c.req.param("id"));
+  if (!team) throw notFound("Team");
+  assertCountry(user, team.country, "Team");
+  return c.json({ team: presentTeam(team) });
 });
 
 const teamFields = {
@@ -156,6 +180,31 @@ teams.put("/:id/logo", async (c) => {
   return c.json({ team: presentTeam((await loadTeam(db, id))!) });
 });
 
+// Removing a team entered by mistake. A team that has played or is scheduled stays: fixtures and matches are the
+// record, so the answer is 409 with what still uses it (rename it instead, or remove those fixtures first).
+teams.delete("/:id", async (c) => {
+  const actor = currentUser(c);
+  const db = c.env.DB;
+  const id = c.req.param("id");
+  const team = await loadTeam(db, id);
+  if (!team) throw notFound("Team");
+  assertCountry(actor, team.country, "Team");
+  const use = (await db
+    .prepare(
+      `SELECT (SELECT COUNT(*) FROM fixtures WHERE home_team_id = ?1 OR away_team_id = ?1) AS fixtures,
+              (SELECT COUNT(*) FROM matches WHERE home_team_id = ?1 OR away_team_id = ?1) AS matches`,
+    )
+    .bind(id)
+    .first<{ fixtures: number; matches: number }>())!;
+  if (use.fixtures || use.matches) throw new ApiError(409, "in_use", "This team has fixtures or matches and cannot be deleted", use);
+  const { results: media } = await db.prepare("SELECT id FROM media_assets WHERE owner_type = 'team' AND owner_id = ?").bind(id).all<{ id: string }>();
+  await deleteMedia(c.env, media.map((m) => m.id), [
+    db.prepare("DELETE FROM teams WHERE id = ?").bind(id),
+    auditStmt(db, actor, { action: "team.delete", entity: "team", entityId: id, before: presentTeam(team), countryCode: team.country, ip: c.get("ip") }),
+  ]);
+  return c.json({ ok: true });
+});
+
 /* --------------------------------------------------------------- stadiums */
 
 interface StadiumRow {
@@ -164,24 +213,89 @@ interface StadiumRow {
   city: string;
   country: string;
   capacity: number | null;
+  photo_media_id: string | null;
   created_at: string;
 }
 
-const presentStadium = (s: StadiumRow) => ({ id: s.id, name: s.name, city: s.city, country: s.country, capacity: s.capacity, createdAt: s.created_at });
-const loadStadium = (db: D1Database, id: string) => db.prepare("SELECT id, name, city, country, capacity, created_at FROM stadiums WHERE id = ?").bind(id).first<StadiumRow>();
+const STADIUM_COLS = "id, name, city, country, capacity, photo_media_id, created_at";
+const presentStadium = (s: StadiumRow) => ({
+  id: s.id,
+  name: s.name,
+  city: s.city,
+  country: s.country,
+  capacity: s.capacity,
+  photoUrl: mediaUrl(s.photo_media_id),
+  createdAt: s.created_at,
+});
+const loadStadium = (db: D1Database, id: string) => db.prepare(`SELECT ${STADIUM_COLS} FROM stadiums WHERE id = ?`).bind(id).first<StadiumRow>();
 
 stadiums.get("/", async (c) => {
   const user = currentUser(c);
-  const q = parseQuery(c, z.object({ country: country3.optional() }));
+  const q = parseQuery(c, z.object({ country: country3.optional(), ...pageQuery }));
   const scope = countryFilter(user, "country");
   const where = [scope.sql];
-  const args: string[] = [...scope.params];
+  const args: (string | number)[] = [...scope.params];
   if (q.country) (where.push("country = ?"), args.push(q.country));
-  const { results } = await c.env.DB.prepare(`SELECT id, name, city, country, capacity, created_at FROM stadiums WHERE ${where.join(" AND ")} ORDER BY country, name COLLATE NOCASE`)
-    .bind(...args)
+  if (q.q) {
+    const like = likeOf(q.q);
+    where.push("(name LIKE ? ESCAPE '\\' OR city LIKE ? ESCAPE '\\')");
+    args.push(like, like);
+  }
+  const { results } = await c.env.DB.prepare(`SELECT ${STADIUM_COLS} FROM stadiums WHERE ${where.join(" AND ")} ORDER BY country, name COLLATE NOCASE, id LIMIT ? OFFSET ?`)
+    .bind(...args, q.limit + 1, q.offset)
     .all<StadiumRow>();
-  return c.json({ stadiums: results.map(presentStadium) });
+  const more = results.length > q.limit;
+  return c.json({ stadiums: results.slice(0, q.limit).map(presentStadium), limit: q.limit, offset: q.offset, nextOffset: more ? q.offset + q.limit : null });
 });
+
+stadiums.get("/:id", async (c) => {
+  const user = currentUser(c);
+  const stadium = await loadStadium(c.env.DB, c.req.param("id"));
+  if (!stadium) throw notFound("Stadium");
+  assertCountry(user, stadium.country, "Stadium");
+  return c.json({ stadium: presentStadium(stadium) });
+});
+
+// A picture of the ground (PNG, JPEG or WebP). Like a crest it is public — a stadium is not a person — and a new one
+// replaces the previous file.
+stadiums.put("/:id/photo", async (c) => {
+  const actor = currentUser(c);
+  const db = c.env.DB;
+  const id = c.req.param("id");
+  const stadium = await loadStadium(db, id);
+  if (!stadium) throw notFound("Stadium");
+  assertCountry(actor, stadium.country, "Stadium");
+  const { upload } = await readUpload(c, { imageOnly: true });
+  await commitMedia(c.env, {
+    upload,
+    user: actor,
+    ip: c.get("ip"),
+    kind: "stadium",
+    visibility: "public",
+    ownerType: "stadium",
+    ownerId: id,
+    replaces: [stadium.photo_media_id],
+    then: (mediaId) => [db.prepare("UPDATE stadiums SET photo_media_id = ? WHERE id = ?").bind(mediaId, id)],
+    audit: { action: "stadium.photo", entity: "stadium", entityId: id, countryCode: stadium.country },
+  });
+  return c.json({ stadium: presentStadium((await loadStadium(db, id))!) });
+});
+
+stadiums.delete("/:id/photo", async (c) => {
+  const actor = currentUser(c);
+  const db = c.env.DB;
+  const id = c.req.param("id");
+  const stadium = await loadStadium(db, id);
+  if (!stadium) throw notFound("Stadium");
+  assertCountry(actor, stadium.country, "Stadium");
+  if (!stadium.photo_media_id) return c.json({ stadium: presentStadium(stadium) });
+  await deleteMedia(c.env, [stadium.photo_media_id], [
+    db.prepare("UPDATE stadiums SET photo_media_id = NULL WHERE id = ?").bind(id),
+    auditStmt(db, actor, { action: "stadium.photo_delete", entity: "stadium", entityId: id, before: { mediaId: stadium.photo_media_id }, countryCode: stadium.country, ip: c.get("ip") }),
+  ]);
+  return c.json({ stadium: presentStadium((await loadStadium(db, id))!) });
+});
+
 
 const stadiumFields = {
   name: z.string().trim().min(2).max(120),
@@ -231,4 +345,26 @@ stadiums.patch("/:id", async (c) => {
     throw err;
   }
   return c.json({ stadium: presentStadium((await loadStadium(db, id))!) });
+});
+
+// Removing a stadium entered by mistake. One that fixtures are played at stays (409 with the count); a team that
+// only had it as home ground loses that link (the schema sets it to NULL) and the answer says how many.
+stadiums.delete("/:id", async (c) => {
+  const actor = currentUser(c);
+  const db = c.env.DB;
+  const id = c.req.param("id");
+  const stadium = await loadStadium(db, id);
+  if (!stadium) throw notFound("Stadium");
+  assertCountry(actor, stadium.country, "Stadium");
+  const use = (await db
+    .prepare("SELECT (SELECT COUNT(*) FROM fixtures WHERE stadium_id = ?1) AS fixtures, (SELECT COUNT(*) FROM teams WHERE stadium_id = ?1) AS teams")
+    .bind(id)
+    .first<{ fixtures: number; teams: number }>())!;
+  if (use.fixtures) throw new ApiError(409, "in_use", "Fixtures are played at this stadium; it cannot be deleted", { fixtures: use.fixtures });
+  const { results: media } = await db.prepare("SELECT id FROM media_assets WHERE owner_type = 'stadium' AND owner_id = ?").bind(id).all<{ id: string }>();
+  await deleteMedia(c.env, media.map((m) => m.id), [
+    db.prepare("DELETE FROM stadiums WHERE id = ?").bind(id),
+    auditStmt(db, actor, { action: "stadium.delete", entity: "stadium", entityId: id, before: presentStadium(stadium), after: { homeGroundCleared: use.teams }, countryCode: stadium.country, ip: c.get("ip") }),
+  ]);
+  return c.json({ ok: true, homeGroundCleared: use.teams });
 });

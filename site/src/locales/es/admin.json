@@ -4,13 +4,17 @@
     "accounts": "Cuentas",
     "federations": "Federaciones",
     "countries": "Países",
+    "competitions": "Competiciones",
     "teams": "Equipos y estadios",
-    "audit": "Registro de auditoría"
+    "audit": "Registro de auditoría",
+    "partnerships": "Asociaciones",
+    "grid": "Tabla de evaluación"
   },
   "roles": {
     "admin": "Superadministrador",
     "federation": "Federación",
-    "referee": "Árbitro"
+    "referee": "Árbitro",
+    "tagger": "Etiquetador"
   },
   "zones": {
     "UNAF": "África del Norte",
@@ -53,7 +57,7 @@
     "pickOfficial": "Elija al árbitro correspondiente.",
     "pickCountry": "Elija un país.",
     "pickZone": "Elija una zona.",
-    "federationCode": "De 2 a 20 caracteres: mayúsculas, cifras o guiones (p. ej. FRMF, FAF-AGO).",
+    "federationCode": "De 2 a 20 caracteres: mayúsculas, cifras o guiones (p. ej. FSF, FECOFOOT).",
     "alpha3": "Código ISO alfa-3: tres letras mayúsculas (p. ej. MAR).",
     "iso2": "Código ISO alfa-2: dos letras mayúsculas (p. ej. MA).",
     "currency": "Código de moneda ISO 4217: tres letras (p. ej. MAD).",
@@ -84,7 +88,8 @@
     "stadium_exists": "Esta ciudad ya tiene un estadio con ese nombre.",
     "file_type": "Formato de imagen no admitido: use PNG, JPEG o WebP.",
     "file_size": "Imagen demasiado grande: 8 MB como máximo.",
-    "file_empty": "El archivo está vacío."
+    "file_empty": "El archivo está vacío.",
+    "in_use": "Todavía lo usan partidos, así que no puede eliminarse. Edítelo en su lugar."
   },
   "password": {
     "show": "Mostrar contraseña",
@@ -134,7 +139,8 @@
     "roleHint": {
       "admin": "Acceso a todos los países y a toda la administración.",
       "federation": "Un puesto de una federación nacional, limitado a su país.",
-      "referee": "El espacio personal de un árbitro: designaciones, disponibilidad, pagos."
+      "referee": "El espacio personal de un árbitro: designaciones, disponibilidad, pagos.",
+      "tagger": "Etiqueta las decisiones arbitrales de un país. Sin ningún otro acceso al producto."
     },
     "federation": "Federación",
     "chooseFederation": "Elegir una federación…",
@@ -153,6 +159,10 @@
     "deactivateTitle": "¿Desactivar esta cuenta?",
     "deactivateBody": "{name} ya no podrá acceder y se cerrará su sesión de inmediato. Podrá reactivar la cuenta en cualquier momento.",
     "deactivated": "Cuenta de {name} desactivada.",
+    "signOutAll": "Cerrar sesión en todas partes",
+    "signOutAllTitle": "¿Cerrar sesión en todos los dispositivos?",
+    "signOutAllBody": "Todas las sesiones abiertas de {name} terminan de inmediato, en cada dispositivo. La contraseña no cambia: {name} podrá volver a iniciar sesión.",
+    "signedOutAll": "Se ha cerrado la sesión de {name} en todos los dispositivos.",
     "resetPassword": "Restablecer contraseña",
     "resetTitle": "Restablecer contraseña",
     "resetHint": "Defina una nueva contraseña para {name}. Se cerrarán sus sesiones abiertas.",
@@ -174,7 +184,7 @@
     "search": "Buscar federaciones",
     "searchPlaceholder": "Código, nombre, país…",
     "code": "Código",
-    "codeHint": "Siglas oficiales, por ejemplo FRMF.",
+    "codeHint": "Siglas oficiales, por ejemplo FSF.",
     "name": "Nombre",
     "country": "País",
     "status": "Estado",
@@ -301,7 +311,14 @@
     "editStadium": "Editar estadio",
     "createStadium": "Crear estadio",
     "stadiumCreated": "Estadio {name} creado.",
-    "stadiumUpdated": "Estadio {name} actualizado."
+    "stadiumUpdated": "Estadio {name} actualizado.",
+    "delete": "Eliminar",
+    "deleteTeamTitle": "¿Eliminar este equipo?",
+    "deleteTeamBody": "Se eliminarán {name} y su escudo. Un equipo que ya tiene partidos no puede eliminarse: cámbiele el nombre.",
+    "teamDeleted": "{name} eliminado.",
+    "deleteStadiumTitle": "¿Eliminar este estadio?",
+    "deleteStadiumBody": "{name} se eliminará y se retirará de los equipos que lo tienen como estadio. Un estadio con partidos programados o jugados no puede eliminarse.",
+    "stadiumDeleted": "{name} eliminado."
   },
   "audit": {
     "title": "Registro de auditoría",
@@ -339,6 +356,7 @@
       "document": "Documento",
       "course": "Curso",
       "case": "Expediente"
-    }
+    },
+    "export": "Exportar (CSV)"
   }
 }

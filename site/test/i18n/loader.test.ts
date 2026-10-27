@@ -35,7 +35,7 @@ describe("locale registry", () => {
     const fr = flat("fr");
     expect(fr["common.appName"]).toBe("ARIS");
     expect(fr["auth.role.admin"]).toBe("Super-admin");
-    expect(flat("en")["nav.copilot"]).toBe("AI assistant");
+    expect(flat("en")["nav.copilot"]).toBe("Quick answers");
     expect(flat("es")["status.atRisk"]).toBe("En riesgo");
     expect(flat("de")["roles.FOURTH"]).toBe("Vierter Offizieller");
   });

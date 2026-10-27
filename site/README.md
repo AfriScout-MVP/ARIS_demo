@@ -1,15 +1,12 @@
 # ARIS — Africa Referee Intelligence System
 
-Investor-facing product demo for **ARIS**, a platform by Prestige Solutions of Afrika
+**ARIS** is a platform by Prestige Solutions of Afrika
 for referee performance intelligence, AI-powered match assignment, and career
 management across African football (CAF, its zones, federations, and leagues).
 
-Two ways to run it:
-
-* **Demo** (GitHub Pages) — no backend, realistic mock data, `npm run build:pages`.
-* **Live** (Cloudflare) — the same screens read and write through the Worker in [`../api`](../api/README.md):
-  sign-in, roles, designations saved in D1, notifications, the referee's personal space at `/me`.
-  `npm run build:cloudflare` (sets `NEXT_PUBLIC_DATA_SOURCE=api`).
+The app is live-only: every screen reads and writes through the Cloudflare Worker in
+[`../api`](../api/README.md) — sign-in, the three roles, designations saved in D1, notifications and the
+referee's personal space at `/me`. `npm run build:cloudflare` produces the static export (`out/`) the Worker serves.
 
 Built to preview the functional scope from the ARIS Cahier des Charges v2.0 (July 2026).
 
@@ -20,8 +17,7 @@ Next.js 16 (App Router) · React 19 · TypeScript · Tailwind CSS v4 · Recharts
 
 ```bash
 npm install
-npm run dev                                    # demo data
-ARIS_API_PROXY=http://localhost:8787 NEXT_PUBLIC_DATA_SOURCE=api npm run dev   # against `wrangler dev`
+ARIS_API_PROXY=http://localhost:8787 npm run dev   # against `wrangler dev` in ../api
 ```
 
 ## Structure

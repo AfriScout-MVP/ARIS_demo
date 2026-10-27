@@ -6,7 +6,7 @@ import { hashPassword } from "../lib/crypto";
 import { auditStmt } from "../lib/audit";
 import { countryFilter, inCountry, isAdmin } from "../lib/access";
 import { currentUser, staff } from "../middleware/auth";
-import { passwordSchema } from "./auth";
+import { closeResetLinks, passwordSchema } from "./auth";
 
 /**
  * Accounts. An admin manages everyone. A federation seat manages the REFEREE accounts of its own country
@@ -16,12 +16,12 @@ export const users = new Hono<AppEnv>();
 users.use("*", staff);
 
 const localeSchema = z.enum(LOCALES as [string, ...string[]]);
-const roleSchema = z.enum(["admin", "federation", "referee"]);
+const roleSchema = z.enum(["admin", "federation", "referee", "tagger"]);
 
 /** A user row as the API returns it. `country` is the federation's country, or the referee's own country. */
 const SELECT = `SELECT u.id, u.email, u.name, u.role, u.official_id AS officialId, o.name AS officialName,
        u.federation_id AS federationId, f.code AS federationCode, COALESCE(f.country, o.country_code) AS country,
-       u.locale, u.active, u.last_login_at AS lastLoginAt, u.created_at AS createdAt
+       u.locale, u.active, u.must_change_password AS mustChangePassword, u.last_login_at AS lastLoginAt, u.created_at AS createdAt
   FROM users u
   LEFT JOIN officials o ON o.id = u.official_id
   LEFT JOIN federations f ON f.id = u.federation_id`;
@@ -30,7 +30,7 @@ interface UserOut {
   id: string;
   email: string;
   name: string;
-  role: "admin" | "federation" | "referee";
+  role: "admin" | "federation" | "referee" | "tagger";
   officialId: string | null;
   officialName: string | null;
   federationId: string | null;
@@ -38,11 +38,16 @@ interface UserOut {
   country: string | null;
   locale: string;
   active: boolean | number;
+  mustChangePassword: boolean | number;
   lastLoginAt: string | null;
   createdAt: string;
 }
 
-const present = (r: UserOut) => ({ ...r, active: r.active === 1 || r.active === true });
+const present = (r: UserOut) => ({
+  ...r,
+  active: r.active === 1 || r.active === true,
+  mustChangePassword: r.mustChangePassword === 1 || r.mustChangePassword === true,
+});
 
 async function loadUser(db: D1Database, id: string) {
   const row = await db.prepare(`${SELECT} WHERE u.id = ?`).bind(id).first<UserOut>();
@@ -113,9 +118,9 @@ async function resolveLinks(db: D1Database, role: string, officialId: string | n
     if (!o) throw new ApiError(422, "unknown_official", "That official does not exist");
     return { country: o.country_code };
   }
-  if (role === "federation") {
-    if (!federationId) throw new ApiError(422, "federation_required", "A federation seat must belong to a federation");
-    if (officialId) throw new ApiError(422, "invalid_link", "A federation seat cannot be linked to an official");
+  if (role === "federation" || role === "tagger") {
+    if (!federationId) throw new ApiError(422, "federation_required", role === "tagger" ? "A tagger must belong to a federation" : "A federation seat must belong to a federation");
+    if (officialId) throw new ApiError(422, "invalid_link", "This role cannot be linked to an official");
     const f = await db.prepare("SELECT id, country FROM federations WHERE id = ?").bind(federationId).first<{ id: string; country: string }>();
     if (!f) throw new ApiError(422, "unknown_federation", "That federation does not exist");
     return { country: f.country };
@@ -132,6 +137,15 @@ async function assertOfficialFree(db: D1Database, officialId: string, exceptUser
     .first();
   if (taken) throw new ApiError(409, "official_has_account", "This official already has an account");
 }
+
+// One account, under the same reach as the list: a federation seat reads its country's referees and its own
+// federation's seats; anything else is "not found".
+users.get("/:id", async (c) => {
+  const actor = currentUser(c);
+  const target = await loadUser(c.env.DB, c.req.param("id"));
+  if (!target || !reach(actor, target).visible) throw notFound("User");
+  return c.json({ user: target });
+});
 
 users.post("/", async (c) => {
   const actor = currentUser(c);
@@ -155,7 +169,8 @@ users.post("/", async (c) => {
   try {
     await db.batch([
       db
-        .prepare("INSERT INTO users (id, email, name, role, official_id, federation_id, locale, password_hash) VALUES (?, ?, ?, ?, ?, ?, ?, ?)")
+        // the password was chosen by the creator: its holder must replace it at first sign-in
+        .prepare("INSERT INTO users (id, email, name, role, official_id, federation_id, locale, password_hash, must_change_password) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)")
         .bind(id, email, body.name, body.role, officialId, federationId, body.locale, await hashPassword(body.password)),
       auditStmt(db, actor, {
         action: "user.create",
@@ -212,7 +227,7 @@ users.patch("/:id", async (c) => {
   let federationId = body.federationId !== undefined ? body.federationId : before.federationId;
   // changing the role drops the link the new role cannot have, unless the caller said otherwise
   if (role !== "referee" && body.officialId === undefined) officialId = null;
-  if (role !== "federation" && body.federationId === undefined) federationId = null;
+  if (role !== "federation" && role !== "tagger" && body.federationId === undefined) federationId = null;
   const identityChanged = role !== before.role || officialId !== before.officialId || federationId !== before.federationId;
   let country = before.country;
   if (identityChanged) {
@@ -255,8 +270,27 @@ users.post("/:id/reset-password", async (c) => {
   if (!target) throw notFound("User");
   assertWritable(actor, target);
   await db.batch([
-    db.prepare("UPDATE users SET password_hash = ?, token_version = token_version + 1 WHERE id = ?").bind(await hashPassword(password), id),
+    // someone else now knows the password: it must be changed at the next sign-in; outstanding reset links die
+    db.prepare("UPDATE users SET password_hash = ?, token_version = token_version + 1, must_change_password = 1 WHERE id = ?").bind(await hashPassword(password), id),
+    closeResetLinks(db, id),
     auditStmt(db, actor, { action: "user.reset_password", entity: "user", entityId: id, countryCode: target.country, ip: c.get("ip") }),
   ]);
   return c.json({ ok: true });
+});
+
+// Ends every session of an account at once — a lost phone, a shared laptop, a suspected break-in — without
+// touching its password or locking it. Bumping token_version refuses every token issued before. Signing out
+// one's own account this way is allowed too (the caller's session ends with the others).
+users.post("/:id/sign-out", async (c) => {
+  const actor = currentUser(c);
+  const db = c.env.DB;
+  const id = c.req.param("id");
+  const target = await loadUser(db, id);
+  if (!target) throw notFound("User");
+  if (target.id !== actor.id) assertWritable(actor, target);
+  await db.batch([
+    db.prepare("UPDATE users SET token_version = token_version + 1 WHERE id = ?").bind(id),
+    auditStmt(db, actor, { action: "user.sign_out_everywhere", entity: "user", entityId: id, countryCode: target.country, ip: c.get("ip") }),
+  ]);
+  return c.json({ ok: true, self: target.id === actor.id });
 });

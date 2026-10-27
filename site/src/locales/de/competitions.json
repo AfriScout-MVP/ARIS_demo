@@ -1,0 +1,73 @@
+{
+  "title": "Wettbewerbe",
+  "subtitleAdmin": "Die Ligen und Pokale jedes Landes und die kontinentalen Wettbewerbe der CAF: Saison, Spieltage, VAR, Gewicht bei Ansetzungen.",
+  "subtitleFederation": "Die Ligen und Pokale Ihres Verbands: Saison, Spieltage, VAR, Gewicht bei Ansetzungen.",
+  "new": "Neuer Wettbewerb",
+  "newTitle": "Neuer Wettbewerb",
+  "newHint": "Er erscheint sofort im Kalender, bei den Ansetzungen und in den Gebührensätzen.",
+  "editTitle": "Wettbewerb bearbeiten",
+  "create": "Anlegen",
+  "created": "{name} wurde angelegt.",
+  "saved": "Wettbewerb aktualisiert.",
+  "search": "Name, Kürzel oder Saison…",
+  "continental": "CAF: kontinentale Wettbewerbe",
+  "views": {
+    "active": "Laufend",
+    "all": "Alle"
+  },
+  "fields": {
+    "name": "Name",
+    "shortName": "Kürzel",
+    "tier": "Stufe",
+    "gender": "Kategorie",
+    "season": "Saison",
+    "matchdays": "Spieltage",
+    "currentMatchday": "Aktueller Spieltag",
+    "weight": "Gewicht",
+    "varEnabled": "Mit VAR",
+    "isActive": "Wettbewerb läuft",
+    "progress": "Fortschritt",
+    "status": "Zustand"
+  },
+  "gender": {
+    "M": "Männer",
+    "W": "Frauen"
+  },
+  "hints": {
+    "season": "Format JJJJ/JJJJ, zum Beispiel 2026/2027.",
+    "seasonFixed": "Saison und Kategorie ändern sich nach dem Anlegen nicht mehr.",
+    "weight": "0 bis 10: beeinflusst die Bedeutung der Spiele bei Ansetzungen.",
+    "var": "Die Ansetzungen sehen dann einen VAR und einen AVAR vor.",
+    "active": "Ein abgeschlossener Wettbewerb bleibt einsehbar, nimmt aber keine Spiele mehr auf."
+  },
+  "active": "Laufend",
+  "inactive": "Abgeschlossen",
+  "edit": "Bearbeiten",
+  "advance": "Zum nächsten Spieltag",
+  "advanced": "{name}: Spieltag {n}.",
+  "close": "Wettbewerb abschließen",
+  "reopen": "Wettbewerb wieder öffnen",
+  "closed": "{name} ist abgeschlossen.",
+  "reopened": "{name} ist wieder geöffnet.",
+  "actionsFor": "Aktionen für {name}",
+  "rollover": {
+    "action": "Saison {season} vorbereiten",
+    "title": "Saison {season} vorbereiten?",
+    "body": "{name} wird unverändert von {from} nach {to} übernommen, ab Spieltag 0.",
+    "closeOld": "Saison {season} abschließen",
+    "confirm": "Saison anlegen",
+    "done": "{name} {season} ist bereit."
+  },
+  "empty": "Keine Wettbewerbe",
+  "emptyHint": "Legen Sie die Liga oder den Pokal an, für die der Verband Schiedsrichter ansetzt.",
+  "errors": {
+    "name": "Zwischen 2 und 120 Zeichen.",
+    "shortName": "Höchstens 30 Zeichen.",
+    "tier": "Die CAF richtet nur kontinentale Wettbewerbe aus, und nur sie.",
+    "season": "Format JJJJ/JJJJ, das zweite Jahr folgt auf das erste (2026/2027).",
+    "matchdays": "Eine Zahl zwischen 1 und 100.",
+    "currentMatchday": "Eine Zahl zwischen 0 und 100.",
+    "beyondLast": "Darf die Zahl der Spieltage nicht übersteigen.",
+    "weight": "Eine Zahl zwischen 0 und 10."
+  }
+}

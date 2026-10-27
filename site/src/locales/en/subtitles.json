@@ -10,6 +10,9 @@
   "rankings": "The promotion table.",
   "compare": "Two officials, side by side.",
   "development": "Licences, fitness tests and the path to the next level.",
-  "federations": "Member federations, their competitions and calendar sync.",
-  "reports": "Build a match and refereeing dossier, ready to send."
+  "federations": "Member federations, their competitions and how fresh their data is.",
+  "reports": "Build a match and refereeing dossier, ready to send.",
+  "finance": "Fee scales, checks, payments and advances for officials.",
+  "discipline": "Reports, procedures, decisions and appeals.",
+  "analytics": "Workload, absences, fees and the payment control, exportable as CSV."
 }

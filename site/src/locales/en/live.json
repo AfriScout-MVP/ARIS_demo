@@ -8,5 +8,14 @@
   "played": "This match has already been played.",
   "autoFillFailed": "Auto-fill did not run. Try again.",
   "reasonPrompt": "Reason for this change (required):",
-  "overridePrompt": "{why}. To go ahead anyway, give a written reason:"
+  "overridePrompt": "{why}. To go ahead anyway, give a written reason:",
+  "reasonDialog": {
+    "title": "Reason for the change",
+    "overrideTitle": "Override?",
+    "label": "Reason",
+    "hint": "Logged in the designation history and sent to the officials concerned.",
+    "short": "At least 3 characters.",
+    "confirm": "Continue",
+    "override": "Override and designate"
+  }
 }

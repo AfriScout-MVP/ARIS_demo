@@ -1,0 +1,166 @@
+{
+  "skip": "Zum Inhalt springen",
+  "nav": {
+    "modules": "Module",
+    "workflow": "Ablauf",
+    "roles": "Rollen",
+    "security": "Sicherheit",
+    "signIn": "Anmelden",
+    "menu": "Menü",
+    "themeLight": "Zum hellen Design wechseln",
+    "themeDark": "Zum dunklen Design wechseln"
+  },
+  "hero": {
+    "eyebrow": "Afrikanisches Schiedsrichter-Intelligenzsystem",
+    "titleA": "Afrikas Schiedsrichterwesen,",
+    "titleB": "gesteuert durch Daten.",
+    "lead": "ARIS vereint Spielpläne, Ansetzungen, Beobachtungen, VAR-Entscheidungen, Lizenzen und Spesen in einer Plattform — für jeden Verband, jeden Schiedsrichter, jedes Spiel.",
+    "primary": "Anmelden",
+    "secondary": "Plattform entdecken",
+    "proof1": "4 Sprachen",
+    "proof2": "Daten nach Land getrennt",
+    "proof3": "Jede Aktion protokolliert"
+  },
+  "pitch": {
+    "label": "Animation: Ein Schiedsrichter hält seine Diagonale, während ARIS das Spiel verfolgt",
+    "live": "Live",
+    "arps": "ARPS-Note",
+    "crew": "Gespann bestätigt",
+    "var": "VAR · Entscheidung bestätigt",
+    "diagonal": "Diagonale gehalten",
+    "distance": "Abstand zum Spiel"
+  },
+  "federations": {
+    "title": "Gebaut für {count} afrikanische Verbände",
+    "lead": "Jeder Verband arbeitet in seiner Sprache, Währung und Zeitzone, mit seinen eigenen Wettbewerben."
+  },
+  "stats": {
+    "countries": "unterstützte Verbände",
+    "officials": "erfasste Schiedsrichter und Assistenten",
+    "competitions": "betreute Wettbewerbe",
+    "criteria": "gewichtete Bewertungs\u00adkriterien"
+  },
+  "modules": {
+    "eyebrow": "Die Plattform",
+    "title": "Der ganze Schiedsrichter-Zyklus an einem Ort",
+    "lead": "Acht Module, die miteinander sprechen: Eine Ansetzung speist die Spesen, ein Beobachterbericht die Rangliste, ein Interessenkonflikt wird vor der Ansetzung erkannt.",
+    "calendar": {
+      "title": "Spielplan & Begegnungen",
+      "body": "Begegnungen anlegen, freigeben und veröffentlichen, Aufgebote versenden, mit dokumentiertem Grund verlegen."
+    },
+    "designations": {
+      "title": "Ansetzung der Gespanne",
+      "body": "Ein Live-Board, das Neutralität, Qualifikation, Ruhezeiten, Verfügbarkeit und Interessenkonflikte prüft, bevor sie ein Spiel kosten."
+    },
+    "assessments": {
+      "title": "Beobachtungen & Beobachter",
+      "body": "Berichte auf einem gewichteten Raster: Entwürfe, Einreichung, begründete Korrektur, Freigabe an den Schiedsrichter."
+    },
+    "decisions": {
+      "title": "VAR-Entscheidungsanalyse",
+      "body": "Jede Schlüsselentscheidung mit Spielminute, VAR-Überprüfungen inklusive, um die Treffsicherheit Spiel für Spiel zu messen."
+    },
+    "development": {
+      "title": "Entwicklung & Lizenzen",
+      "body": "Lizenzen, Leistungstests und Lehrgänge im Blick, mit Warnungen vor jeder Frist."
+    },
+    "discipline": {
+      "title": "Disziplin",
+      "body": "Vorfälle, Verfahren und Sperren mit vollständiger, überprüfbarer Historie."
+    },
+    "finance": {
+      "title": "Spesen & Finanzen",
+      "body": "Gebührensätze je Land und Währung, Zahlungsläufe, Vorschüsse und Abzüge ohne Rechenfehler."
+    },
+    "analytics": {
+      "title": "Analysen & Ranglisten",
+      "body": "ARPS, Heatmaps, Vergleiche und Trends, um die Schiedsrichter zu finden, die bereit für die nächste Stufe sind."
+    }
+  },
+  "workflow": {
+    "eyebrow": "Der Ablauf",
+    "title": "Vom Spielplan zum Bericht, einmal erfasst",
+    "lead": "Einmal eingegebene Daten begleiten das Spiel bis zum Schluss.",
+    "plan": {
+      "title": "Planen",
+      "body": "Der Verband veröffentlicht seinen nationalen Spielplan."
+    },
+    "appoint": {
+      "title": "Ansetzen",
+      "body": "ARIS schlägt verfügbare und konfliktfreie Gespanne vor."
+    },
+    "officiate": {
+      "title": "Leiten",
+      "body": "Aufgebote, Ergebnis und Schlüsselentscheidungen werden erfasst."
+    },
+    "assess": {
+      "title": "Bewerten",
+      "body": "Der Beobachter reicht seinen Bericht auf dem offiziellen Raster ein."
+    },
+    "develop": {
+      "title": "Weiterentwickeln",
+      "body": "Ranglisten und Fortschritt aktualisieren sich; Spesen entstehen mit einem Klick."
+    }
+  },
+  "roles": {
+    "eyebrow": "Drei Bereiche",
+    "title": "Jeder sieht, was ihn betrifft — und sonst nichts",
+    "admin": {
+      "title": "Super-Admin",
+      "body": "Die Schiedsrichterabteilung steuert den ganzen Kontinent.",
+      "p1": "Alle Verbände",
+      "p2": "Bewertungsraster und Wettbewerbe",
+      "p3": "Partnerschaften und Prüfprotokoll"
+    },
+    "federation": {
+      "title": "Verband",
+      "body": "Jeder Verband führt sein nationales Schiedsrichterwesen.",
+      "p1": "Spielplan und Ansetzungen",
+      "p2": "Register der Offiziellen und Dokumente",
+      "p3": "Spesen in eigener Währung"
+    },
+    "referee": {
+      "title": "Schiedsrichter",
+      "body": "Ein persönlicher Bereich, auf dem Handy wie am Rechner.",
+      "p1": "Ansetzungen und Verfügbarkeit",
+      "p2": "Erhaltene Berichte und Fortschritt",
+      "p3": "Lizenzen und Zahlungen"
+    }
+  },
+  "security": {
+    "eyebrow": "Vertrauen",
+    "title": "Sensible Daten, entsprechend behandelt",
+    "lead": "Gesundheitsakten, Sanktionen, Zahlungen: ARIS ist so gebaut, dass jede Information dort bleibt, wo sie hingehört.",
+    "scope": {
+      "title": "Nach Land getrennt",
+      "body": "Ein Verband sieht nie die Offiziellen oder Akten eines anderen."
+    },
+    "audit": {
+      "title": "Prüfprotokoll",
+      "body": "Jede Änderung wird mit Zeitstempel und Urheber samt vorherigem Stand gespeichert."
+    },
+    "sessions": {
+      "title": "Geschützter Zugang",
+      "body": "Gehashte Passwörter, signierte Sitzungen, begrenzte Anmeldeversuche."
+    },
+    "edge": {
+      "title": "Überall schnell",
+      "body": "Ausgeliefert über das weltweite Netz von Cloudflare, nah an jedem Stadion."
+    }
+  },
+  "languages": {
+    "eyebrow": "Mehrsprachig",
+    "title": "Eine Plattform, vier Sprachen",
+    "lead": "Französisch, Englisch, Spanisch und Deutsch — jeder wählt seine Sprache, die Berichte folgen."
+  },
+  "cta": {
+    "title": "Bereit für den Anpfiff?",
+    "lead": "Melden Sie sich mit dem Konto an, das Ihr Verband oder die Schiedsrichterabteilung ausgestellt hat.",
+    "button": "Bei ARIS anmelden"
+  },
+  "footer": {
+    "tagline": "Entworfen in Afrika, für das afrikanische Schiedsrichterwesen.",
+    "rights": "© {year} Prestige Solutions of Afrika. Alle Rechte vorbehalten.",
+    "flags": "Flaggen: flag-icons (MIT-Lizenz)."
+  }
+}
