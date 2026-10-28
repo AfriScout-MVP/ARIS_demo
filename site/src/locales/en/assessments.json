@@ -123,5 +123,26 @@
       "size": "The grid has 2 to 12 criteria.",
       "total": "The weights must total 100."
     }
+  },
+  "comments": {
+    "title": "Comments",
+    "none": "No comments yet.",
+    "label": "Add a comment",
+    "contestLabel": "Explain what you are contesting",
+    "send": "Send",
+    "sendContest": "Send the contest",
+    "switchToComment": "Just a comment instead",
+    "switchToContest": "Contest this mark instead",
+    "contestOpen": "Contest open",
+    "contestAnswered": "Contest answered",
+    "posted": "Sent.",
+    "kind": {
+      "contest": "Contest"
+    },
+    "role": {
+      "admin": "Admin",
+      "federation": "Federation",
+      "referee": "You"
+    }
   }
 }

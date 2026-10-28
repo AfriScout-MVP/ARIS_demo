@@ -159,6 +159,11 @@
     "hint": "Puede recurrir cualquier decisión.",
     "appeal": "Recurrir",
     "appealHint": "Explique por qué impugna la decisión.",
-    "send": "Enviar el recurso"
+    "send": "Enviar el recurso",
+    "defend": "Presentar mi defensa",
+    "defendHint": "Explique su posición antes de que se decida el caso; pasará a formar parte del expediente.",
+    "defenceLabel": "Defensa escrita",
+    "defenceSaved": "Defensa presentada.",
+    "defenceUpdated": "Defensa actualizada."
   }
 }

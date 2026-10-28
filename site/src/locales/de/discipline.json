@@ -159,6 +159,11 @@
     "hint": "Sie können gegen jede Entscheidung Einspruch einlegen.",
     "appeal": "Einspruch einlegen",
     "appealHint": "Erklären Sie, warum Sie die Entscheidung anfechten.",
-    "send": "Einspruch senden"
+    "send": "Einspruch senden",
+    "defend": "Meine Verteidigung einreichen",
+    "defendHint": "Erklären Sie Ihren Standpunkt, bevor der Fall entschieden wird; dies wird Teil der Akte.",
+    "defenceLabel": "Schriftliche Verteidigung",
+    "defenceSaved": "Verteidigung eingereicht.",
+    "defenceUpdated": "Verteidigung aktualisiert."
   }
 }

@@ -5,6 +5,8 @@ import { Plane } from "@/components/icons/glyphs";
 import { Badge, Button, Card, CardHeader } from "@/components/ui";
 import { FormError, SelectField, TextAreaField, TextField } from "@/components/admin/fields";
 import { listAdvances, requestAdvance } from "@/lib/api/finance";
+import { withdrawAdvance } from "@/lib/api/me";
+import { ApiError, NetworkError } from "@/lib/api/client";
 import { useAction, useResource } from "@/lib/admin/hooks";
 import { ADVANCE_TONE, advanceStatusKey } from "@/lib/finance/rules";
 import { useFormatters, useT } from "@/lib/i18n/LocaleProvider";
@@ -20,6 +22,7 @@ export function MyAdvances({ trips }: { trips: Array<{ fixtureId: string; label:
   const [tick, setTick] = useState(0);
   const list = useResource(`my-advances|${tick}`, (signal) => listAdvances({}, signal));
   const { busy, error, run, reset } = useAction();
+  const [withdrawing, setWithdrawing] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
   const [fixtureId, setFixtureId] = useState("");
   const [amount, setAmount] = useState("");
@@ -45,6 +48,22 @@ export function MyAdvances({ trips }: { trips: Array<{ fixtureId: string; label:
   }
 
   const rows = list.data ?? [];
+
+  async function withdraw(id: string) {
+    setWithdrawing(id);
+    try {
+      await withdrawAdvance(id);
+      toast.push("success", t("finance.mine.withdrawn"));
+      setTick((n) => n + 1);
+    } catch (err) {
+      if (err instanceof NetworkError) toast.push("error", t("live.offline"));
+      else if (err instanceof ApiError && err.code === "bad_state") toast.push("error", t("finance.mine.alreadyDecided"));
+      else toast.push("error", t("live.notSaved"));
+    } finally {
+      setWithdrawing(null);
+    }
+  }
+
   return (
     <Card>
       <CardHeader
@@ -111,7 +130,14 @@ export function MyAdvances({ trips }: { trips: Array<{ fixtureId: string; label:
                   {fmt.date(a.requestedAt.slice(0, 10))} · {a.justification}
                 </p>
               </div>
-              <Badge tone={ADVANCE_TONE[a.status]}>{t(advanceStatusKey(a.status))}</Badge>
+              <div className="flex items-center gap-2">
+                <Badge tone={ADVANCE_TONE[a.status]}>{t(advanceStatusKey(a.status))}</Badge>
+                {a.status === "requested" && (
+                  <Button size="sm" variant="danger" disabled={withdrawing === a.id} onClick={() => void withdraw(a.id)}>
+                    {withdrawing === a.id ? t("admin.common.working") : t("finance.mine.withdraw")}
+                  </Button>
+                )}
+              </div>
             </li>
           ))}
         </ul>

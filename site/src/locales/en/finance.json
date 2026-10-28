@@ -279,7 +279,10 @@
     "request": "Request an advance",
     "hint": "For travel that has to be paid before a match. The federation decides and you are told here.",
     "empty": "No advance requests.",
-    "submit": "Send the request"
+    "submit": "Send the request",
+    "withdraw": "Withdraw",
+    "withdrawn": "Advance request withdrawn.",
+    "alreadyDecided": "The federation has already decided; this request can no longer be withdrawn."
   },
   "truncated": "Only the {n} most recent lines are shown: narrow the period."
 }

@@ -34,5 +34,24 @@
     "you": "You",
     "published": "Published {date}",
     "round": "Round {round}"
+  },
+  "earnings": {
+    "title": "My earnings",
+    "bySeason": "By season",
+    "byYear": "By year",
+    "none": "Nothing on record yet.",
+    "lines": "{n} lines",
+    "paid": "Paid",
+    "pending": "Pending",
+    "contested": "Contested"
+  },
+  "slip": {
+    "open": "Payment slip",
+    "title": "Payment slip",
+    "notFound": "No payment found.",
+    "back": "Back to my payments",
+    "official": "Official",
+    "competition": "Competition",
+    "payer": "Paid by"
   }
 }

@@ -159,6 +159,11 @@
     "hint": "You may appeal any decision.",
     "appeal": "Appeal",
     "appealHint": "Explain why you dispute the decision.",
-    "send": "Send the appeal"
+    "send": "Send the appeal",
+    "defend": "File my defence",
+    "defendHint": "Explain your side before the case is decided; it becomes part of the record.",
+    "defenceLabel": "Written defence",
+    "defenceSaved": "Defence filed.",
+    "defenceUpdated": "Defence updated."
   }
 }

@@ -279,7 +279,10 @@
     "request": "Vorschuss beantragen",
     "hint": "Für eine Reise, die vor einem Spiel bezahlt werden muss. Der Verband entscheidet, und Sie werden hier informiert.",
     "empty": "Keine Vorschussanträge.",
-    "submit": "Antrag senden"
+    "submit": "Antrag senden",
+    "withdraw": "Zurückziehen",
+    "withdrawn": "Vorschussantrag zurückgezogen.",
+    "alreadyDecided": "Der Verband hat bereits entschieden; dieser Antrag kann nicht mehr zurückgezogen werden."
   },
   "truncated": "Nur die {n} neuesten Posten werden angezeigt: Verkürzen Sie den Zeitraum."
 }

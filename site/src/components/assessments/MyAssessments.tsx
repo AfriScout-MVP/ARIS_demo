@@ -1,14 +1,17 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { ClipboardCheck, Film, Pencil, Plus, Star } from "@/components/icons/glyphs";
+import { ClipboardCheck, Film, MessageSquare, Pencil, Plus, Star } from "@/components/icons/glyphs";
 import { Badge, Button, Card, CardHeader, Meter } from "@/components/ui";
 import { ErrorState, ListSkeleton } from "@/components/admin/states";
+import { FormError, TextAreaField } from "@/components/admin/fields";
 import { listAssessments, listCriteria, listMyMatches, type AssessmentRow } from "@/lib/api/assessments";
+import { listAssessmentComments, postAssessmentComment } from "@/lib/api/me";
 import { isLate, observerDuties } from "@/lib/assessments/rules";
-import { useResource } from "@/lib/admin/hooks";
+import { useAction, useResource } from "@/lib/admin/hooks";
 import { pickLocalized } from "@/lib/i18n/localized";
-import { useFormatters, useLocale, useT } from "@/lib/i18n/LocaleProvider";
+import { useFormatters, useLocale, useT, type TKey } from "@/lib/i18n/LocaleProvider";
+import { useToast } from "@/lib/toast/ToastProvider";
 import { ReportDialog } from "./ReportDialog";
 
 type Editing = { kind: "new"; matchId: string; title: string } | { kind: "draft"; report: AssessmentRow; title: string };
@@ -135,6 +138,7 @@ export function MyAssessments({ officialId }: { officialId: string }) {
                           ))}
                         </ul>
                       )}
+                      <CommentThread assessmentId={r.id} />
                     </div>
                   )}
                 </li>
@@ -157,5 +161,101 @@ export function MyAssessments({ officialId }: { officialId: string }) {
         />
       )}
     </>
+  );
+}
+
+const ROLE_TONE: Record<string, "neutral" | "amber" | "var"> = { referee: "neutral", federation: "var", admin: "var" };
+
+/** The back-and-forth on one assessment: a plain comment, or a contest the federation can answer. */
+function CommentThread({ assessmentId }: { assessmentId: string }) {
+  const t = useT();
+  const fmt = useFormatters();
+  const toast = useToast();
+  const [tick, setTick] = useState(0);
+  const thread = useResource(`assessment-comments|${assessmentId}|${tick}`, (signal) => listAssessmentComments(assessmentId, signal));
+  const { busy, error, run, reset } = useAction();
+  const [body, setBody] = useState("");
+  const [contesting, setContesting] = useState(false);
+
+  async function send(kind: "comment" | "contest") {
+    const res = await run(() => postAssessmentComment(assessmentId, body.trim(), kind));
+    if (res.ok) {
+      toast.push("success", t("assessments.comments.posted"));
+      setBody("");
+      setContesting(false);
+      setTick((n) => n + 1);
+    }
+  }
+
+  if (thread.loading) return null;
+  if (thread.error || !thread.data) {
+    return (
+      <div className="border-t border-line pt-3">
+        <button type="button" className="text-xs text-chalk-faint underline-offset-2 hover:text-chalk hover:underline" onClick={thread.reload}>
+          {t("admin.common.retry")}
+        </button>
+      </div>
+    );
+  }
+  const { comments, contest } = thread.data;
+
+  return (
+    <div className="space-y-2 border-t border-line pt-3">
+      <p className="flex items-center gap-1.5 text-xs font-semibold text-chalk-dim">
+        <MessageSquare size={14} />
+        {t("assessments.comments.title")}
+        {contest === "open" && <Badge tone="amber">{t("assessments.comments.contestOpen")}</Badge>}
+        {contest === "answered" && <Badge tone="pitch">{t("assessments.comments.contestAnswered")}</Badge>}
+      </p>
+      {comments.length === 0 ? (
+        <p className="text-xs text-chalk-faint">{t("assessments.comments.none")}</p>
+      ) : (
+        <ul className="space-y-1.5">
+          {comments.map((cm) => (
+            <li key={cm.id} className="rounded-lg border border-line bg-ink-2 px-2.5 py-2">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <span className="flex items-center gap-1.5 text-xs font-medium text-chalk">
+                  {cm.authorName ?? t(`assessments.comments.role.${cm.authorRole}` as TKey)}
+                  {cm.kind === "contest" && <Badge tone={ROLE_TONE[cm.authorRole]}>{t("assessments.comments.kind.contest")}</Badge>}
+                </span>
+                <span className="text-[11px] text-chalk-faint">{fmt.date(cm.createdAt.slice(0, 10))}</span>
+              </div>
+              <p className="mt-1 text-xs leading-relaxed text-chalk-dim">{cm.body}</p>
+            </li>
+          ))}
+        </ul>
+      )}
+      <form
+        className="space-y-2"
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (body.trim().length >= 3) void send(contesting ? "contest" : "comment");
+        }}
+      >
+        <TextAreaField
+          label={t(contesting ? "assessments.comments.contestLabel" : "assessments.comments.label")}
+          value={body}
+          onChange={setBody}
+          rows={2}
+          maxLength={2000}
+        />
+        <FormError error={error} />
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <button
+            type="button"
+            className="text-xs text-chalk-faint underline-offset-2 hover:text-chalk hover:underline"
+            onClick={() => {
+              reset();
+              setContesting((v) => !v);
+            }}
+          >
+            {t(contesting ? "assessments.comments.switchToComment" : "assessments.comments.switchToContest")}
+          </button>
+          <Button type="submit" size="sm" variant={contesting ? "danger" : "secondary"} disabled={busy || body.trim().length < 3}>
+            {busy ? t("admin.common.working") : t(contesting ? "assessments.comments.sendContest" : "assessments.comments.send")}
+          </Button>
+        </div>
+      </form>
+    </div>
   );
 }

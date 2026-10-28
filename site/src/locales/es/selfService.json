@@ -34,5 +34,24 @@
     "you": "Usted",
     "published": "Publicada el {date}",
     "round": "Jornada {round}"
+  },
+  "earnings": {
+    "title": "Mis ingresos",
+    "bySeason": "Por temporada",
+    "byYear": "Por año",
+    "none": "Nada registrado todavía.",
+    "lines": "{n} líneas",
+    "paid": "Pagado",
+    "pending": "Pendiente",
+    "contested": "Impugnado"
+  },
+  "slip": {
+    "open": "Recibo de pago",
+    "title": "Recibo de pago",
+    "notFound": "No se encontró ningún pago.",
+    "back": "Volver a mis pagos",
+    "official": "Árbitro",
+    "competition": "Competición",
+    "payer": "Pagado por"
   }
 }

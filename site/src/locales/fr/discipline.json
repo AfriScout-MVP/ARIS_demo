@@ -159,6 +159,11 @@
     "hint": "Vous pouvez faire appel de toute décision.",
     "appeal": "Faire appel",
     "appealHint": "Expliquez pourquoi vous contestez la décision.",
-    "send": "Envoyer le recours"
+    "send": "Envoyer le recours",
+    "defend": "Déposer ma défense",
+    "defendHint": "Expliquez votre position avant que l'affaire ne soit tranchée ; cela fait partie du dossier.",
+    "defenceLabel": "Défense écrite",
+    "defenceSaved": "Défense déposée.",
+    "defenceUpdated": "Défense mise à jour."
   }
 }

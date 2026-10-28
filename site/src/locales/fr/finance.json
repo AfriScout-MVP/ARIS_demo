@@ -279,7 +279,10 @@
     "request": "Demander une avance",
     "hint": "Pour un déplacement à financer avant un match. La fédération décide et vous êtes prévenu ici.",
     "empty": "Aucune demande d'avance.",
-    "submit": "Envoyer la demande"
+    "submit": "Envoyer la demande",
+    "withdraw": "Retirer",
+    "withdrawn": "Demande d'avance retirée.",
+    "alreadyDecided": "La fédération a déjà statué ; cette demande ne peut plus être retirée."
   },
   "truncated": "Seules les {n} lignes les plus récentes sont affichées : réduisez la période."
 }

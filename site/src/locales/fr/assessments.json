@@ -123,5 +123,26 @@
       "size": "La grille compte de 2 à 12 critères.",
       "total": "Les poids doivent totaliser 100."
     }
+  },
+  "comments": {
+    "title": "Commentaires",
+    "none": "Aucun commentaire pour l'instant.",
+    "label": "Ajouter un commentaire",
+    "contestLabel": "Expliquez ce que vous contestez",
+    "send": "Envoyer",
+    "sendContest": "Envoyer la contestation",
+    "switchToComment": "Simple commentaire à la place",
+    "switchToContest": "Contester cette note à la place",
+    "contestOpen": "Contestation ouverte",
+    "contestAnswered": "Contestation répondue",
+    "posted": "Envoyé.",
+    "kind": {
+      "contest": "Contestation"
+    },
+    "role": {
+      "admin": "Administrateur",
+      "federation": "Fédération",
+      "referee": "Vous"
+    }
   }
 }

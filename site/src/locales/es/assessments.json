@@ -123,5 +123,26 @@
       "size": "La tabla tiene de 2 a 12 criterios.",
       "total": "Los pesos deben sumar 100."
     }
+  },
+  "comments": {
+    "title": "Comentarios",
+    "none": "Aún no hay comentarios.",
+    "label": "Añadir un comentario",
+    "contestLabel": "Explique qué está impugnando",
+    "send": "Enviar",
+    "sendContest": "Enviar la impugnación",
+    "switchToComment": "Solo un comentario en su lugar",
+    "switchToContest": "Impugnar esta nota en su lugar",
+    "contestOpen": "Impugnación abierta",
+    "contestAnswered": "Impugnación respondida",
+    "posted": "Enviado.",
+    "kind": {
+      "contest": "Impugnación"
+    },
+    "role": {
+      "admin": "Administrador",
+      "federation": "Federación",
+      "referee": "Usted"
+    }
   }
 }

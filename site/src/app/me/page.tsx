@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { Banknote, Trophy } from "@/components/icons/glyphs";
+import Link from "next/link";
+import { Banknote, FileText, Trophy } from "@/components/icons/glyphs";
 import { Badge, Button, Card, CardHeader, EmptyState, type Tone } from "@/components/ui";
 import { TextField } from "@/components/admin/fields";
 import { PageHeading } from "@/components/layout/PageHeading";
@@ -11,6 +12,7 @@ import { MyFile } from "@/components/officials/MyFile";
 import { MyAssessments } from "@/components/assessments/MyAssessments";
 import { AwaitingCard, DesignationsCard } from "@/components/me/DesignationCards";
 import { AvailabilityCard } from "@/components/me/AvailabilityCard";
+import { EarningsCard } from "@/components/me/EarningsCard";
 import { api, ApiError, NetworkError } from "@/lib/api/client";
 import { listMyDesignations } from "@/lib/api/me";
 import { useResource } from "@/lib/admin/hooks";
@@ -124,6 +126,8 @@ export default function MySpacePage() {
 
       <AvailabilityCard officialId={officialId} />
 
+      <EarningsCard />
+
       <Card>
         <CardHeader title={t("me.payments")} icon={Banknote} tint="gold" />
         {payments.length === 0 ? (
@@ -143,6 +147,15 @@ export default function MySpacePage() {
                   </div>
                   <div className="flex items-center gap-2">
                     <Badge tone={statusTone[p.status]}>{t(`me.status.${p.status}` as TKey)}</Badge>
+                    {p.status === "paid" && (
+                      <Link
+                        href={`/me/slip?payment=${encodeURIComponent(p.id)}`}
+                        className="inline-flex min-h-10 items-center gap-1.5 rounded-md border border-field bg-ink-2 px-3 py-1.5 text-xs font-medium text-chalk-dim hover:bg-ink-3 hover:text-chalk sm:min-h-0"
+                      >
+                        <FileText size={14} />
+                        {t("selfService.slip.open")}
+                      </Link>
+                    )}
                     {(p.status === "due" || p.status === "validated") && (
                       <Button
                         type="button"

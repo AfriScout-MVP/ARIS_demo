@@ -34,5 +34,24 @@
     "you": "Sie",
     "published": "Veröffentlicht am {date}",
     "round": "Spieltag {round}"
+  },
+  "earnings": {
+    "title": "Meine Einkünfte",
+    "bySeason": "Nach Saison",
+    "byYear": "Nach Jahr",
+    "none": "Noch nichts erfasst.",
+    "lines": "{n} Zeilen",
+    "paid": "Bezahlt",
+    "pending": "Ausstehend",
+    "contested": "Angefochten"
+  },
+  "slip": {
+    "open": "Zahlungsbeleg",
+    "title": "Zahlungsbeleg",
+    "notFound": "Keine Zahlung gefunden.",
+    "back": "Zurück zu meinen Zahlungen",
+    "official": "Schiedsrichter",
+    "competition": "Wettbewerb",
+    "payer": "Bezahlt von"
   }
 }

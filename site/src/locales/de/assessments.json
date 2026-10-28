@@ -123,5 +123,26 @@
       "size": "Das Raster hat 2 bis 12 Kriterien.",
       "total": "Die Gewichte müssen zusammen 100 ergeben."
     }
+  },
+  "comments": {
+    "title": "Kommentare",
+    "none": "Noch keine Kommentare.",
+    "label": "Kommentar hinzufügen",
+    "contestLabel": "Erklären Sie, was Sie anfechten",
+    "send": "Senden",
+    "sendContest": "Einspruch senden",
+    "switchToComment": "Stattdessen nur ein Kommentar",
+    "switchToContest": "Stattdessen diese Bewertung anfechten",
+    "contestOpen": "Einspruch offen",
+    "contestAnswered": "Einspruch beantwortet",
+    "posted": "Gesendet.",
+    "kind": {
+      "contest": "Einspruch"
+    },
+    "role": {
+      "admin": "Admin",
+      "federation": "Verband",
+      "referee": "Sie"
+    }
   }
 }

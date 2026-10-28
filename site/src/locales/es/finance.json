@@ -279,7 +279,10 @@
     "request": "Solicitar un anticipo",
     "hint": "Para un desplazamiento que hay que pagar antes de un partido. La federación decide y se le avisa aquí.",
     "empty": "Ninguna solicitud de anticipo.",
-    "submit": "Enviar la solicitud"
+    "submit": "Enviar la solicitud",
+    "withdraw": "Retirar",
+    "withdrawn": "Solicitud de anticipo retirada.",
+    "alreadyDecided": "La federación ya ha decidido; esta solicitud ya no se puede retirar."
   },
   "truncated": "Solo se muestran las {n} líneas más recientes: acorte el periodo."
 }
