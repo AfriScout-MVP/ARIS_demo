@@ -1,25 +1,15 @@
 "use client";
 
 import { Suspense } from "react";
-import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { ArrowLeft, FileText, IdCard, MapPin, Users } from "@/components/icons/glyphs";
+import { FileText, IdCard, MapPin, Users } from "@/components/icons/glyphs";
 import { Badge, Card, CardHeader, EmptyState } from "@/components/ui";
 import { PageHeading } from "@/components/layout/PageHeading";
 import { getConvocation } from "@/lib/api/me";
 import { useResource } from "@/lib/admin/hooks";
 import { useFormatters, useT, type TKey } from "@/lib/i18n/LocaleProvider";
+import { BackLink } from "@/components/me/BackLink";
 import { CardError, CardSkeleton } from "@/components/me/CardStates";
-
-function BackLink() {
-  const t = useT();
-  return (
-    <Link href="/me" className="inline-flex items-center gap-1.5 text-xs text-chalk-faint hover:text-chalk">
-      <ArrowLeft size={14} />
-      {t("selfService.convocation.back")}
-    </Link>
-  );
-}
 
 function ConvocationFromQuery() {
   const t = useT();
@@ -112,7 +102,7 @@ export default function ConvocationPage() {
   return (
     <>
       <PageHeading titleKey="selfService.convocation.title" />
-      <BackLink />
+      <BackLink labelKey="selfService.convocation.back" />
       <div className="mt-3">
         <Suspense fallback={null}>
           <ConvocationFromQuery />

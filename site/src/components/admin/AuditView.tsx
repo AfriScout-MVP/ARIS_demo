@@ -9,7 +9,7 @@ import { describeError } from "@/lib/admin/errors";
 import { filterAudit, newestFirst, prettyJson } from "@/lib/admin/filters";
 import { formatDateTime } from "@/lib/admin/format";
 import { useActor, useResource } from "@/lib/admin/hooks";
-import { translateOr } from "@/lib/admin/labels";
+import { actionLabel, translateOr } from "@/lib/admin/labels";
 import { useDataset } from "@/lib/dataset/DatasetProvider";
 import { downloadText } from "@/lib/finance/download";
 import { toCsv } from "@/lib/finance/rules";
@@ -153,7 +153,7 @@ export function AuditView() {
                       <span className="mt-0.5 text-chalk-faint lg:hidden">{expanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}</span>
                       <span className="min-w-0 flex-1 space-y-1 lg:contents">
                         <span className="block text-xs text-chalk-dim tnum">{stamp(e)}</span>
-                        <span className="block truncate font-mono text-sm font-semibold text-chalk">{e.action}</span>
+                        <span className="block truncate text-sm font-semibold text-chalk">{actionLabel(t, e.action)}</span>
                         <span className="block min-w-0 truncate text-sm text-chalk-dim">
                           {entityLabel(e)}
                           {e.entityId && <span className="ms-1 font-mono text-xs text-chalk-faint">{e.entityId}</span>}
@@ -168,6 +168,10 @@ export function AuditView() {
                     {expanded && (
                       <div id={`audit-${e.id}`} className="space-y-3 border-t border-line bg-ink-1 px-4 py-4">
                         <dl className="flex flex-wrap gap-x-6 gap-y-1 text-xs">
+                          <div className="flex gap-1.5">
+                            <dt className="text-chalk-faint">{t("admin.audit.action")}</dt>
+                            <dd className="font-mono text-chalk-dim">{e.action}</dd>
+                          </div>
                           {e.countryCode && (
                             <div className="flex gap-1.5">
                               <dt className="text-chalk-faint">{t("admin.audit.country")}</dt>

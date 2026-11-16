@@ -4,6 +4,9 @@ import { MarkTile } from "@/components/icons/Mark";
 import { LocaleToggle } from "@/components/layout/LocaleToggle";
 import { useT } from "@/lib/i18n/LocaleProvider";
 
+/** The card every signed-out form sits in (the sign-in form wears it too, unless the landing panel overrides it). */
+export const authCard = "panel space-y-4 rounded-[14px] border border-line bg-ink-1 p-5";
+
 /** The signed-out frame shared by the recovery screens and the forced password change: the mark, the language, a card. */
 export function AuthFrame({ children }: { children: React.ReactNode }) {
   const t = useT();
@@ -20,7 +23,7 @@ export function AuthFrame({ children }: { children: React.ReactNode }) {
           </div>
           <LocaleToggle />
         </div>
-        <div className="panel space-y-4 rounded-[14px] border border-line bg-ink-1 p-5">{children}</div>
+        <div className={authCard}>{children}</div>
       </div>
     </main>
   );

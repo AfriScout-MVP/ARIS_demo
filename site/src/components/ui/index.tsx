@@ -213,24 +213,23 @@ type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   size?: "sm" | "md";
 };
 
-export function Button({ variant = "secondary", size = "md", className, ...props }: ButtonProps) {
-  return (
-    <button
-      {...props}
-      className={cn(
-        "inline-flex items-center justify-center gap-1.5 font-medium transition-all disabled:cursor-not-allowed disabled:opacity-40",
-        size === "sm" ? "min-h-10 rounded-md px-3 py-1.5 text-xs sm:min-h-0" : "min-h-10 rounded-lg px-4 py-2.5 text-sm",
-        // One solid accent, with a red-tinted shadow underneath. White on
-        // red-600 is 4.8:1, enough for 14px text.
-        variant === "primary" &&
-          "bg-red-600 text-white shadow-[0_6px_14px_-8px_rgba(185,28,28,0.8)] hover:bg-red-700",
-        variant === "secondary" && "border border-field bg-ink-2 text-chalk-dim hover:bg-ink-3 hover:text-chalk",
-        variant === "ghost" && "text-chalk-dim hover:bg-red-500/10 hover:text-chalk",
-        variant === "danger" && "border border-red-500/30 bg-red-500/10 text-card-red hover:bg-red-500/20",
-        className,
-      )}
-    />
+/** The button's look as a class string, so a link (`<Link>`) can wear it too. */
+export function buttonClass({ variant = "secondary", size = "md", className }: Pick<ButtonProps, "variant" | "size" | "className"> = {}) {
+  return cn(
+    "inline-flex items-center justify-center gap-1.5 font-medium transition-all disabled:cursor-not-allowed disabled:opacity-40",
+    size === "sm" ? "min-h-10 rounded-md px-3 py-1.5 text-xs sm:min-h-0" : "min-h-10 rounded-lg px-4 py-2.5 text-sm",
+    // One solid accent, with a red-tinted shadow underneath. White on
+    // red-600 is 4.8:1, enough for 14px text.
+    variant === "primary" && "bg-red-600 text-white shadow-[0_6px_14px_-8px_rgba(185,28,28,0.8)] hover:bg-red-700",
+    variant === "secondary" && "border border-field bg-ink-2 text-chalk-dim hover:bg-ink-3 hover:text-chalk",
+    variant === "ghost" && "text-chalk-dim hover:bg-red-500/10 hover:text-chalk",
+    variant === "danger" && "border border-red-500/30 bg-red-500/10 text-card-red hover:bg-red-500/20",
+    className,
   );
+}
+
+export function Button({ variant = "secondary", size = "md", className, ...props }: ButtonProps) {
+  return <button {...props} className={buttonClass({ variant, size, className })} />;
 }
 
 export function Segmented<T extends string>({
@@ -245,7 +244,7 @@ export function Segmented<T extends string>({
   className?: string;
 }) {
   return (
-    <div className={cn("inline-flex rounded-lg border border-field bg-ink-2 p-0.5", className)} role="tablist">
+    <div className={cn("scroll-x inline-flex max-w-full rounded-lg border border-field bg-ink-2 p-0.5", className)} role="tablist">
       {options.map((option) => (
         <button
           key={option.value}
@@ -253,7 +252,7 @@ export function Segmented<T extends string>({
           aria-selected={value === option.value}
           onClick={() => onChange(option.value)}
           className={cn(
-            "min-h-9 rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
+            "min-h-9 shrink-0 whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
             value === option.value ? "bg-red-600 text-white" : "text-chalk-faint hover:text-chalk",
           )}
         >

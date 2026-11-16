@@ -129,7 +129,7 @@ export default function RefereesPage() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder={t("referees.searchPlaceholder")}
-              className="w-full bg-transparent text-sm text-chalk outline-none placeholder:text-chalk-faint"
+              className="h-10 w-full bg-transparent text-sm text-chalk outline-none placeholder:text-chalk-faint"
             />
           </div>
 

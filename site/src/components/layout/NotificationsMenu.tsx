@@ -8,13 +8,14 @@ import { useLocale, useT } from "@/lib/i18n/LocaleProvider";
 import { pickLocalized } from "@/lib/i18n/localized";
 import { formatRelative } from "@/lib/i18n/relative";
 import { useDataset } from "@/lib/dataset/DatasetProvider";
+import { notificationsHref } from "@/lib/account/rules";
 import { Dot, type Tone } from "@/components/ui";
 
 export function NotificationsMenu() {
   const t = useT();
   const { locale } = useLocale();
   const [open, setOpen] = useState(false);
-  const { notifications: items, unread, markRead, markAllRead } = useDataset();
+  const { notifications: items, unread, markRead, markAllRead, user } = useDataset();
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -84,6 +85,13 @@ export function NotificationsMenu() {
               </Link>
             ))}
           </div>
+          <Link
+            href={notificationsHref(user?.role)}
+            onClick={() => setOpen(false)}
+            className="block border-t border-line px-3 py-2.5 text-center text-xs font-medium text-chalk-dim transition-colors hover:text-chalk"
+          >
+            {t("account.notifications.seeAll")}
+          </Link>
         </div>
       )}
     </div>

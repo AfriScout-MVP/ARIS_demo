@@ -102,7 +102,8 @@ export function LocaleToggle() {
     }
   }
 
-  const label = `${t("common.language")}: ${localeLabels[locale]}`;
+  // the accessible name must contain the visible text (the short code), WCAG 2.5.3
+  const label = `${localeCodes[locale]}, ${t("common.language")}: ${localeLabels[locale]}`;
 
   return (
     <div className="relative" ref={rootRef}>

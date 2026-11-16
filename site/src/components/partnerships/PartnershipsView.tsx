@@ -134,7 +134,7 @@ export function PartnershipsView() {
                 )}
               >
                 {s.label}
-                <span className={cn("tnum rounded-full px-1.5 text-xs", filter.stage === s.value ? "bg-white/20" : "bg-ink-3 text-chalk-faint")}>{s.count}</span>
+                <span className={cn("tnum rounded-full px-1.5 text-xs", filter.stage === s.value ? "bg-black/20" : "bg-ink-3 text-chalk-faint")}>{s.count}</span>
               </button>
             ))}
           </div>

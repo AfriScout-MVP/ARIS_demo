@@ -25,7 +25,7 @@ function RegistryCard({ file, onEdit }: { file: OfficialFile; onEdit: () => void
     [t("officials.fields.licenceNo"), file.licenceNo ?? none],
     [t("officials.fields.kind"), t(`officials.kinds.${file.kind}`)],
     [t("officials.fields.nationality"), file.nationality ?? none],
-    [t("officials.fields.birthDate"), file.birthDate ? fmt.date(file.birthDate) : none],
+    [t("officials.fields.birthDate"), (file.birthDate && fmt.fullDate(file.birthDate)) || none],
     [t("officials.fields.email"), file.email ?? none],
     [t("officials.fields.phone"), file.phone ?? none],
     [t("officials.fields.city"), [file.city, file.region].filter(Boolean).join(" · ") || none],

@@ -18,6 +18,12 @@ export function translateOr(t: (key: TKey) => string, key: string, fallback: str
   return text === key ? fallback : text;
 }
 
+/** Translation key of an audit action's label: `auth.login` -> `admin.audit.actionLabels.auth_login` (a key cannot hold dots). */
+export const auditActionKey = (action: string) => `admin.audit.actionLabels.${action.replace(/\./g, "_")}`;
+
+/** What an audit entry's action means to a person; the raw id when the action has no label yet. */
+export const actionLabel = (t: (key: TKey) => string, action: string) => translateOr(t, auditActionKey(action), action);
+
 /** A country's name in the visitor's language; English as the last resort. */
 export function countryLabel(
   c: { code: string; name?: string; nameFr?: string; nameEs?: string; nameDe?: string } | undefined,

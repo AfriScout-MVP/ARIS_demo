@@ -7,6 +7,7 @@ import { LocaleToggle } from "@/components/layout/LocaleToggle";
 import { Button } from "@/components/ui";
 import { useT } from "@/lib/i18n/LocaleProvider";
 import { useDataset } from "@/lib/dataset/DatasetProvider";
+import { ForgotPasswordForm } from "./RecoveryForms";
 
 /** The sign-in form on its own: the full-page screen below and the landing page's panel both use it. */
 export function LoginForm({ autoFocus = false, className }: { autoFocus?: boolean; className?: string }) {
@@ -18,6 +19,7 @@ export function LoginForm({ autoFocus = false, className }: { autoFocus?: boolea
   const [shown, setShown] = useState(false);
   const [busy, setBusy] = useState(false);
   const [problem, setProblem] = useState<"invalid" | "throttled" | "network" | null>(null);
+  const [view, setView] = useState<"signin" | "forgot">("signin");
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -31,6 +33,8 @@ export function LoginForm({ autoFocus = false, className }: { autoFocus?: boolea
       setBusy(false);
     }
   }
+
+  if (view === "forgot") return <ForgotPasswordForm className={className} onBack={() => setView("signin")} />;
 
   const field =
     "h-11 w-full rounded-[10px] border border-field bg-ink-2 px-3 text-sm text-chalk placeholder:text-chalk-faint focus:border-red-500/60 focus:outline-none";
@@ -100,6 +104,13 @@ export function LoginForm({ autoFocus = false, className }: { autoFocus?: boolea
       <Button type="submit" variant="primary" disabled={busy || !email || !password} className="w-full">
         {busy ? t("auth.submitting") : t("auth.submit")}
       </Button>
+      <button
+        type="button"
+        onClick={() => setView("forgot")}
+        className="block w-full text-center text-sm text-chalk-dim transition-colors hover:text-chalk"
+      >
+        {t("account.forgot.link")}
+      </button>
     </form>
   );
 }

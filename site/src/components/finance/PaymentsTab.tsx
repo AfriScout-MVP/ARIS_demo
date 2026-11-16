@@ -15,7 +15,7 @@ import {
 } from "@/components/icons/glyphs";
 import { Badge, Board, Button, Card, CardHeader, EmptyState, Td, Th } from "@/components/ui";
 import { TextField } from "@/components/admin/fields";
-import { ErrorState, ListSkeleton, ResultsLive } from "@/components/admin/states";
+import { ErrorState, ListSkeleton, ResultsLive, Skeleton } from "@/components/admin/states";
 import { SearchBox } from "@/components/admin/Toolbar";
 import { adjustPayment, generatePayments, listPayments, validatePayment, type CrewRole, type GenerateResult, type Payment } from "@/lib/api/finance";
 import { useResource } from "@/lib/admin/hooks";
@@ -216,7 +216,21 @@ export function PaymentsTab({ initialView, onOpenScales }: { initialView?: Payme
             ) : undefined
           }
         />
-        {list.loading ? null : gaps.length === 0 ? (
+        {list.loading ? (
+          // hold the height of the rows that follow, so the cards below do not jump when they arrive
+          <div aria-busy className="divide-y divide-line">
+            {Array.from({ length: 12 }, (_, i) => (
+              <div key={i} className="flex items-center gap-3 py-2.5">
+                <Skeleton className="h-4 w-16 shrink-0" />
+                <div className="min-w-0 flex-1 space-y-1.5">
+                  <Skeleton className="h-4 w-1/3 max-w-48" />
+                  <Skeleton className="h-3.5 w-1/2 max-w-72" />
+                </div>
+                <Skeleton className="h-8 w-24 shrink-0" />
+              </div>
+            ))}
+          </div>
+        ) : gaps.length === 0 ? (
           <p className="text-sm text-chalk-dim">{t("finance.ready.empty")}</p>
         ) : (
           <ul className="divide-y divide-line">
@@ -304,7 +318,7 @@ export function PaymentsTab({ initialView, onOpenScales }: { initialView?: Payme
                 )}
               >
                 {v === "open" || v === "all" ? t(`finance.views.${v}`) : t(paymentStatusKey(v))}
-                <span className={cn("tnum rounded-full px-1.5 text-xs", filter.view === v ? "bg-white/20" : "bg-ink-3 text-chalk-faint")}>{counts[v]}</span>
+                <span className={cn("tnum rounded-full px-1.5 text-xs", filter.view === v ? "bg-black/20" : "bg-ink-3 text-chalk-faint")}>{counts[v]}</span>
               </button>
             ))}
           </div>
@@ -358,7 +372,7 @@ export function PaymentsTab({ initialView, onOpenScales }: { initialView?: Payme
               <li key={p.id}>
                 <Card className="p-4 sm:p-4">
                   <div className="flex items-start gap-3">
-                    <input type="checkbox" className="mt-1 h-4 w-4 accent-red-600" checked={selected.has(p.id)} onChange={() => toggle(p.id)} aria-label={t("finance.bulk.selectRow", { name: p.officialName })} />
+                    <input type="checkbox" className="mt-1 h-6 w-6 accent-red-600 lg:h-4 lg:w-4" checked={selected.has(p.id)} onChange={() => toggle(p.id)} aria-label={t("finance.bulk.selectRow", { name: p.officialName })} />
                     <button type="button" onClick={() => setOpenId(p.id)} className="min-w-0 flex-1 text-start">
                       <span className="flex items-start justify-between gap-2">
                         <span className="min-w-0">
@@ -386,7 +400,7 @@ export function PaymentsTab({ initialView, onOpenScales }: { initialView?: Payme
                 <thead>
                   <tr className="border-b border-line">
                     <Th className="w-10">
-                      <input type="checkbox" className="h-4 w-4 accent-red-600" checked={allPicked} onChange={toggleAll} aria-label={t("finance.bulk.selectAll")} />
+                      <input type="checkbox" className="h-6 w-6 accent-red-600 lg:h-4 lg:w-4" checked={allPicked} onChange={toggleAll} aria-label={t("finance.bulk.selectAll")} />
                     </Th>
                     <Th>{t("finance.fields.date")}</Th>
                     <Th>{t("finance.fields.match")}</Th>
@@ -406,7 +420,7 @@ export function PaymentsTab({ initialView, onOpenScales }: { initialView?: Payme
                       <Td>
                         <input
                           type="checkbox"
-                          className="h-4 w-4 accent-red-600"
+                          className="h-6 w-6 accent-red-600 lg:h-4 lg:w-4"
                           checked={selected.has(p.id)}
                           onClick={(e) => e.stopPropagation()}
                           onChange={() => toggle(p.id)}

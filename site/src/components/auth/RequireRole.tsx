@@ -36,7 +36,7 @@ export function RequireRole({ roles, children }: { roles: AdminRole[]; children:
         <span className="inline-flex h-11 w-11 items-center justify-center rounded-lg bg-amber-500/15 text-amber">
           <ShieldAlert size={22} />
         </span>
-        <h2 className="text-lg font-semibold text-chalk">{t("admin.forbidden.title")}</h2>
+        <h1 className="text-lg font-semibold text-chalk">{t("admin.forbidden.title")}</h1>
         <p className="max-w-md text-sm leading-relaxed text-chalk-dim">{t("admin.forbidden.body")}</p>
         <Link
           href="/"

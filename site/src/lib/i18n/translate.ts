@@ -37,19 +37,19 @@ export function translate(locale: Locale, key: string, vars?: Vars): string {
 /** Locale-aware date and number formatting, used everywhere a date is shown. */
 export function makeFormatters(locale: Locale) {
   const tag = localeTags[locale];
+  /** "" for anything that is not a real date: a screen must never print "Invalid Date". */
+  const at = (iso: string, options: Intl.DateTimeFormatOptions, utc = false) => {
+    const d = new Date(`${iso}T12:00:00Z`);
+    return Number.isNaN(d.getTime()) ? "" : d.toLocaleDateString(tag, utc ? { ...options, timeZone: "UTC" } : options);
+  };
   return {
-    date: (iso: string) =>
-      new Date(`${iso}T12:00:00Z`).toLocaleDateString(tag, { day: "2-digit", month: "short" }),
-    longDate: (iso: string) =>
-      new Date(`${iso}T12:00:00Z`).toLocaleDateString(tag, {
-        weekday: "short",
-        day: "2-digit",
-        month: "long",
-      }),
+    date: (iso: string) => at(iso, { day: "2-digit", month: "short" }),
+    /** With the year: a birth date, a licence expiry. */
+    fullDate: (iso: string) => at(iso, { day: "numeric", month: "long", year: "numeric" }, true),
+    longDate: (iso: string) => at(iso, { weekday: "short", day: "2-digit", month: "long" }),
     /** Short month name of a "YYYY-MM" key, e.g. "mars". */
-    month: (ym: string) => new Date(`${ym}-01T12:00:00Z`).toLocaleDateString(tag, { month: "short", timeZone: "UTC" }),
-    weekday: (iso: string) =>
-      new Date(`${iso}T12:00:00Z`).toLocaleDateString(tag, { weekday: "short" }),
+    month: (ym: string) => at(`${ym}-01`, { month: "short" }, true),
+    weekday: (iso: string) => at(iso, { weekday: "short" }),
     number: (n: number) => n.toLocaleString(tag),
   };
 }

@@ -84,9 +84,10 @@ export function Sidebar({
 
       <aside
         className={cn(
-          "fixed bottom-0 left-0 top-0 z-50 flex w-64 -translate-x-full flex-col border-r border-line bg-ink-1 transition-transform duration-300",
-          mobileOpen && "translate-x-0",
-          desktopOpen ? "lg:translate-x-0" : "lg:-translate-x-full",
+          // closed = off-screen AND invisible: a drawer that is only translated away still takes Tab stops and screen-reader attention
+          "invisible fixed bottom-0 left-0 top-0 z-50 flex w-64 -translate-x-full flex-col border-r border-line bg-ink-1 transition-[transform,visibility] duration-300",
+          mobileOpen && "visible translate-x-0",
+          desktopOpen ? "lg:visible lg:translate-x-0" : "lg:invisible lg:-translate-x-full",
         )}
       >
         {/* Identity header */}

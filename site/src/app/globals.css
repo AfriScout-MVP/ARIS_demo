@@ -286,7 +286,9 @@ code,
   background: var(--line-strong);
 }
 
+/* Positioned so an absolutely placed child (an sr-only label in a table) is clipped with the scroller instead of widening the page. */
 .scroll-x {
+  position: relative;
   overflow-x: auto;
   scrollbar-width: thin;
   -webkit-overflow-scrolling: touch;
@@ -554,5 +556,31 @@ html.dark .text-accent {
   }
   .aris-loader .ld-ball {
     transform: none;
+  }
+}
+
+/*
+ * Touch targets (WCAG 2.2 SC 2.5.8, 24 px minimum) on phone and tablet widths.
+ * Links and buttons that stand alone in a table cell, list row, footer or card are ~20 px tall by default.
+ * `inline-block` lets min-height apply without changing how a link sits in a line of text.
+ */
+@layer base {
+  @media (max-width: 1023px) {
+    main a,
+    main button,
+    footer a,
+    footer button {
+      min-height: 1.5rem;
+    }
+    main a:not([class*="flex"], [class*="grid"], [class*="block"], [class*="sr-only"]),
+    footer a:not([class*="flex"], [class*="grid"], [class*="block"]) {
+      display: inline-block;
+    }
+    /* a 16 px checkbox is a 16 px target: the control grows on touch widths only */
+    main input[type="checkbox"],
+    main input[type="radio"] {
+      width: 1.5rem;
+      height: 1.5rem;
+    }
   }
 }

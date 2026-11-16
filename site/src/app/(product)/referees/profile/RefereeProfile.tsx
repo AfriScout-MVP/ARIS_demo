@@ -105,9 +105,15 @@ export function RefereeProfile({ id }: { id: string }) {
             </div>
             <p className="mt-1.5 flex items-center gap-1.5 text-xs text-chalk-faint">
               <MapPin size={12} />
-              <CountryFlag code={referee.countryCode} /> {countryName(referee.countryCode, locale)} · {referee.city} ·{" "}
-              {t("referees.ageYears", { n: referee.age })} · {referee.yearsActive}{" "}
-              {t("referees.yearsActive").toLowerCase()}
+              <CountryFlag code={referee.countryCode} />{" "}
+              {[
+                countryName(referee.countryCode, locale),
+                referee.city,
+                referee.age > 0 ? t("referees.ageYears", { n: referee.age }) : null,
+                `${referee.yearsActive} ${t("referees.yearsActive").toLowerCase()}`,
+              ]
+                .filter(Boolean)
+                .join(" · ")}
             </p>
             <p className="mt-3 max-w-2xl text-sm leading-relaxed text-chalk-dim">{pickLocalized(referee.bio, locale)}</p>
           </div>

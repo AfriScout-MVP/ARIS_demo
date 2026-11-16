@@ -31,6 +31,7 @@ import {
 import { Mark, MarkTile } from "@/components/icons/Mark";
 import { LoginForm } from "@/components/auth/LoginScreen";
 import { LocaleToggle } from "@/components/layout/LocaleToggle";
+import { actionLabel } from "@/lib/admin/labels";
 import { useLocale, useT } from "@/lib/i18n/LocaleProvider";
 import { useTheme } from "@/lib/theme/ThemeProvider";
 import { countryName, feedEntries, fetchPublicSummary, type PublicSummary } from "@/lib/landing/federations";
@@ -560,7 +561,7 @@ function Security({ summary }: { summary: PublicSummary | null }) {
                       <span className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-red-500/10 text-red-500">
                         <Scale size={13} />
                       </span>
-                      <span className="mono min-w-0 flex-1 truncate text-xs text-chalk">{e.action}</span>
+                      <span className="min-w-0 flex-1 truncate text-xs text-chalk">{actionLabel(t, e.action)}</span>
                       <span className="mono rounded-md bg-ink-4 px-1.5 py-0.5 text-[10px] text-chalk-dim">{e.who}</span>
                       <span className="mono text-[10px] text-chalk-faint">{e.at}</span>
                     </li>

@@ -153,7 +153,7 @@ export function DisciplineView() {
                 )}
               >
                 {viewLabel(v)}
-                <span className={cn("tnum rounded-full px-1.5 text-xs", active ? "bg-white/20" : "bg-ink-3 text-chalk-faint")}>{count}</span>
+                <span className={cn("tnum rounded-full px-1.5 text-xs", active ? "bg-black/20" : "bg-ink-3 text-chalk-faint")}>{count}</span>
               </button>
             );
           })}
@@ -191,7 +191,7 @@ export function DisciplineView() {
                         <tr key={i.id} className="cursor-pointer hover:bg-red-500/[0.03]" onClick={() => setModal({ kind: "incident", incident: i })}>
                           <Td className="tnum">{fmt.date(i.reportedAt.slice(0, 10))}</Td>
                           <Td>
-                            <button type="button" className="font-medium text-chalk hover:underline" onClick={(e) => (e.stopPropagation(), setModal({ kind: "incident", incident: i }))}>
+                            <button type="button" className="inline-flex min-h-10 items-center font-medium text-chalk hover:underline" onClick={(e) => (e.stopPropagation(), setModal({ kind: "incident", incident: i }))}>
                               {i.officialName}
                             </button>
                           </Td>
@@ -241,7 +241,7 @@ export function DisciplineView() {
                       <tr key={c.id} className="cursor-pointer hover:bg-red-500/[0.03]" onClick={() => setModal({ kind: "case", kase: c })}>
                         <Td className="tnum">{fmt.date(c.openedAt.slice(0, 10))}</Td>
                         <Td>
-                          <button type="button" className="font-medium text-chalk hover:underline" onClick={(e) => (e.stopPropagation(), setModal({ kind: "case", kase: c }))}>
+                          <button type="button" className="inline-flex min-h-10 items-center font-medium text-chalk hover:underline" onClick={(e) => (e.stopPropagation(), setModal({ kind: "case", kase: c }))}>
                             {c.officialName}
                           </button>
                         </Td>

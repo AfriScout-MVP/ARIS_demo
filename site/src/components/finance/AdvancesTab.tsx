@@ -69,7 +69,7 @@ export function AdvancesTab() {
               )}
             >
               {v === "all" ? t("finance.views.all") : t(advanceStatusKey(v))}
-              <span className={cn("tnum rounded-full px-1.5 text-xs", view === v ? "bg-white/20" : "bg-ink-3 text-chalk-faint")}>{count(v)}</span>
+              <span className={cn("tnum rounded-full px-1.5 text-xs", view === v ? "bg-black/20" : "bg-ink-3 text-chalk-faint")}>{count(v)}</span>
             </button>
           ))}
         </div>

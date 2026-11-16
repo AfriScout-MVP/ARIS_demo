@@ -1,26 +1,16 @@
 "use client";
 
 import { Suspense } from "react";
-import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { ArrowLeft, Banknote } from "@/components/icons/glyphs";
+import { Banknote } from "@/components/icons/glyphs";
 import { Card, CardHeader, EmptyState } from "@/components/ui";
 import { PageHeading } from "@/components/layout/PageHeading";
 import { getPaymentSlip } from "@/lib/api/me";
 import { MONEY } from "@/lib/finance/rules";
 import { useResource } from "@/lib/admin/hooks";
 import { useFormatters, useT, type TKey } from "@/lib/i18n/LocaleProvider";
+import { BackLink } from "@/components/me/BackLink";
 import { CardError, CardSkeleton } from "@/components/me/CardStates";
-
-function BackLink() {
-  const t = useT();
-  return (
-    <Link href="/me" className="inline-flex items-center gap-1.5 text-xs text-chalk-faint hover:text-chalk">
-      <ArrowLeft size={14} />
-      {t("selfService.slip.back")}
-    </Link>
-  );
-}
 
 function SlipFromQuery() {
   const t = useT();
@@ -84,7 +74,7 @@ export default function SlipPage() {
   return (
     <>
       <PageHeading titleKey="selfService.slip.title" />
-      <BackLink />
+      <BackLink labelKey="selfService.slip.back" />
       <div className="mt-3">
         <Suspense fallback={null}>
           <SlipFromQuery />
