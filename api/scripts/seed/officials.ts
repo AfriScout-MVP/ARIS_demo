@@ -12,17 +12,9 @@ import {
   referees,
   weekDates,
 } from "../../seed/demo-data";
+import { birth } from "./birth";
 import { addDays, type SeedContext } from "./context";
 import { jsonCell, type Cell } from "./sql";
-
-const hash = (s: string) => [...s].reduce((h, ch) => Math.imul(h ^ ch.charCodeAt(0), 16777619) >>> 0, 2166136261);
-
-const birth = (anchor: string, id: string, age: number) => {
-  const h = hash(id);
-  const month = 1 + (h % 12);
-  const day = 1 + ((h >> 4) % 28);
-  return `${Number(anchor.slice(0, 4)) - age}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-};
 
 export function writeOfficials(ctx: SeedContext) {
   const { sql, media, sh, anchor } = ctx;

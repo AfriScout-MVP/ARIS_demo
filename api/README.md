@@ -25,15 +25,16 @@ triggers), so a bug in a route cannot write an illegal state.
 The designation engine is shared: `site/src/lib/core/` is bundled into the Worker and used by the browser, so the screen
 and the server can never disagree about who is eligible (`scripts/parity-check.ts` proves it on 740 slots).
 
-## Roles — exactly three
+## Roles — exactly four
 
 | Role | Sees / does |
 | --- | --- |
 | `admin` | Super-admin: every country, accounts, federations, the supported-countries list, continental (`CAF`) competitions, scheduled jobs |
 | `federation` | One national federation = one supported country. Its officials, fixtures, matches, payments, cases, courses, fee scales and audit trail — never another country's (those answer 404) |
 | `referee` | Only their own space: designations, availability, payments, documents, notifications. An official designated `OBS` on a fixture files that match's assessment from this account |
+| `tagger` | One country, like a federation seat, but only the match-tagging screen: logs referee decisions on that country's matches (migration `0017`) |
 
-A country is *supported* when `countries.active = 1` (20 today, seeded); each has at most one federation, and federation
+A country is *supported* when `countries.active = 1` (3 in the demo seed: Senegal, Côte d'Ivoire, Mali); each has at most one federation, and federation
 seats are users tied to it. Suspending a federation or deactivating a country closes its seats at once.
 The full HTTP contract is in [`docs/api-contract.md`](docs/api-contract.md), the rules for contributors in
 [`docs/backend-rules.md`](docs/backend-rules.md).
@@ -45,7 +46,7 @@ The full HTTP contract is in [`docs/api-contract.md`](docs/api-contract.md), the
 * Images live in **R2** (`aris-media`) with one `media_assets` row each; the API streams them at `GET /api/v1/media/:id`
   (flags, crests and logos are public and cacheable; photos and documents need a session with access).
 * User-facing stored copy is `Localized` JSON (`fr`, `en`, `es`, `de`); French is the default.
-* `seed/demo-data.ts` is the **demo dataset** (20 countries, 144 officials, 153 fixtures, 99 teams, 57 stadiums). The seed
+* `seed/demo-data.ts` is the **demo dataset** (3 countries, 156 officials, 240 fixtures, 51 teams, 27 stadiums). The seed
   generator (`scripts/seed/`) turns it into `.seed/seed.sql` and `.seed/media.json` (+ SVG files) for D1 and R2.
 
 ## Local development

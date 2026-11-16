@@ -50,6 +50,7 @@ export const json = <T>(raw: string | null | undefined, fallback: T): T => {
 export function ageOf(birthDate: string | null, now = new Date()) {
   if (!birthDate) return 0;
   const b = new Date(`${birthDate}T12:00:00Z`);
+  if (Number.isNaN(b.getTime())) return 0; // an unreadable date is "unknown", never NaN (which JSON turns into null)
   let age = now.getUTCFullYear() - b.getUTCFullYear();
   const beforeBirthday = now.getUTCMonth() < b.getUTCMonth() || (now.getUTCMonth() === b.getUTCMonth() && now.getUTCDate() < b.getUTCDate());
   if (beforeBirthday) age -= 1;
