@@ -1,7 +1,8 @@
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import type { AppEnv, Env } from "./env";
-import { ApiError } from "./lib/http";
+import { taggerMayReach } from "./lib/access";
+import { ApiError, forbidden } from "./lib/http";
 import { authenticate, currentUser } from "./middleware/auth";
 import { sameOriginOnly, securityHeaders } from "./middleware/security";
 import { auth } from "./routes/auth";
@@ -55,6 +56,12 @@ v1.route("/public", publicApi);
 // first, through /auth/change-password, which stays reachable above).
 v1.use("*", async (c, next) => {
   if (currentUser(c).mustChangePassword) throw new ApiError(403, "password_change_required", "Change your password to continue");
+  await next();
+});
+// A tagger reaches only the tagging routes: refuse the rest here, before any router can answer.
+v1.use("*", async (c, next) => {
+  const path = new URL(c.req.url).pathname.replace(/^\/api\/v1/, "");
+  if (currentUser(c).role === "tagger" && !taggerMayReach(c.req.method, path)) throw forbidden();
   await next();
 });
 v1.route("/users", users);

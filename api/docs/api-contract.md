@@ -369,6 +369,8 @@ Tables `partnerships` and `partnership_events`. Apply with `npm run db:migrate:r
   endpoints below — not officials, payments, discipline, training, teams, competitions, federations, the outbox, the
   audit log or `/snapshot`. `POST /users` (admin only) and `PATCH /users/:id` accept `role: "tagger"` with a
   `federationId`; `422 federation_required` without one.
+  This is enforced centrally (`taggerMayReach` in `src/lib/access.ts`, applied to every `/api/v1` route after sign-in):
+  any other request from a tagger answers `403 forbidden`, even on lists a federation seat may read.
 * **The referee-decision taxonomy** (`api/src/domain/eventTaxonomy.ts`) replaces the old flat 6-value `type` enum
   with `event_type → sub_event → outcome` (7 event types: `penalty_decision`, `card`, `offside_call`,
   `foul_advantage`, `var_review`, `misconduct_dissent`, `goal_validation`). It is backend-owned; the frontend fetches

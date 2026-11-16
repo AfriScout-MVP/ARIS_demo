@@ -14,6 +14,20 @@ export const isStaff = (u: AuthUser) => u.role === "admin" || u.role === "federa
 /** A tagger: country-scoped like a federation seat, but reaches only the tagging routes (see taggingCountryFilter below). */
 export const isTagger = (u: AuthUser) => u.role === "tagger";
 
+/**
+ * The only requests a tagger may make once signed in (docs/api-contract.md, "tagger role"): read matches and the
+ * event taxonomy, log or remove a decision, and keep their own notification inbox. Path is relative to `/api/v1`.
+ * Everything else is closed to them here, in one place, instead of relying on every route to remember to exclude them.
+ */
+export function taggerMayReach(method: string, path: string): boolean {
+  const p = path.replace(/\/+$/, "");
+  if (/^\/notifications(\/[^/]+(\/read)?)?$/.test(p)) return true;
+  if (method === "GET") return p === "/matches" || /^\/matches\/[^/]+$/.test(p);
+  if (method === "POST") return /^\/matches\/[^/]+\/decisions$/.test(p);
+  if (method === "DELETE") return /^\/matches\/[^/]+\/decisions\/[^/]+$/.test(p);
+  return false;
+}
+
 /** Continental ties (country code `CAF`) belong to the platform administrator, not to any one federation. */
 export const CONTINENTAL = "CAF";
 
